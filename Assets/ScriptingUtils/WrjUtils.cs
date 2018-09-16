@@ -641,4 +641,33 @@ public class WrjUtils : MonoBehaviour
             return wrjInstance;
         }
     }
+    [System.Serializable]
+    public class WeightedGameObjects
+    {
+        public weightedElement[] elements;
+
+        public GameObject GetRandom()
+        {
+            List<int> allOptions = new List<int>();
+
+            for (int i = 0; i < elements.Length; i++)
+            {
+                for (int j = 0; j < elements[i].weight; j++)
+                {
+                    allOptions.Add(i);
+                }
+            }
+            int weightedRandomIndex = allOptions[UnityEngine.Random.Range(0, allOptions.Count)];
+
+            return elements[weightedRandomIndex].element;
+        }
+    }
+    [System.Serializable]
+    public struct weightedElement
+    {
+        public GameObject element;
+        public int weight;
+    }
 }
+
+

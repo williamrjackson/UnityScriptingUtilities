@@ -229,6 +229,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   duration: 3
   testStop: 0
+  testRandom: 0
   audioA: {fileID: 547401116}
   audioB: {fileID: 1615344698}
   linTransform: {fileID: 1225264483}
@@ -297,6 +298,16 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   curveScaleTransform: {fileID: 184652818}
+  randomBumpObjects:
+    elements:
+    - element: {fileID: 1225264479}
+      weight: 10
+    - element: {fileID: 454019823}
+      weight: 5
+    - element: {fileID: 2093702347}
+      weight: 2
+    - element: {fileID: 770854308}
+      weight: 1
 --- !u!81 &180486416
 AudioListener:
   m_ObjectHideFlags: 0
