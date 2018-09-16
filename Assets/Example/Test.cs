@@ -5,7 +5,6 @@ using UnityEngine;
 public class Test : MonoBehaviour {
     public float duration = 3;
     public bool testStop;
-    public bool testRandom;
     public AudioSource audioA;
     public AudioSource audioB;
     public Transform linTransform;
@@ -18,19 +17,13 @@ public class Test : MonoBehaviour {
     public WrjUtils.WeightedGameObjects randomBumpObjects;
     void Start ()
     {
-        if (testRandom)
-        {
             StartCoroutine(testRandomLoop());
-        }
-        else
-        {
-
 
             WrjUtils.MapToCurve.Linear.Move(linTransform, linTransform.localPosition + Vector3.up * 5 + Vector3.right * -1.5f, duration, pingPong: 10);
             WrjUtils.MapToCurve.EaseIn.Move(easeInTransform, easeInTransform.localPosition + Vector3.up * 5 + Vector3.right * .5f, duration, mirrorCurve: false, pingPong: 10);
             WrjUtils.MapToCurve.EaseIn.Move(easeOutTransform, easeOutTransform.localPosition + Vector3.up * 5 + Vector3.right * -.5f, duration, mirrorCurve: true, pingPong: 10);
 
-            WrjUtils.MapToCurve.Ease.MatchSibling(easeTransform, targetTransform, 5);
+            WrjUtils.MapToCurve.Ease.MatchSibling(easeTransform, targetTransform, duration, pingPong: 10);
 
             WrjUtils.MapToCurve.Linear.Rotate(linTransform, Vector3.up * 135, duration, pingPong: 10);
             WrjUtils.MapToCurve.EaseIn.Rotate(easeInTransform, Vector3.up * -360, duration, pingPong: 10);
@@ -51,7 +44,6 @@ public class Test : MonoBehaviour {
             if (testStop)
                 StartCoroutine(StopTest());
 
-        }
     }
 
     private void FadeOut()
@@ -65,11 +57,11 @@ public class Test : MonoBehaviour {
         {
             Transform affected = randomBumpObjects.GetRandom().transform;
             float initY = affected.localScale.y;
-            WrjUtils.MapToCurve.Ease.Scale(affected, Vector3.zero, .5f);
-            yield return new WaitForSecondsRealtime(.5f);
-            Vector3 targetScale = new Vector3(1, initY + .5f, 1);
-            WrjUtils.MapToCurve.Ease.Scale(affected, targetScale, .5f);
-            yield return new WaitForSecondsRealtime(.5f);
+            WrjUtils.MapToCurve.Ease.Scale(affected, Vector3.zero, .1f);
+            yield return new WaitForSecondsRealtime(.1f);
+            Vector3 targetScale = new Vector3(1, initY + .1f, 1);
+            WrjUtils.MapToCurve.Ease.Scale(affected, targetScale, .1f);
+            yield return new WaitForSecondsRealtime(.2f);
         }
     }
     IEnumerator StopTest()
