@@ -17,7 +17,8 @@ public class Test : MonoBehaviour {
     public WrjUtils.WeightedGameObjects randomBumpObjects;
     void Start ()
     {
-            StartCoroutine(testRandomLoop());
+            if (randomBumpObjects.objectList.Length > 0)
+                StartCoroutine(testRandomLoop());
 
             WrjUtils.MapToCurve.Linear.Move(linTransform, linTransform.localPosition + Vector3.up * 5 + Vector3.right * -1.5f, duration, pingPong: 10);
             WrjUtils.MapToCurve.EaseIn.Move(easeInTransform, easeInTransform.localPosition + Vector3.up * 5 + Vector3.right * .5f, duration, mirrorCurve: false, pingPong: 10);
@@ -57,10 +58,10 @@ public class Test : MonoBehaviour {
         {
             Transform affected = randomBumpObjects.GetRandom().transform;
             float initY = affected.localScale.y;
-            WrjUtils.MapToCurve.Ease.Scale(affected, Vector3.zero, .1f);
-            yield return new WaitForSecondsRealtime(.1f);
             Vector3 targetScale = new Vector3(1, initY + .1f, 1);
             WrjUtils.MapToCurve.Ease.Scale(affected, targetScale, .1f);
+            WrjUtils.MapToCurve.Ease.Move(affected, affected.localPosition + affected.up * .05f, .1f);
+            WrjUtils.MapToCurve.Ease.ChangeColor(affected, Color.Lerp(Color.white, Color.black, (initY - 1) / 10), .1f);
             yield return new WaitForSecondsRealtime(.2f);
         }
     }
