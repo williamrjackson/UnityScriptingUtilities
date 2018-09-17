@@ -66,16 +66,38 @@ public class WrjUtils : MonoBehaviour
         result[0] = origin;
         for (int i = 1; i < pointCount - 1; i++)
         {
-            float percent = (1f / pointCount) * i;
-            Vector3 point1 = Vector3.Lerp(origin, influence, percent);
-            Vector3 point2 = Vector3.Lerp(influence, destination, percent);
-            result[i] = Vector3.Lerp(point1, point2, percent);
+            float t = (1f / pointCount) * i;
+            Vector3 point1 = Vector3.Lerp(origin, influence, t);
+            Vector3 point2 = Vector3.Lerp(influence, destination, t);
+            result[i] = Vector3.Lerp(point1, point2, t);
         }
         result[pointCount - 1] = destination;
 
         return result;
     }
+    public static Vector3[] CubicBezierCurve(Vector3 origin, Vector3 influenceA, Vector3 influenceB, Vector3 destination, int pointCount)
+    {
+        Vector3[] result = new Vector3[pointCount];
+        if (pointCount == 0)
+            return result;
 
+        result[0] = origin;
+        for (int i = 1; i < pointCount - 1; i++)
+        {
+            float t = (1f / pointCount) * i;
+            Vector3 point1 = Vector3.Lerp(origin, influenceA, t);
+            Vector3 point2 = Vector3.Lerp(influenceA, influenceB, t);
+            Vector3 point3 = Vector3.Lerp(influenceB, destination, t);
+
+            Vector3 point4 = Vector3.Lerp(point1, point2, t);
+            Vector3 point5 = Vector3.Lerp(point2, point3, t);
+
+            result[i] = Vector3.Lerp(point4, point5, t);
+        }
+        result[pointCount - 1] = destination;
+
+        return result;
+    }
     // Coroutine list management stuff...
     public static WrjUtils wrjInstance;
     private List<MapToCurve.MappedCurvePlayer> m_CoroList;
