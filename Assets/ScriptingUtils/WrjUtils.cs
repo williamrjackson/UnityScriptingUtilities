@@ -243,6 +243,8 @@ public class WrjUtils : MonoBehaviour
             Vector3 from = tform.localScale;
             while (elapsedTime < duration)
             {
+                if (tform == null)
+                    StopAllOnTransform(tform);
                 yield return new WaitForEndOfFrame();
                 float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                 elapsedTime += desiredDelta;
@@ -290,6 +292,8 @@ public class WrjUtils : MonoBehaviour
             Vector3 from = tform.localPosition;
             while (elapsedTime < duration)
             {
+                if (tform == null)
+                    StopAllOnTransform(tform);
                 yield return new WaitForEndOfFrame();
                 float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                 elapsedTime += desiredDelta;
@@ -337,6 +341,8 @@ public class WrjUtils : MonoBehaviour
             Vector3 from = tform.position;
             while (elapsedTime < duration)
             {
+                if (tform == null)
+                    StopAllOnTransform(tform);
                 yield return new WaitForEndOfFrame();
                 float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                 elapsedTime += desiredDelta;
@@ -370,19 +376,67 @@ public class WrjUtils : MonoBehaviour
             }
         }
 
-        public MappedCurvePlayer Rotate(Transform tform, Vector3 eulerTo, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
+        public MappedCurvePlayer Rotate(Transform tform, Vector3 eulerTo, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool shortestPath = true, OnDone onDone = null)
         {
             MappedCurvePlayer mcp = new MappedCurvePlayer();
             mcp.transform = tform;
-            mcp.coroutine = UtilObject().StartCoroutine(RotateLocal(mcp, tform, tform.localEulerAngles, eulerTo, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+            if (shortestPath)
+            {
+                mcp.coroutine = UtilObject().StartCoroutine(RotateLocalQuaternionLerp(mcp, tform, tform.rotation, Quaternion.Euler(eulerTo.x, eulerTo.y, eulerTo.z), duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+            }
+            else
+            {
+                mcp.coroutine = UtilObject().StartCoroutine(RotateLocal(mcp, tform, tform.localEulerAngles, eulerTo, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+            }
             UtilObject().AddToCoroList(mcp);
             return mcp;
+        }
+        private IEnumerator RotateLocalQuaternionLerp(MappedCurvePlayer mcp, Transform tform, Quaternion from, Quaternion to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+        {
+            float elapsedTime = 0;
+            while (elapsedTime < duration)
+            {
+                if (tform == null)
+                    StopAllOnTransform(tform);
+                yield return new WaitForEndOfFrame();
+                float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
+                elapsedTime += desiredDelta;
+                float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
+                if (mirrorCurve)
+                {
+                    tform.localRotation = MirrorLerp(from, to, scrubPos);
+                }
+                else
+                {
+                    tform.localRotation = Lerp(from, to, scrubPos);
+                }
+            }
+            tform.localRotation = to;
+            if (pingPong > 0)
+            {
+                mcp.coroutine = UtilObject().StartCoroutine(RotateLocalQuaternionLerp(mcp, tform, to, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone));
+            }
+            else if (mirrorPingPong > 0)
+            {
+                mcp.coroutine = UtilObject().StartCoroutine(RotateLocalQuaternionLerp(mcp, tform, to, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone));
+            }
+            else if (loop > 0)
+            {
+                tform.localRotation = from;
+                mcp.coroutine = UtilObject().StartCoroutine(RotateLocalQuaternionLerp(mcp, tform, from, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone));
+            }
+            else
+            {
+                CoroutineComplete(onDone);
+            }
         }
         private IEnumerator RotateLocal(MappedCurvePlayer mcp, Transform tform, Vector3 from, Vector3 to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
         {
             float elapsedTime = 0;
             while (elapsedTime < duration)
             {
+                if (tform == null)
+                    StopAllOnTransform(tform);
                 yield return new WaitForEndOfFrame();
                 float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                 elapsedTime += desiredDelta;
@@ -415,7 +469,6 @@ public class WrjUtils : MonoBehaviour
                 CoroutineComplete(onDone);
             }
         }
-
         public MappedCurvePlayer FadeAudio(AudioSource audioSource, float targetVol, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
         {
             MappedCurvePlayer mcp = new MappedCurvePlayer();
@@ -537,6 +590,8 @@ public class WrjUtils : MonoBehaviour
             mat.renderQueue = 3000;
             while (elapsedTime < duration)
             {
+                if (tform == null)
+                    StopAllOnTransform(tform);
                 yield return new WaitForEndOfFrame();
                 Color color = mat.GetColor("_Color");
                 float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
@@ -591,6 +646,8 @@ public class WrjUtils : MonoBehaviour
             Color from = mat.GetColor("_Color");
             while (elapsedTime < duration)
             {
+                if (tform == null)
+                    StopAllOnTransform(tform);
                 yield return new WaitForEndOfFrame();
                 Color color = mat.GetColor("_Color");
                 float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
@@ -634,7 +691,7 @@ public class WrjUtils : MonoBehaviour
             MappedCurvePlayer[] mcpList = new MappedCurvePlayer[3];
             mcpList[0] = Scale(tform, toTform.localScale, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone);
             mcpList[1] = Move(tform, toTform.localPosition, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, null);
-            mcpList[2] = Rotate(tform, toTform.localEulerAngles, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, null);
+            mcpList[2] = Rotate(tform, toTform.localEulerAngles, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, true, null);
             return mcpList;
         }
 

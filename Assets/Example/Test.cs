@@ -26,9 +26,9 @@ public class Test : MonoBehaviour {
 
             WrjUtils.MapToCurve.Ease.MatchSibling(easeTransform, targetTransform, duration, pingPong: 10);
 
-            WrjUtils.MapToCurve.Linear.Rotate(linTransform, Vector3.up * 135, duration, pingPong: 10);
-            WrjUtils.MapToCurve.EaseIn.Rotate(easeInTransform, Vector3.up * -360, duration, pingPong: 10);
-            WrjUtils.MapToCurve.EaseIn.Rotate(easeOutTransform, Vector3.forward * -720, duration, mirrorPingPong: 10);
+            WrjUtils.MapToCurve.Linear.Rotate(linTransform, Vector3.up * 135, duration, shortestPath: false, pingPong: 10);
+            WrjUtils.MapToCurve.EaseIn.Rotate(easeInTransform, Vector3.up * -360, duration, shortestPath: false, pingPong: 10);
+            WrjUtils.MapToCurve.EaseIn.Rotate(easeOutTransform, Vector3.forward * -720, duration, shortestPath: false, mirrorPingPong: 10);
 
             WrjUtils.MapToCurve.Ease.ChangeColor(linTransform, Color.black, duration, pingPong: 10);
             WrjUtils.MapToCurve.Ease.ChangeColor(easeInTransform, Color.red, duration, pingPong: 10);
