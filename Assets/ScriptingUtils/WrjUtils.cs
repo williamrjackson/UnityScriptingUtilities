@@ -243,9 +243,12 @@ public class WrjUtils : MonoBehaviour
             Vector3 from = tform.localScale;
             while (elapsedTime < duration)
             {
-                if (tform == null)
-                    StopAllOnTransform(tform);
                 yield return new WaitForEndOfFrame();
+                if (tform == null)
+                {
+                    StopAllOnTransform(tform);
+                    yield return null;
+                }
                 float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                 elapsedTime += desiredDelta;
                 float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
@@ -292,9 +295,12 @@ public class WrjUtils : MonoBehaviour
             Vector3 from = tform.localPosition;
             while (elapsedTime < duration)
             {
-                if (tform == null)
-                    StopAllOnTransform(tform);
                 yield return new WaitForEndOfFrame();
+                if (tform == null)
+                {
+                    StopAllOnTransform(tform);
+                    yield return null;
+                }
                 float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                 elapsedTime += desiredDelta;
                 float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
@@ -341,9 +347,12 @@ public class WrjUtils : MonoBehaviour
             Vector3 from = tform.position;
             while (elapsedTime < duration)
             {
-                if (tform == null)
-                    StopAllOnTransform(tform);
                 yield return new WaitForEndOfFrame();
+                if (tform == null)
+                {
+                    StopAllOnTransform(tform);
+                    yield return null;
+                }
                 float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                 elapsedTime += desiredDelta;
                 float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
@@ -396,9 +405,12 @@ public class WrjUtils : MonoBehaviour
             float elapsedTime = 0;
             while (elapsedTime < duration)
             {
-                if (tform == null)
-                    StopAllOnTransform(tform);
                 yield return new WaitForEndOfFrame();
+                if (tform == null)
+                {
+                    StopAllOnTransform(tform);
+                    yield return null;
+                }
                 float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                 elapsedTime += desiredDelta;
                 float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
@@ -435,9 +447,12 @@ public class WrjUtils : MonoBehaviour
             float elapsedTime = 0;
             while (elapsedTime < duration)
             {
-                if (tform == null)
-                    StopAllOnTransform(tform);
                 yield return new WaitForEndOfFrame();
+                if (tform == null)
+                {
+                    StopAllOnTransform(tform);
+                    yield return null;
+                }
                 float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                 elapsedTime += desiredDelta;
                 float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
@@ -484,6 +499,10 @@ public class WrjUtils : MonoBehaviour
             while (elapsedTime < duration)
             {
                 yield return new WaitForEndOfFrame();
+                if (audioSource == null)
+                {
+                    yield return null;
+                }
                 float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                 elapsedTime += desiredDelta;
                 float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
@@ -532,6 +551,10 @@ public class WrjUtils : MonoBehaviour
             while (elapsedTime < duration)
             {
                 yield return new WaitForEndOfFrame();
+                if (to == null || from == null)
+                {
+                    yield return null;
+                }
                 float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                 elapsedTime += desiredDelta;
                 float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
@@ -590,9 +613,12 @@ public class WrjUtils : MonoBehaviour
             mat.renderQueue = 3000;
             while (elapsedTime < duration)
             {
-                if (tform == null)
-                    StopAllOnTransform(tform);
                 yield return new WaitForEndOfFrame();
+                if (tform == null)
+                {
+                    StopAllOnTransform(tform);
+                    yield return null;
+                }
                 Color color = mat.GetColor("_Color");
                 float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                 elapsedTime += desiredDelta;
@@ -646,9 +672,12 @@ public class WrjUtils : MonoBehaviour
             Color from = mat.GetColor("_Color");
             while (elapsedTime < duration)
             {
-                if (tform == null)
-                    StopAllOnTransform(tform);
                 yield return new WaitForEndOfFrame();
+                if (tform == null)
+                {
+                    StopAllOnTransform(tform);
+                    yield return null;
+                }
                 Color color = mat.GetColor("_Color");
                 float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                 elapsedTime += desiredDelta;
