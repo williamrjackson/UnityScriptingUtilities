@@ -6,3 +6,7 @@ Includes a bunch of functions to manipulate transforms/audio over time. For exam
 `WrjUtils.MapToCurve.Ease.MatchSibling(transform, targetTransform, 5);`
 
 ![Tweening](TweenExample.gif)    
+
+Also includes a Random GameObject class and a Bezier Path Editor with a tween to follow paths.
+
+![Path](PathFollowerExample.gif)    
