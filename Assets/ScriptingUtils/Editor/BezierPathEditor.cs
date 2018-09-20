@@ -8,36 +8,39 @@ namespace Wrj
     [CustomEditor(typeof(BezierPath))]
     public class BezierPathEditor : Editor
     {
-        BezierPath connectedObjects;
+        BezierPath connectedObject;
         void OnEnable()
         {
-            connectedObjects = target as BezierPath;
-            if (connectedObjects.gameObject.GetComponentsInChildren<CurveGuide>().Length == 0)
+            connectedObject = target as BezierPath;
+            if (connectedObject == null)
+                return;
+
+            if (connectedObject.gameObject.GetComponentsInChildren<CurveGuide>().Length == 0)
             {
                 GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 go.transform.localScale = Vector3.one * .1f;
-                go.transform.position = connectedObjects.transform.position;
-                go.transform.parent = connectedObjects.transform;
+                go.transform.position = connectedObject.transform.position;
+                go.transform.parent = connectedObject.transform;
                 Wrj.Utils.EnsureComponent<CurveGuide>(go);
                 go.name = "Node_0";
                 go = Instantiate(go);
-                go.transform.position = connectedObjects.transform.position + Vector3.right;
-                go.transform.parent = connectedObjects.transform;
+                go.transform.position = connectedObject.transform.position + Vector3.right;
+                go.transform.parent = connectedObject.transform;
                 go.name = "Node_1";
                 go = Instantiate(go);
-                go.transform.position = connectedObjects.transform.position + Vector3.right + Vector3.down;
-                go.transform.parent = connectedObjects.transform;
+                go.transform.position = connectedObject.transform.position + Vector3.right + Vector3.down;
+                go.transform.parent = connectedObject.transform;
                 go.name = "Node_2";
             }
             SceneView.onSceneGUIDelegate = CurveEditor;
         }
         void CurveEditor(SceneView scene)
         {
-            if (connectedObjects == null)
+            if (connectedObject == null)
                 return;
 
-            CurveGuide[] points = connectedObjects.gameObject.GetComponentsInChildren<CurveGuide>();
-            Vector3[] curve = connectedObjects.CurvePath(connectedObjects.res);
+            CurveGuide[] points = connectedObject.gameObject.GetComponentsInChildren<CurveGuide>();
+            Vector3[] curve = connectedObject.CurvePath(connectedObject.res);
             if (curve != null)
             {
 

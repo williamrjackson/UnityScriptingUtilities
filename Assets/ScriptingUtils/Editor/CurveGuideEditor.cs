@@ -18,7 +18,7 @@ namespace Wrj
                 GameObject obj = Instantiate(connectedObjects.gameObject);
                 obj.transform.parent = connectedObjects.transform.parent;
                 obj.transform.position = connectedObjects.transform.position;
-                int index = (connectedObjects.transform.GetSiblingIndex() == 0) ? 0 : connectedObjects.transform.GetSiblingIndex();
+                int index = (connectedObjects.transform.GetSiblingIndex() == 0) ? 0 : connectedObjects.transform.GetSiblingIndex() + 1;
                 obj.transform.SetSiblingIndex(index);
                 foreach (CurveGuide cg in connectedObjects.transform.parent.GetComponentsInChildren<CurveGuide>())
                 {
