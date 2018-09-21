@@ -13,7 +13,7 @@ namespace Wrj
         private CurveGuide[] points;
         private Vector3[] curve;
 
-        void Start()
+        void Awake()
         {
             RefeshCurve();
             foreach (MeshRenderer rend in GetComponentsInChildren<MeshRenderer>())
@@ -43,13 +43,8 @@ namespace Wrj
             }
 
             // Get total length of curve
-            float length = 0f;
-            for (int i = 0; i < curve.Length - 1; i++)
-            {
-                length += Vector3.Distance(curve[i + 1], curve[i]);
-            }
 
-            float posOnLine = length * t;
+            float posOnLine = GetCurveLength() * t;
 
             for (int i = 0; i < curve.Length - 1; i++)
             {
@@ -70,6 +65,18 @@ namespace Wrj
             return curve[curve.Length - 1];
         }
 
+        public float GetCurveLength()
+        {
+            if (curve.Length < 1)
+                return 0;
+
+            float length = 0f;
+            for (int i = 0; i < curve.Length - 1; i++)
+            {
+                length += Vector3.Distance(curve[i + 1], curve[i]);
+            }
+            return length;
+        }
 
         public Vector3[] CurvePath(int resolution = 15)
         {
