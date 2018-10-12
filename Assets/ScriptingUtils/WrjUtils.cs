@@ -132,7 +132,7 @@ namespace Wrj
         {
             foreach (MapToCurve.MappedCurvePlayer mcp in m_CoroList)
             {
-                if (mcp.transform == t)
+                if (mcp.transform == t && mcp.coroutine != null)
                 {
                     StopCoroutine(mcp.coroutine);
                 }
@@ -254,7 +254,7 @@ namespace Wrj
                     if (tform == null)
                     {
                         StopAllOnTransform(tform);
-                        yield return null;
+                        yield break;
                     }
                     float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                     elapsedTime += desiredDelta;
@@ -306,7 +306,7 @@ namespace Wrj
                     if (tform == null)
                     {
                         StopAllOnTransform(tform);
-                        yield return null;
+                        yield break;
                     }
                     float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                     elapsedTime += desiredDelta;
@@ -358,7 +358,7 @@ namespace Wrj
                     if (tform == null)
                     {
                         StopAllOnTransform(tform);
-                        yield return null;
+                        yield break;
                     }
                     float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                     elapsedTime += desiredDelta;
@@ -409,7 +409,7 @@ namespace Wrj
                     if (tform == null)
                     {
                         StopAllOnTransform(tform);
-                        yield return null;
+                        yield break;
                     }
                     float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                     elapsedTime += desiredDelta;
@@ -467,7 +467,7 @@ namespace Wrj
                     if (tform == null)
                     {
                         StopAllOnTransform(tform);
-                        yield return null;
+                        yield break;
                     }
                     float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                     elapsedTime += desiredDelta;
@@ -509,7 +509,7 @@ namespace Wrj
                     if (tform == null)
                     {
                         StopAllOnTransform(tform);
-                        yield return null;
+                        yield break;
                     }
                     float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                     elapsedTime += desiredDelta;
@@ -559,7 +559,7 @@ namespace Wrj
                     yield return new WaitForEndOfFrame();
                     if (audioSource == null)
                     {
-                        yield return null;
+                        yield break;
                     }
                     float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                     elapsedTime += desiredDelta;
@@ -611,7 +611,7 @@ namespace Wrj
                     yield return new WaitForEndOfFrame();
                     if (to == null || from == null)
                     {
-                        yield return null;
+                        yield break;
                     }
                     float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
                     elapsedTime += desiredDelta;
@@ -675,7 +675,7 @@ namespace Wrj
                     if (tform == null)
                     {
                         StopAllOnTransform(tform);
-                        yield return null;
+                        yield break;
                     }
                     Color color = mat.GetColor("_Color");
                     float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
@@ -734,7 +734,7 @@ namespace Wrj
                     if (tform == null)
                     {
                         StopAllOnTransform(tform);
-                        yield return null;
+                        yield break;
                     }
                     Color color = mat.GetColor("_Color");
                     float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
