@@ -24,6 +24,7 @@ namespace Wrj
             b = temp;
         }
 
+        // Set the layer of a transform and all of its children by name.
         public static void SetLayerRecursive(GameObject go, string layer)
         {
             if (go == null)
@@ -39,6 +40,7 @@ namespace Wrj
             }
         }
 
+        // Ensure an angle in degrees is within 0 - 360.
         public static float GetPositiveAngle(float angle)
         {
             while (angle <= 0)
@@ -51,13 +53,14 @@ namespace Wrj
         {
             return new Vector3(GetPositiveAngle(angles.x), GetPositiveAngle(angles.y), GetPositiveAngle(angles.z));
         }
+
         // Linear remap; Simplified interface, rather than solving the Lerp/InverseLerp puzzle every time.
         public static float Remap(float value, float sourceMin, float sourceMax, float destMin, float destMax)
         {
             return Mathf.Lerp(destMin, destMax, Mathf.InverseLerp(sourceMin, sourceMax, value));
         }
 
-        // Build a curve by tracing points on lines
+        // Get an array of points representing a quadrartic bezier curve.
         // https://upload.wikimedia.org/wikipedia/commons/3/3d/B%C3%A9zier_2_big.gif
         public static Vector3[] QuadraticBezierCurve(Vector3 origin, Vector3 influence, Vector3 destination, int pointCount, bool throughInfluence = false)
         {
@@ -82,6 +85,8 @@ namespace Wrj
 
             return result;
         }
+
+        // Get an array of points representing a cubic bezier curve.
         public static Vector3[] CubicBezierCurve(Vector3 origin, Vector3 influenceA, Vector3 influenceB, Vector3 destination, int pointCount)
         {
             Vector3[] result = new Vector3[pointCount];
@@ -105,6 +110,19 @@ namespace Wrj
 
             return result;
         }
+
+        // Get a feet in Unity unitys / meters
+        public static float FromFeet(float feet)
+        {
+            return feet * 0.3048f;
+        }
+
+        // Get a inches in Unity unitys / meters
+        public static float FromInches(float inches)
+        {
+            return inches * 0.0254f;
+        }
+
         // Coroutine list management stuff...
         public static Utils wrjInstance;
         private List<MapToCurve.MappedCurvePlayer> m_CoroList;
