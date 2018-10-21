@@ -11,7 +11,6 @@ Includes a bunch of functions to manipulate transforms/audio over time. For exam
 
 #### Manipulation Functions
 ```
-Lerp & MirrorLerp - Returns a point on a curve
 Scale
 Move (local space)
 MoveWorld (world space)
@@ -22,7 +21,6 @@ CrossfadeAudio (smoothly transitions between two audio sources)
 FadeAlpha
 ChangeColor
 MatchSibling
-
 ```
 ![Tweening](TweenExample.gif)    
 
@@ -32,9 +30,9 @@ Also includes a _Weighted Random_ GameObject class (demonstrated on the right in
 Each GameObject in an array gets an int representing its weight. Higher weights are more likely for selection When `WeightedGameObjects.GetRandom()` is called.
 
 ## Utility Functions
-- `EnsureComponent\<T>(GameObject)`
+- `EnsureComponent<T>(GameObject)`
   - Returns a component of Type T by finding the one on the game object, or by adding one if not found.
-- `Switcheroo\<T>(ref T a, ref T b)`
+- `Switcheroo<T>(ref T a, ref T b)`
   - Swap items
 - `SetLayerRecursive(GameObject, DesiredLayerName)`
   - Set the layer of a transform and all of its children by name.
