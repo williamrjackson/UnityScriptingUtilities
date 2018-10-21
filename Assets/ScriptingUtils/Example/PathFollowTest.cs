@@ -9,7 +9,7 @@ public class PathFollowTest : MonoBehaviour {
     private int pathIndex = 0;
 	// Use this for initialization
 	void Start () {
-        RunPath();
+        StartCoroutine(RunPathDelayed(1f));
 	}
     void RunPath()
     {
@@ -23,5 +23,11 @@ public class PathFollowTest : MonoBehaviour {
             Wrj.Utils.MapToCurve.Ease.MoveAlongPath(transform, paths[pathIndex], speed * paths[pathIndex].GetCurveLength(), onDone: RunPath);
             pathIndex++;
         }
+    }
+
+    IEnumerator RunPathDelayed(float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+        RunPath();
     }
 }
