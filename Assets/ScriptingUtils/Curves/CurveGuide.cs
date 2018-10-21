@@ -29,12 +29,15 @@ namespace Wrj
 
         public void Duplicate(CurveGuide toDupe)
         {
+            Undo.SetCurrentGroupName("Duplicate Curve Node");
             GameObject dupe = Instantiate(toDupe.gameObject);
-            Undo.RegisterCreatedObjectUndo(dupe, "Duplicate Curve Node");
+            Undo.RegisterCreatedObjectUndo(dupe, "");
             dupe.transform.parent = toDupe.transform.parent;
             dupe.transform.position = toDupe.transform.position;
             int index = (toDupe.transform.GetSiblingIndex() == 0) ? 0 : toDupe.transform.GetSiblingIndex() + 1;
             dupe.transform.SetSiblingIndex(index);
+            Undo.RegisterFullObjectHierarchyUndo(dupe.transform.parent.gameObject, "");
+            Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
             Selection.activeGameObject = dupe;
             GetOwnerPath().RefreshChildIndexes();
         }
