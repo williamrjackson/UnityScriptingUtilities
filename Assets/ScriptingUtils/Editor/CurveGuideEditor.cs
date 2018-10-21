@@ -2,29 +2,33 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System;
 
 namespace Wrj
 {
     [CustomEditor(typeof(CurveGuide))]
     public class CurveGuideEditor : Editor {
-
         public override void OnInspectorGUI()
         {
             CurveGuide connectedObjects = target as CurveGuide;
             if (connectedObjects == null)
                 return;
-            if (GUILayout.Button("Duplicate Node", GUILayout.Width(255)))
+            if (GUILayout.Button("Duplicate Node (D)", GUILayout.Width(255)))
             {
-                GameObject obj = Instantiate(connectedObjects.gameObject);
-                obj.transform.parent = connectedObjects.transform.parent;
-                obj.transform.position = connectedObjects.transform.position;
-                int index = (connectedObjects.transform.GetSiblingIndex() == 0) ? 0 : connectedObjects.transform.GetSiblingIndex() + 1;
-                obj.transform.SetSiblingIndex(index);
-                foreach (CurveGuide cg in connectedObjects.transform.parent.GetComponentsInChildren<CurveGuide>())
-                {
-                    cg.name = "Node_" + cg.transform.GetSiblingIndex();
-                }
-                Selection.activeGameObject = obj;
+                connectedObjects.Duplicate(connectedObjects);
+            }
+        }
+        void OnSceneGUI()
+        {
+            Event e = Event.current;
+            if (e.type == EventType.KeyDown && e.keyCode == KeyCode.D)
+            {
+                CurveGuide connectedObjects = target as CurveGuide;
+                if (connectedObjects == null)
+                    return;
+
+                connectedObjects.Duplicate(connectedObjects);
+                Debug.Log("Dupe");
             }
         }
     }

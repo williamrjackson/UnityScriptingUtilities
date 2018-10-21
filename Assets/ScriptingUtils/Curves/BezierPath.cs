@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 namespace Wrj
@@ -21,6 +22,7 @@ namespace Wrj
                 rend.enabled = false;
             }
         }
+
         void Update()
         {
             if (slider != null)
@@ -106,6 +108,13 @@ namespace Wrj
                 finalPointIndex++;
             }
             return finalPoints;
+        }
+        public void RefreshChildIndexes()
+        {
+            foreach (CurveGuide cg in transform.GetComponentsInChildren<CurveGuide>())
+            {
+                cg.name = "Node_" + cg.transform.GetSiblingIndex();
+            }
         }
     }
 }

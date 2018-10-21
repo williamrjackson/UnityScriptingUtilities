@@ -2,13 +2,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System;
 
 namespace Wrj
 {
     [CustomEditor(typeof(BezierPath))]
+    [InitializeOnLoad]
     public class BezierPathEditor : Editor
     {
         BezierPath connectedObject;
+
+        static BezierPathEditor()
+        {
+            Undo.undoRedoPerformed += UndoRedoPerformed;
+        }
+
+        private static void UndoRedoPerformed()
+        {
+            foreach ( BezierPath path in FindObjectsOfType<BezierPath>())
+            {
+                path.RefreshChildIndexes();
+            }
+        }
+
         void OnEnable()
         {
             connectedObject = target as BezierPath;
