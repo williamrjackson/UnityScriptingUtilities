@@ -1,5 +1,5 @@
-# UnityScriptingUtilities
-![PathTrail](Smile.gif)   
+# Unity Scripting Utilities
+![PathTrail](Smile.gif)
 Stuff I use a lot, and a simple AnimationCurve-based tweening interface. 
 
 
@@ -25,13 +25,13 @@ MatchSibling
 ![Tweening](TweenExample.gif)    
 
 ## WeightedGameObjects
-Also includes a _Weighted Random_ GameObject class (demonstrated on the right in the gif above).
+Also includes a Weighted Random GameObject class (demonstrated on the right in the gif above).
 
 Each GameObject in an array gets an int representing its weight. Higher weights are more likely for selection When `WeightedGameObjects.GetRandom()` is called.
 
 ## Utility Functions
 - `EnsureComponent<T>(GameObject)`
-  - Returns a component of Type T by finding the one on the game object, or by adding one if not found.
+  - Returns a component instance by finding the one on the game object, or by adding one if not found.
 - `Switcheroo<T>(ref T a, ref T b)`
   - Swap items
 - `SetLayerRecursive(GameObject, DesiredLayerName)`
@@ -45,8 +45,8 @@ Each GameObject in an array gets an int representing its weight. Higher weights 
 - `CubicBezierCurve(origin, influenceA, influnceB, destination, pointCount)`
   - Get an array of points representing a cubic bezier curve. 
 - `FromFeet(feet)`
-  - Convert feet into Unity Units. Becasue I'm a dumb American that can only visualise space in US standard Units.
-- `FromInches(feet)`
+  - Convert feet into Unity Units. Becasue I'm a silly American that can only visualise space in US standard units.
+- `FromInches(inches)`
   - Convert inches into Unity Units.    
 
 ## Bezier Path Editor 
