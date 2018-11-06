@@ -1,5 +1,5 @@
 # Unity Scripting Utilities
-![PathTrail](Smile.gif)
+![PathTrail](Smile.gif)    
 Stuff I use a lot, and a simple AnimationCurve-based tweening interface. 
 
 
@@ -41,11 +41,11 @@ Each GameObject in an array gets an int representing its weight. Higher weights 
 - `Remap(value, sourceMin, sourceMax, destMin, destMax)`
   - Linear remaps a value from a source range to a desired range
 - `QuadraticBezierCurve(origin, influence, destination, pointCount)`
-  - Get an array of points representing a quadrartic bezier curve. 
+  - Get an array of points representing a quadratic bezier curve. 
 - `CubicBezierCurve(origin, influenceA, influnceB, destination, pointCount)`
   - Get an array of points representing a cubic bezier curve. 
 - `FromFeet(feet)`
-  - Convert feet into Unity Units. Becasue I'm a silly American that can only visualise space in US standard units.
+  - Convert feet into Unity Units. Because I'm a silly American that can only visualise space in US standard units.
 - `FromInches(inches)`
   - Convert inches into Unity Units.    
 
