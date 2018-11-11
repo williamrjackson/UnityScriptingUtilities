@@ -1,6 +1,7 @@
 # Unity Scripting Utilities
 ![PathTrail](Smile.gif)    
 Stuff I use a lot, and a simple AnimationCurve-based tweening interface.   
+
 Add to project using:  
 `git submodule add https://github.com/williamrjackson/UnityScriptingUtilities.git Assets\ScriptingUtils`
 
