@@ -10,8 +10,11 @@ Add to project using:
 Provides values as plotted on an Animation Curve. Used a lot like Mathf.Lerp, except not linear. 
 
 Includes a bunch of functions to manipulate transforms/audio over time. For example, the following will scale, move and rotate a transfrom into a position over 5 seconds. The target position is defined by a sibling transfrom.
-`Wrj.Utils.MapToCurve.Ease.MatchSibling(transform, targetTransform, 5);`
-
+```C#
+   Wrj.Utils.MapToCurve.Ease.MatchSibling(transform, targetTransform, 5);
+//                       ^        ^          ^            ^           ^
+//                     curve   function   affected   destination   duration
+```
 #### Manipulation Functions
 ```
 Scale
@@ -24,6 +27,18 @@ CrossfadeAudio (smoothly transitions between two audio sources)
 FadeAlpha
 ChangeColor
 MatchSibling
+```
+#### Common Modifiers
+```
+tForm          - Transform to affect
+to             - Target destination/rotation/volume/etc.
+duration       - Length of time in seconds for the manipulation to complete. Applies to a single loop/pingPong iteration
+mirrorCurve    - Swap the in/out curve shapes. Get EaseOut by combining the EaseIn curve  with this flag
+loop           - Repeat the manipulation this many times
+pingPong       - Repeat the manipulation forward, then backward, this many times
+mirrorPingPong - PingPong, but invert the curve when pefroming tha backward manipulations
+useTimeScale   - Set this to false to ignore time scaling
+onDone         - Specify a function to call when the operation completes
 ```
 ![Tweening](TweenExample.gif)    
 
