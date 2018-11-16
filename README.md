@@ -2,7 +2,7 @@
 ![PathTrail](Smile.gif)    
 Stuff I use a lot, and a simple AnimationCurve-based tweening interface.   
 
-Add to project using:  
+Add to projects using:  
 `git submodule add https://github.com/williamrjackson/UnityScriptingUtilities.git Assets\ScriptingUtils`
 
 
@@ -28,15 +28,17 @@ FadeAlpha
 ChangeColor
 MatchSibling
 ```
-#### Common Modifiers
+#### Arguments & Common Modifiers
 ```
 tForm          - Transform to affect
 to             - Target destination/rotation/volume/etc.
-duration       - Length of time in seconds for the manipulation to complete. Applies to a single loop/pingPong iteration
-mirrorCurve    - Swap the in/out curve shapes. Get EaseOut by combining the EaseIn curve  with this flag
+duration       - Length of time in seconds for the manipulation to complete. 
+                 Applies to a single loop/pingPong iteration
+mirrorCurve    - Swap the in/out curve shapes. 
+                 Get EaseOut by combining the EaseIn curve  with this flag
 loop           - Repeat the manipulation this many times
 pingPong       - Repeat the manipulation forward, then backward, this many times
-mirrorPingPong - PingPong, but invert the curve when pefroming tha backward manipulations
+mirrorPingPong - pingPong, but inverts the curve when pefroming tha backward manipulations
 useTimeScale   - Set this to false to ignore time scaling
 onDone         - Specify a function to call when the operation completes
 ```
