@@ -46,7 +46,7 @@ shortestPath   - In the case of manipulations that include rotation, this will c
 onDone         - Specify a function to call when the operation completes
 ```
 ![Tweening](TweenExample.gif)    
-## Test Bed Example
+#### Test Bed Example
 ```C#
 // Black Cube
 Wrj.Utils.MapToCurve.Linear.Move(linTransform, linTransform.localPosition + Vector3.up * 5 + Vector3.right * -1.5f, duration, pingPong: 10);
