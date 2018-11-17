@@ -43,7 +43,7 @@ public class Test : MonoBehaviour {
         Wrj.Utils.MapToCurve myCurve = new Wrj.Utils.MapToCurve(scaleCurve);
         myCurve.Scale(curveScaleTransform, curveScaleTransform.localScale * .5f, duration * .5f, pingPong: 9, onDone: FadeOut);
 
-        Wrj.Utils.AffectGORecursively(recursiveTestGO, SetLayer);
+        Wrj.Utils.AffectGORecursively(recursiveTestGO, SetLayer, true);
 
         if (testStop)
             StartCoroutine(StopTest());
@@ -52,6 +52,7 @@ public class Test : MonoBehaviour {
 
     private void SetLayer(GameObject go)
     {
+        print("here");
         go.layer = LayerMask.NameToLayer("TransparentFX");
     }
 

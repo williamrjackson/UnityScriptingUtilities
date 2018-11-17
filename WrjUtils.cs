@@ -26,18 +26,19 @@ namespace Wrj
 
         // Call a function for a game object and all of its children.
         public delegate void GameObjectAffector(GameObject gObject);
-        public static void AffectGORecursively(GameObject go, GameObjectAffector goa)
+        public static void AffectGORecursively(GameObject go, GameObjectAffector goa, bool skipParent = false)
         {
             if (go == null)
             {
                 return;
             }
 
-            goa(go);
+            if (!skipParent)
+                goa(go);
 
             foreach (Transform t in go.transform)
             {
-                AffectGORecursively(t.gameObject, goa);
+                AffectGORecursively(t.gameObject, goa, false);
             }
         }
 

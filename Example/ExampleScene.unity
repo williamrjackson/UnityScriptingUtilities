@@ -468,7 +468,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   curveScaleTransform: {fileID: 184652818}
-  recursiveTestGO: {fileID: 0}
+  recursiveTestGO: {fileID: 898579105}
   randomBumpObjects:
     objectList:
     - element: {fileID: 272368244}
