@@ -14,37 +14,45 @@ public class Test : MonoBehaviour {
     public Transform targetTransform;
     public AnimationCurve scaleCurve;
     public Transform curveScaleTransform;
+    public GameObject recursiveTestGO;
     public Wrj.WeightedGameObjects randomBumpObjects;
     void Start ()
     {
-            if (randomBumpObjects.objectList.Length > 0)
-                StartCoroutine(testRandomLoop());
+        if (randomBumpObjects.objectList.Length > 0)
+            StartCoroutine(testRandomLoop());
 
-            Wrj.Utils.MapToCurve.Linear.Move(linTransform, linTransform.localPosition + Vector3.up * 5 + Vector3.right * -1.5f, duration, pingPong: 10);
-            Wrj.Utils.MapToCurve.EaseIn.Move(easeInTransform, easeInTransform.localPosition + Vector3.up * 5 + Vector3.right * .5f, duration, mirrorCurve: false, pingPong: 10);
-            Wrj.Utils.MapToCurve.EaseIn.Move(easeOutTransform, easeOutTransform.localPosition + Vector3.up * 5 + Vector3.right * -.5f, duration, mirrorCurve: true, pingPong: 10);
+        Wrj.Utils.MapToCurve.Linear.Move(linTransform, linTransform.localPosition + Vector3.up * 5 + Vector3.right * -1.5f, duration, pingPong: 10);
+        Wrj.Utils.MapToCurve.EaseIn.Move(easeInTransform, easeInTransform.localPosition + Vector3.up * 5 + Vector3.right * .5f, duration, mirrorCurve: false, pingPong: 10);
+        Wrj.Utils.MapToCurve.EaseIn.Move(easeOutTransform, easeOutTransform.localPosition + Vector3.up * 5 + Vector3.right * -.5f, duration, mirrorCurve: true, pingPong: 10);
 
-            Wrj.Utils.MapToCurve.Ease.MatchSibling(easeTransform, targetTransform, duration, pingPong: 10);
+        Wrj.Utils.MapToCurve.Ease.MatchSibling(easeTransform, targetTransform, duration, pingPong: 10);
 
-            Wrj.Utils.MapToCurve.Linear.Rotate(linTransform, Vector3.up * 135, duration, shortestPath: false, pingPong: 10);
-            Wrj.Utils.MapToCurve.EaseIn.Rotate(easeInTransform, Vector3.up * -360, duration, shortestPath: false, pingPong: 10);
-            Wrj.Utils.MapToCurve.EaseIn.Rotate(easeOutTransform, Vector3.forward * -720, duration, shortestPath: false, mirrorPingPong: 10);
+        Wrj.Utils.MapToCurve.Linear.Rotate(linTransform, Vector3.up * 135, duration, shortestPath: false, pingPong: 10);
+        Wrj.Utils.MapToCurve.EaseIn.Rotate(easeInTransform, Vector3.up * -360, duration, shortestPath: false, pingPong: 10);
+        Wrj.Utils.MapToCurve.EaseIn.Rotate(easeOutTransform, Vector3.forward * -720, duration, shortestPath: false, mirrorPingPong: 10);
 
-            Wrj.Utils.MapToCurve.Ease.ChangeColor(linTransform, Color.black, duration, pingPong: 10);
-            Wrj.Utils.MapToCurve.Ease.ChangeColor(easeInTransform, Color.red, duration, pingPong: 10);
-            Wrj.Utils.MapToCurve.Ease.ChangeColor(easeOutTransform, Color.blue, duration, pingPong: 10);
-            Wrj.Utils.MapToCurve.Ease.ChangeColor(easeTransform, Color.magenta, duration, pingPong: 10);
+        Wrj.Utils.MapToCurve.Ease.ChangeColor(linTransform, Color.black, duration, pingPong: 10);
+        Wrj.Utils.MapToCurve.Ease.ChangeColor(easeInTransform, Color.red, duration, pingPong: 10);
+        Wrj.Utils.MapToCurve.Ease.ChangeColor(easeOutTransform, Color.blue, duration, pingPong: 10);
+        Wrj.Utils.MapToCurve.Ease.ChangeColor(easeTransform, Color.magenta, duration, pingPong: 10);
 
-            Wrj.Utils.MapToCurve.Ease.FadeAlpha(targetTransform, 0, duration, pingPong: 10);
+        Wrj.Utils.MapToCurve.Ease.FadeAlpha(targetTransform, 0, duration, pingPong: 10);
 
-            Wrj.Utils.MapToCurve.Ease.CrossFadeAudio(audioA, audioB, 1, duration);
+        Wrj.Utils.MapToCurve.Ease.CrossFadeAudio(audioA, audioB, 1, duration);
 
-            Wrj.Utils.MapToCurve myCurve = new Wrj.Utils.MapToCurve(scaleCurve);
-            myCurve.Scale(curveScaleTransform, curveScaleTransform.localScale * .5f, duration * .5f, pingPong: 9, onDone: FadeOut);
+        Wrj.Utils.MapToCurve myCurve = new Wrj.Utils.MapToCurve(scaleCurve);
+        myCurve.Scale(curveScaleTransform, curveScaleTransform.localScale * .5f, duration * .5f, pingPong: 9, onDone: FadeOut);
 
-            if (testStop)
-                StartCoroutine(StopTest());
+        Wrj.Utils.AffectGORecursively(recursiveTestGO, SetLayer);
 
+        if (testStop)
+            StartCoroutine(StopTest());
+
+    }
+
+    private void SetLayer(GameObject go)
+    {
+        go.layer = LayerMask.NameToLayer("TransparentFX");
     }
 
     private void FadeOut()

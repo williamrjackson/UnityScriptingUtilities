@@ -24,19 +24,20 @@ namespace Wrj
             b = temp;
         }
 
-        // Set the layer of a transform and all of its children by name.
-        public static void SetLayerRecursive(GameObject go, string layer)
+        // Call a function for a game object and all of its children.
+        public delegate void GameObjectAffector(GameObject gObject);
+        public static void AffectGORecursively(GameObject go, GameObjectAffector goa)
         {
             if (go == null)
             {
                 return;
             }
 
-            go.layer = LayerMask.NameToLayer(layer);
+            goa(go);
 
             foreach (Transform t in go.transform)
             {
-                SetLayerRecursive(t.gameObject, layer);
+                AffectGORecursively(t.gameObject, goa);
             }
         }
 
