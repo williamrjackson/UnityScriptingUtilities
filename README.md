@@ -108,6 +108,6 @@ Each GameObject in an array gets an int representing its weight. Higher weights 
   - Convert inches into Unity Units.    
 
 ## Bezier Path Editor 
-Editor scripts to create paths. `MapToCurve` includs a tween to follow paths over a duration using a speed curve.
+Editor scripts to create paths. `MapToCurve` includes a tween to follow paths over a duration using a speed curve.
 
 ![Path](PathFollowerExample.gif)    
