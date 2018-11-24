@@ -32,7 +32,8 @@ namespace Wrj
                 slider.LookAt(look);
             }
         }
-        // Update is called once per frame
+
+        // Build up a new curve with latest curveguides
         public void RefeshCurve()
         {
             curve = CurvePath(res);
@@ -45,7 +46,6 @@ namespace Wrj
             }
 
             // Get total length of curve
-
             float posOnLine = GetCurveLength() * t;
 
             for (int i = 0; i < curve.Length - 1; i++)
@@ -67,6 +67,7 @@ namespace Wrj
             return curve[curve.Length - 1];
         }
 
+        // Returns total length of the curve
         public float GetCurveLength()
         {
             if (curve.Length < 1)
@@ -80,18 +81,28 @@ namespace Wrj
             return length;
         }
 
+        // Cunstruct a curve path.
         public Vector3[] CurvePath(int resolution = 15)
         {
+            // Collect CurveGuides
             points = GetComponentsInChildren<CurveGuide>();
+            // Require at least 3, for start, influence, and end.
             if (points.Length < 3)
                 return null;
+
+            // Create vector array to hold the results (-2 is to accommodate the first and last)
             Vector3[] finalPoints = new Vector3[(points.Length - 2) * resolution];
+            
+            // Start at the front of the path
             Vector3 currentPos = points[0].transform.position;
             int finalPointIndex = 0;
+
+            // Connect multiple quadratic curves from the mid-point between each CurveGuide node
             for (int i = 1; i < points.Length - 2; i += 1)
             {
                 Vector3 p0 = points[i].transform.position;
                 Vector3 p1 = points[i + 1].transform.position;
+                // Get the midpoint between p0 & p1
                 Vector3 mid = Vector3.Lerp(p0, p1, .5f);
                 finalPointIndex = (i * resolution) - resolution;
                 foreach (Vector3 p in Wrj.Utils.QuadraticBezierCurve(currentPos, p0, mid, resolution))
@@ -109,6 +120,8 @@ namespace Wrj
             }
             return finalPoints;
         }
+
+        // Renumber curveguide children
         public void RefreshChildIndexes()
         {
             foreach (CurveGuide cg in transform.GetComponentsInChildren<CurveGuide>())

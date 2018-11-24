@@ -830,19 +830,23 @@ namespace Wrj
     public class WeightedGameObjects
     {
         public WeightedElement[] objectList;
-
-        public GameObject GetRandom()
+        private int m_LastSelectedIndex = -1;
+        public GameObject GetRandom(bool avoidRepeat = false)
         {
             List<int> allOptions = new List<int>();
 
             for (int i = 0; i < objectList.Length; i++)
             {
-                for (int j = 0; j < objectList[i].weight; j++)
+                if (!avoidRepeat || i != m_LastSelectedIndex)
                 {
-                    allOptions.Add(i);
+                    for (int j = 0; j < objectList[i].weight; j++)
+                    {
+                        allOptions.Add(i);
+                    }
                 }
             }
             int weightedRandomIndex = allOptions[UnityEngine.Random.Range(0, allOptions.Count)];
+            m_LastSelectedIndex = weightedRandomIndex;
 
             return objectList[weightedRandomIndex].element;
         }
