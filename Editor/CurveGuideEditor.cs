@@ -6,6 +6,7 @@ using System;
 
 namespace Wrj
 {
+    #if UNITY_EDITOR
     [CustomEditor(typeof(CurveGuide))]
     public class CurveGuideEditor : Editor {
         public override void OnInspectorGUI()
@@ -32,4 +33,5 @@ namespace Wrj
             }
         }
     }
+    #endif
 }

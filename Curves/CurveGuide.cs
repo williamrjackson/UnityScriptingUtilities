@@ -29,6 +29,7 @@ namespace Wrj
 
         public void Duplicate(CurveGuide toDupe)
         {
+            #if UNITY_EDITOR
             Undo.SetCurrentGroupName("Duplicate Curve Node");
             GameObject dupe = Instantiate(toDupe.gameObject);
             Undo.RegisterCreatedObjectUndo(dupe, "");
@@ -40,6 +41,7 @@ namespace Wrj
             Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
             Selection.activeGameObject = dupe;
             GetOwnerPath().RefreshChildIndexes();
+            #endif
         }
 
         public BezierPath GetOwnerPath()
