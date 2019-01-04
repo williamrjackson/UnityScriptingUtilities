@@ -28,7 +28,7 @@ namespace Wrj
 
             Utils.MapToCurve.Linear.Move(linTransform, linTransform.localPosition + Vector3.up * 5 + Vector3.right * -1.5f, duration, pingPong: 10);
             Utils.MapToCurve.EaseIn.Move(easeInTransform, easeInTransform.localPosition + Vector3.up * 5 + Vector3.right * .5f, duration, mirrorCurve: false, pingPong: 10);
-            easeOutTransform.EaseMove(easeOutTransform.localPosition + Vector3.up * 5 + Vector3.right * -.5f, duration);
+            Utils.MapToCurve.EaseIn.Move(easeOutTransform, easeOutTransform.localPosition + Vector3.up * 5 + Vector3.right * -.5f, duration, mirrorCurve: true, pingPong: 10);
             Utils.MapToCurve.Ease.MatchSibling(easeTransform, targetTransform, duration, pingPong: 10);
 
             Utils.MapToCurve.Linear.Rotate(linTransform, Vector3.up * 135, duration, shortestPath: false, pingPong: 10);

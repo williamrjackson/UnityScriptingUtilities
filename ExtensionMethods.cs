@@ -21,25 +21,25 @@ namespace Wrj
         }
 
         // Shorthand transform manipulation extensions.
-        public static void EaseMove(this Transform tform, Vector3 to, float duration)
+        public static void EaseMove(this GameObject go, Vector3 to, float duration)
         {
-            Utils.MapToCurve.Ease.Move(tform, to, duration, false, 0, 0, 0, false, null);
+            Utils.MapToCurve.Ease.Move(go.transform, to, duration, false, 0, 0, 0, false, null);
         }
-        public static void EaseRotate(this Transform tform, Vector3 to, float duration)
+        public static void EaseRotate(this GameObject go, Vector3 to, float duration)
         {
-            Utils.MapToCurve.Ease.Rotate(tform, to, duration, false, 0, 0, 0, false, true, null);
+            Utils.MapToCurve.Ease.Rotate(go.transform, to, duration, false, 0, 0, 0, false, true, null);
         }
-        public static void EaseScale(this Transform tform, Vector3 to, float duration)
+        public static void EaseScale(this GameObject go, Vector3 to, float duration)
         {
-            Utils.MapToCurve.Ease.Scale(tform, to, duration, false, 0, 0, 0, false, null);
+            Utils.MapToCurve.Ease.Scale(go.transform, to, duration, false, 0, 0, 0, false, null);
         }
-        public static void EaseColor(this Transform tform, Color to, float duration)
+        public static void EaseColor(this GameObject go, Color to, float duration)
         {
-            Utils.MapToCurve.Ease.ChangeColor(tform, to, duration, false, 0, 0, 0, false, null);
+            Utils.MapToCurve.Ease.ChangeColor(go.transform, to, duration, false, 0, 0, 0, false, null);
         }
-        public static void EaseAlpha(this Transform tform, float to, float duration)
+        public static void EaseAlpha(this GameObject go, float to, float duration)
         {
-            Utils.MapToCurve.Ease.FadeAlpha(tform, to, duration, false, 0, 0, 0, false, null);
+            Utils.MapToCurve.Ease.FadeAlpha(go.transform, to, duration, false, 0, 0, 0, false, null);
         }
     }
 }
