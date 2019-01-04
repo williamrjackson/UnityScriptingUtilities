@@ -33,5 +33,13 @@ namespace Wrj
         {
             Utils.MapToCurve.Ease.Scale(tform, to, duration, false, 0, 0, 0, false, null);
         }
+        public static void EaseColor(this Transform tform, Color to, float duration)
+        {
+            Utils.MapToCurve.Ease.ChangeColor(tform, to, duration, false, 0, 0, 0, false, null);
+        }
+        public static void EaseAlpha(this Transform tform, float to, float duration)
+        {
+            Utils.MapToCurve.Ease.FadeAlpha(tform, to, duration, false, 0, 0, 0, false, null);
+        }
     }
 }
