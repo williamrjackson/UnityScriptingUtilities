@@ -24,6 +24,12 @@ namespace Wrj
             b = temp;
         }
 
+        // Supress a compiler warning about unused variables
+        public static void SupressUnusedVarWarning<T>(T sink)
+        {
+            // Do nothing, but trick the compiler into thinking otherwise.
+        }
+        
         // Call a function for a game object and all of its children.
         public delegate void GameObjectAffector(GameObject gObject);
         public static void AffectGORecursively(GameObject go, GameObjectAffector goa, bool skipParent = false)
@@ -678,14 +684,23 @@ namespace Wrj
             {
                 MappedCurvePlayer mcp = new MappedCurvePlayer();
                 mcp.transform = tform;
-                mcp.coroutine = UtilObject().StartCoroutine(LerpAlpha(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+                if (tform.GetComponent<UnityEngine.UI.Image>())
+                {
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpImageAlpha(mcp, tform.GetComponent<UnityEngine.UI.Image>(), to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+                }
+                else
+                {
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpAlpha(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+                }
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
             }
+
             private IEnumerator LerpAlpha(MappedCurvePlayer mcp, Transform tform, float to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
             {
                 float elapsedTime = 0;
                 Material mat = tform.GetComponent<Renderer>().material;
+
                 float from = mat.GetColor("_Color").a;
                 mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
                 mat.SetInt("_ZWrite", 0);
@@ -739,15 +754,73 @@ namespace Wrj
                 }
             }
 
+            private IEnumerator LerpImageAlpha(MappedCurvePlayer mcp, UnityEngine.UI.Image image, float to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            {
+                float elapsedTime = 0;
+                Transform tform = image.transform;
+                float from = image.color.a;
+                while (elapsedTime < duration)
+                {
+                    yield return new WaitForEndOfFrame();
+                    if (tform == null)
+                    {
+                        StopAllOnTransform(tform);
+                        yield break;
+                    }
+                    Color color = image.color;
+                    float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
+                    elapsedTime += desiredDelta;
+                    float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
+                    if (mirrorCurve)
+                    {
+                        color.a = MirrorLerp(from, to, scrubPos);
+                    }
+                    else
+                    {
+                        color.a = Lerp(from, to, scrubPos);
+                    }
+                    image.color = color;
+                }
+                Color finalColor = image.color;
+                finalColor.a = to;
+                image.color = finalColor;
+                if (pingPong > 0)
+                {
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpImageAlpha(mcp, image, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone));
+                }
+                else if (mirrorPingPong > 0)
+                {
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpImageAlpha(mcp, image, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone));
+                }
+                else if (loop > 0)
+                {
+                    finalColor.a = from;
+                    image.color = finalColor;
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpImageAlpha(mcp, image, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone));
+                }
+                else
+                {
+                    CoroutineComplete(onDone);
+                }
+            }
+
             public MappedCurvePlayer ChangeColor(Transform tform, Color to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
                 MappedCurvePlayer mcp = new MappedCurvePlayer();
                 mcp.transform = tform;
-                mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+                if (tform.GetComponent<UnityEngine.UI.Image>())
+                {
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpImageColor(mcp, tform.GetComponent<UnityEngine.UI.Image>(), to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+                }
+                else
+                {
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+                }
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
             }
-            // Beingn careful not to impact alpha, so this can be used simultaneously with ChangAlpha()
+
+            // Being careful not to impact alpha, so this can be used simultaneously with ChangAlpha()
             private IEnumerator LerpColor(MappedCurvePlayer mcp, Transform tform, Color to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
             {
                 float elapsedTime = 0;
@@ -790,6 +863,56 @@ namespace Wrj
                 {
                     mat.SetColor("_Color", from);
                     mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone));
+                }
+                else
+                {
+                    CoroutineComplete(onDone);
+                }
+            }
+
+            private IEnumerator LerpImageColor(MappedCurvePlayer mcp, UnityEngine.UI.Image image, Color to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            {
+                float elapsedTime = 0;
+                Transform tform = image.transform;
+                Color from = image.color;
+                while (elapsedTime < duration)
+                {
+                    yield return new WaitForEndOfFrame();
+                    if (tform == null)
+                    {
+                        StopAllOnTransform(tform);
+                        yield break;
+                    }
+                    Color color = image.color;
+                    float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
+                    elapsedTime += desiredDelta;
+                    float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
+                    if (mirrorCurve)
+                    {
+                        color = MirrorLerp(from, to, scrubPos);
+                    }
+                    else
+                    {
+                        color = Lerp(from, to, scrubPos);
+                    }
+                    image.color = color;
+                }
+                Color finalColor = image.color;
+                finalColor = to;
+                image.color = finalColor;
+
+                if (pingPong > 0)
+                {
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpImageColor(mcp, image, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone));
+                }
+                else if (mirrorPingPong > 0)
+                {
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpImageColor(mcp, image, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone));
+                }
+                else if (loop > 0)
+                {
+                    image.color = from;
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpImageColor(mcp, image, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone));
                 }
                 else
                 {
