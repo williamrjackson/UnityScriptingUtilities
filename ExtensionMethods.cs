@@ -28,6 +28,24 @@ public static class ExtensionMethods
     }
 
     // Shorthand transform manipulation extensions, using MapToCurve
+    // Snap into another transform's position
+    public static void SnapToSibling(this Transform tForm, Transform to, float duration)
+    {
+        Wrj.Utils.MapToCurve.Linear.MatchSibling(tForm, to, duration, false, 0, 0, 0, false, null);
+    }
+    public static void SnapToSibling(this GameObject go, Transform to, float duration)
+    {
+        go.transform.SnapToSibling(to, duration);
+    }
+    public static void EaseSnapToSibling(this Transform tForm, Transform to, float duration)
+    {
+        Wrj.Utils.MapToCurve.Ease.MatchSibling(tForm, to, duration, false, 0, 0, 0, false, null);
+    }
+    public static void EaseSnapToSibling(this GameObject go, Transform to, float duration)
+    {
+        go.transform.EaseSnapToSibling(to, duration);
+    }
+    // Shorthand transform manipulation extensions, using MapToCurve
     // Move over time
     public static void Move(this Transform tForm, Vector3 to, float duration)
     {

@@ -45,6 +45,19 @@ shortestPath   - In the case of manipulations that include rotation, this will c
                  will result in a full positive rotation before reaching the target.
 onDone         - Specify a function to call when the operation completes
 ```
+There are simplified GameObject and Transform Extension Methods for linear and ease manipulations:
+```
+go.Move(destination, duration);
+go.EaseMove(destination, duration);
+go.Rotate(targetRotation, duration);
+go.EaseRotate(targetRotation, duration);
+go.Scale(targetScale, duration);
+go.EaseScale(TargetScale, duration);
+go.SnapToSibling(targetSibling, duration);
+go.EaseSnapToSibling(targetSibling, duration);
+go.Color(desiredColor, duration);
+go.Alpha(desiredAlpha, duration);
+```
 ![Tweening](TweenExample.gif)    
 #### Test Bed Example
 ```C#

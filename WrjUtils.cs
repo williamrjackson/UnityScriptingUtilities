@@ -923,6 +923,10 @@ namespace Wrj
             // Matches the position scale and rotation of a sibling transform.
             public MappedCurvePlayer[] MatchSibling(Transform tform, Transform toTform, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
+                if (tform.parent != toTform.parent)
+                {
+                    Debug.LogWarning("Attempting to match a target that is not a sibling. No guarantee that scale, position, rotation will match.");
+                }
                 MappedCurvePlayer[] mcpList = new MappedCurvePlayer[3];
                 mcpList[0] = Scale(tform, toTform.localScale, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone);
                 mcpList[1] = Move(tform, toTform.localPosition, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, null);
