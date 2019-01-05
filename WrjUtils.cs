@@ -191,6 +191,22 @@ namespace Wrj
             {
                 public Coroutine coroutine;
                 public Transform transform;
+                private string type;
+
+                public MappedCurvePlayer(string _type, Transform _transform)
+                {
+                    type = _type;
+                    transform = _transform;
+                    if (wrjInstance == null)
+                        return;
+                    foreach(MappedCurvePlayer mcp in wrjInstance.m_CoroList)
+                    {
+                        if (mcp.transform == transform && mcp.type == type && type != "")
+                        {
+                            mcp.Stop();
+                        }
+                    }
+                }
                 public void Stop()
                 {
                     if (coroutine != null)
@@ -269,8 +285,7 @@ namespace Wrj
             // Period-based Manipulation Coroutines...
             public MappedCurvePlayer Scale(Transform tform, Vector3 to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
-                MappedCurvePlayer mcp = new MappedCurvePlayer();
-                mcp.transform = tform;
+                MappedCurvePlayer mcp = new MappedCurvePlayer("scale", tform);
                 mcp.coroutine = UtilObject().StartCoroutine(ScaleLocal(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
@@ -321,8 +336,7 @@ namespace Wrj
 
             public MappedCurvePlayer Move(Transform tform, Vector3 to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
-                MappedCurvePlayer mcp = new MappedCurvePlayer();
-                mcp.transform = tform;
+                MappedCurvePlayer mcp = new MappedCurvePlayer("move", tform);
                 mcp.coroutine = UtilObject().StartCoroutine(MoveLocal(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
@@ -373,8 +387,7 @@ namespace Wrj
 
             public MappedCurvePlayer MoveWorld(Transform tform, Vector3 to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
-                MappedCurvePlayer mcp = new MappedCurvePlayer();
-                mcp.transform = tform;
+                MappedCurvePlayer mcp = new MappedCurvePlayer("move", tform);
                 mcp.coroutine = UtilObject().StartCoroutine(MoveWorldspace(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
@@ -425,8 +438,7 @@ namespace Wrj
 
             public MappedCurvePlayer MoveAlongPath(Transform tform, BezierPath path, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool inverse = false, bool align = false, OnDone onDone = null)
             {
-                MappedCurvePlayer mcp = new MappedCurvePlayer();
-                mcp.transform = tform;
+                MappedCurvePlayer mcp = new MappedCurvePlayer("move", tform);
                 mcp.coroutine = UtilObject().StartCoroutine(MovePath(mcp, tform, path, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, inverse, align, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
@@ -476,8 +488,7 @@ namespace Wrj
             }
             public MappedCurvePlayer Rotate(Transform tform, Vector3 eulerTo, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool shortestPath = true, OnDone onDone = null)
             {
-                MappedCurvePlayer mcp = new MappedCurvePlayer();
-                mcp.transform = tform;
+                MappedCurvePlayer mcp = new MappedCurvePlayer("rotate", tform);
                 if (shortestPath)
                 {
                     mcp.coroutine = UtilObject().StartCoroutine(RotateLocalQuaternionLerp(mcp, tform, tform.rotation, Quaternion.Euler(eulerTo.x, eulerTo.y, eulerTo.z), duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
@@ -575,8 +586,7 @@ namespace Wrj
             }
             public MappedCurvePlayer FadeAudio(AudioSource audioSource, float targetVol, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
-                MappedCurvePlayer mcp = new MappedCurvePlayer();
-                mcp.transform = audioSource.transform;
+                MappedCurvePlayer mcp = new MappedCurvePlayer("fade", audioSource.transform);
                 mcp.coroutine = UtilObject().StartCoroutine(Fade(mcp, audioSource, targetVol, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
@@ -626,8 +636,7 @@ namespace Wrj
 
             public MappedCurvePlayer CrossFadeAudio(AudioSource from, AudioSource to, float targetVol, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
-                MappedCurvePlayer mcp = new MappedCurvePlayer();
-                mcp.transform = from.transform;
+                MappedCurvePlayer mcp = new MappedCurvePlayer("fade", from.transform);
                 mcp.coroutine = UtilObject().StartCoroutine(CrossFade(mcp, from, to, targetVol, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
@@ -682,8 +691,7 @@ namespace Wrj
 
             public MappedCurvePlayer FadeAlpha(Transform tform, float to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
-                MappedCurvePlayer mcp = new MappedCurvePlayer();
-                mcp.transform = tform;
+                MappedCurvePlayer mcp = new MappedCurvePlayer("color", tform);
                 if (tform.GetComponent<UnityEngine.UI.Image>())
                 {
                     mcp.coroutine = UtilObject().StartCoroutine(LerpImageAlpha(mcp, tform.GetComponent<UnityEngine.UI.Image>(), to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
@@ -806,8 +814,7 @@ namespace Wrj
 
             public MappedCurvePlayer ChangeColor(Transform tform, Color to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
-                MappedCurvePlayer mcp = new MappedCurvePlayer();
-                mcp.transform = tform;
+                MappedCurvePlayer mcp = new MappedCurvePlayer("color", tform);
                 if (tform.GetComponent<UnityEngine.UI.Image>())
                 {
                     mcp.coroutine = UtilObject().StartCoroutine(LerpImageColor(mcp, tform.GetComponent<UnityEngine.UI.Image>(), to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
