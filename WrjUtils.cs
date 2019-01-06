@@ -186,6 +186,7 @@ namespace Wrj
             public static MapToCurve Linear = new MapToCurve(AnimationCurve.Linear(0, 0, 1, 1));
             public static MapToCurve Ease = new MapToCurve(AnimationCurve.EaseInOut(0, 0, 1, 1));
             public static MapToCurve EaseIn = new MapToCurve(AnimationCurve.EaseInOut(0, 0, 2, 2));
+            public static MapToCurve EaseOut = new MapToCurve(AnimationCurve.EaseInOut(-1, -1, 1, 1));
 
             public class MappedCurvePlayer
             {
