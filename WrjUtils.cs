@@ -138,22 +138,22 @@ namespace Wrj
 
         // Coroutine list management stuff...
         public static Utils wrjInstance;
-        private List<MapToCurve.Manipulation> m_CoroList;
+        private List<MapToCurve.Manipulation> m_ManipulationList;
         private void InitializeCoroList()
         {
-            m_CoroList = new List<MapToCurve.Manipulation>();
+            m_ManipulationList = new List<MapToCurve.Manipulation>();
         }
         private void AddToCoroList(MapToCurve.Manipulation mcp)
         {
-            m_CoroList.Add(mcp);
+            m_ManipulationList.Add(mcp);
         }
         private void CleanCoroList()
         {
-            m_CoroList.RemoveAll(x => x.coroutine == null);
+            m_ManipulationList.RemoveAll(x => x.coroutine == null);
         }
         private void CancelAll()
         {
-            foreach (MapToCurve.Manipulation mcp in m_CoroList)
+            foreach (MapToCurve.Manipulation mcp in m_ManipulationList)
             {
                 StopCoroutine(mcp.coroutine);
                 mcp.coroutine = null;
@@ -162,7 +162,7 @@ namespace Wrj
         }
         private void CancelByTransform(Transform t)
         {
-            foreach (MapToCurve.Manipulation mcp in m_CoroList)
+            foreach (MapToCurve.Manipulation mcp in m_ManipulationList)
             {
                 if (mcp.transform == t && mcp.coroutine != null)
                 {
@@ -202,7 +202,7 @@ namespace Wrj
                     transform = _transform;
                     if (wrjInstance == null)
                         return;
-                    foreach(Manipulation mcp in wrjInstance.m_CoroList)
+                    foreach(Manipulation mcp in wrjInstance.m_ManipulationList)
                     {
                         if (mcp.transform == transform && mcp.type == type && type != "")
                         {
