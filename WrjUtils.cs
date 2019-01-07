@@ -983,13 +983,15 @@ namespace Wrj
     {
         public WeightedElement[] objectList;
         private int m_LastSelectedIndex = -1;
-        public GameObject GetRandom(bool avoidRepeat = false)
+        
+        /// Returns a random element from the list where objects with higher weights are more likely
+        public GameObject GetRandom(bool preventImmediateRepeat = false)
         {
             List<int> allOptions = new List<int>();
 
             for (int i = 0; i < objectList.Length; i++)
             {
-                if (!avoidRepeat || i != m_LastSelectedIndex)
+                if (!preventImmediateRepeat || i != m_LastSelectedIndex)
                 {
                     for (int j = 0; j < objectList[i].weight; j++)
                     {
