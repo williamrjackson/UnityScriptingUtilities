@@ -7,11 +7,11 @@ using System;
 namespace Wrj
 {
     #if UNITY_EDITOR
-    [CustomEditor(typeof(CurveGuide))]
-    public class CurveGuideEditor : Editor {
+    [CustomEditor(typeof(PathGuide))]
+    public class PathGuideEditor : Editor {
         public override void OnInspectorGUI()
         {
-            CurveGuide connectedObjects = target as CurveGuide;
+            PathGuide connectedObjects = target as PathGuide;
             if (connectedObjects == null)
                 return;
             if (GUILayout.Button("Duplicate Node (D)", GUILayout.Width(255)))
@@ -24,7 +24,7 @@ namespace Wrj
             Event e = Event.current;
             if (e.type == EventType.KeyDown && e.keyCode == KeyCode.D)
             {
-                CurveGuide connectedObjects = target as CurveGuide;
+                PathGuide connectedObjects = target as PathGuide;
                 if (connectedObjects == null)
                     return;
 

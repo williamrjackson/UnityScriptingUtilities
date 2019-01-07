@@ -8,7 +8,7 @@ using UnityEditor;
 
 namespace Wrj
 {
-    public class CurveGuide : MonoBehaviour
+    public class PathGuide : MonoBehaviour
     {
         private BezierPath ownerPath;
         private Vector3 lastPos;
@@ -24,12 +24,12 @@ namespace Wrj
         {
             if (transform.position != lastPos)
             {
-                ownerPath.RefeshCurve();
+                ownerPath.RefreshPath();
                 lastPos = transform.position;
             }
         }
 
-        public void Duplicate(CurveGuide toDupe)
+        public void Duplicate(PathGuide toDupe)
         {
             #if UNITY_EDITOR
             Undo.SetCurrentGroupName("Duplicate Curve Node");

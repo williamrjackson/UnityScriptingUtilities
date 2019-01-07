@@ -95,6 +95,7 @@ namespace Wrj
         }
 
         // Get an array of points representing a cubic bezier curve.
+        // https://upload.wikimedia.org/wikipedia/commons/d/db/Bézier_3_big.gif
         public static Vector3[] CubicBezierCurve(Vector3 origin, Vector3 influenceA, Vector3 influenceB, Vector3 destination, int pointCount)
         {
             Vector3[] result = new Vector3[pointCount];

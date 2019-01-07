@@ -47,7 +47,7 @@ namespace Wrj
             Utils.MapToCurve myCurve = new Utils.MapToCurve(scaleCurve);
             myCurve.Scale(curveScaleTransform, curveScaleTransform.localScale * .5f, duration * .5f, pingPong: 9, onDone: FadeOut);
 
-            Utils.AffectGORecursively(recursiveTestGO, SetLayer, true);
+            recursiveTestGO.PerChild(SetLayer);
 
             if (testStop)
                 StartCoroutine(StopTest());
@@ -74,7 +74,7 @@ namespace Wrj
                 Utils.MapToCurve.Ease.Scale(affected, targetScale, .1f);
                 Utils.MapToCurve.Ease.Move(affected, affected.localPosition + affected.up * .05f, .1f);
                 Utils.MapToCurve.Ease.ChangeColor(affected, Color.Lerp(Color.white, Color.black, (initY - 1) / 10), .1f);
-                yield return new WaitForSecondsRealtime(.2f);
+                yield return new WaitForSecondsRealtime(.5f);
             }
         }
         IEnumerator StopTest()

@@ -31,13 +31,13 @@ namespace Wrj
             if (connectedObject == null)
                 return;
 
-            if (connectedObject.gameObject.GetComponentsInChildren<CurveGuide>().Length == 0)
+            if (connectedObject.gameObject.GetComponentsInChildren<PathGuide>().Length == 0)
             {
                 GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 go.transform.localScale = Vector3.one * .1f;
                 go.transform.position = connectedObject.transform.position;
                 go.transform.parent = connectedObject.transform;
-                Wrj.Utils.EnsureComponent<CurveGuide>(go);
+                Wrj.Utils.EnsureComponent<PathGuide>(go);
                 go.name = "Node_0";
                 go = Instantiate(go);
                 go.transform.position = connectedObject.transform.position + Vector3.right;
@@ -55,7 +55,7 @@ namespace Wrj
             if (connectedObject == null)
                 return;
 
-            CurveGuide[] points = connectedObject.gameObject.GetComponentsInChildren<CurveGuide>();
+            PathGuide[] points = connectedObject.gameObject.GetComponentsInChildren<PathGuide>();
             Vector3[] curve = connectedObject.CurvePath(connectedObject.res);
             if (curve != null)
             {

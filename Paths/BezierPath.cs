@@ -11,12 +11,12 @@ namespace Wrj
         public float percent = 0f;
         [Range(2, 50)]
         public int res = 15;
-        private CurveGuide[] points;
+        private PathGuide[] points;
         private Vector3[] curve;
 
         void Awake()
         {
-            RefeshCurve();
+            RefreshPath();
             foreach (MeshRenderer rend in GetComponentsInChildren<MeshRenderer>())
             {
                 rend.enabled = false;
@@ -34,7 +34,7 @@ namespace Wrj
         }
 
         // Build up a new curve with latest curveguides
-        public void RefeshCurve()
+        public void RefreshPath()
         {
             curve = CurvePath(res);
         }
@@ -84,8 +84,8 @@ namespace Wrj
         // Cunstruct a curve path.
         public Vector3[] CurvePath(int resolution = 15)
         {
-            // Collect CurveGuides
-            points = GetComponentsInChildren<CurveGuide>();
+            // Collect PathGuides
+            points = GetComponentsInChildren<PathGuide>();
             // Require at least 3, for start, influence, and end.
             if (points.Length < 3)
                 return null;
@@ -97,7 +97,7 @@ namespace Wrj
             Vector3 currentPos = points[0].transform.position;
             int finalPointIndex = 0;
 
-            // Connect multiple quadratic curves from the mid-point between each CurveGuide node
+            // Connect multiple quadratic curves from the mid-point between each PathGuide node
             for (int i = 1; i < points.Length - 2; i += 1)
             {
                 Vector3 p0 = points[i].transform.position;
@@ -124,7 +124,7 @@ namespace Wrj
         // Renumber curveguide children
         public void RefreshChildIndexes()
         {
-            foreach (CurveGuide cg in transform.GetComponentsInChildren<CurveGuide>())
+            foreach (PathGuide cg in transform.GetComponentsInChildren<PathGuide>())
             {
                 cg.name = "Node_" + cg.transform.GetSiblingIndex();
             }
