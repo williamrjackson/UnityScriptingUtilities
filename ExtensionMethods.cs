@@ -18,6 +18,14 @@ public static class ExtensionMethods
     {
         return comp.gameObject.EnsureComponent<T>();
     }
+    
+    /// Runs an operation on every child of the game object recursively.
+    ///
+    /// Argument is a method that takes a GameObject.
+    public static void PerChild(this GameObject go, Wrj.Utils.GameObjectAffector goa)
+    {
+        Wrj.Utils.AffectGORecursively(go, goa, true);
+    }
 
     /// Enable or disable GameObject in hierarchy.
     public static void ToggleActive(this GameObject go)
