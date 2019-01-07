@@ -119,16 +119,26 @@ namespace Wrj
             return result;
         }
 
-        // Get a feet in Unity unitys / meters
+        // Get feet in Unity units/meters
         public static float FromFeet(float feet)
         {
             return feet * 0.3048f;
         }
+        // Get Unity units/meters in feet
+        public static float ToFeet(float meters)
+        {
+            return meters * 3.2808399f;
+        }
 
-        // Get a inches in Unity unitys / meters
+        // Get inches in Unity units/meters
         public static float FromInches(float inches)
         {
             return inches * 0.0254f;
+        }
+        // Get Unity units/meters in inches
+        public static float ToInches(float meters)
+        {
+            return meters * 39.3700787f;
         }
 
         // Coroutine list management stuff...

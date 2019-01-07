@@ -40,6 +40,27 @@ public static class ExtensionMethods
     {
         return new Vector2(v3.x, v3.y);
     }
+
+    /// Returns conversion to Unity Units/Meters from Feet
+    public static float FeetToUnits(this float feet)
+    {
+        return Wrj.Utils.FromFeet(feet);
+    }
+    /// Returns conversion to Feet from Unity Units/Meters
+    public static float UnitsToFeet(this float units)
+    {
+        return Wrj.Utils.ToFeet(units);
+    }
+    /// Returns conversion to Inches from Unity Units/Meters
+    public static float InchesToUnits(this float inches)
+    {
+        return Wrj.Utils.FromInches(inches);
+    }
+    /// Returns conversion to Unity Units/Meters from Inches
+    public static float UnitsToInches(this float units)
+    {
+        return Wrj.Utils.ToInches(units);
+    }
     
     // Shorthand transform manipulation extensions, using MapToCurve
     
