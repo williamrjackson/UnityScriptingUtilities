@@ -123,19 +123,19 @@ public static class ExtensionMethods
     }
     
     /// Rotate transform over time
-    public static void Rotate(this Transform tForm, Vector3 to, float duration)
+    public static void LinearRotate(this Transform tForm, Vector3 to, float duration)
     {
-        Wrj.Utils.MapToCurve.Linear.Rotate(tForm, to, duration, false, 0, 0, 0, false, true, null);
+        Wrj.Utils.MapToCurve.Linear.Rotate(tForm, to, duration, false, 0, 0, 0, false, false, null);
     }
     /// Rotate transform over time
     public static void Rotate(this GameObject go, Vector3 to, float duration)
     {
-        go.transform.EaseRotate(to, duration);
+        go.transform.LinearRotate(to, duration);
     }
     /// Rotate transform over time
     public static void EaseRotate(this Transform tForm, Vector3 to, float duration)
     {
-        Wrj.Utils.MapToCurve.Ease.Rotate(tForm, to, duration, false, 0, 0, 0, false, true, null);
+        Wrj.Utils.MapToCurve.Ease.Rotate(tForm, to, duration, false, 0, 0, 0, false, false, null);
     }
     /// Rotate transform over time
     public static void EaseRotate(this GameObject go, Vector3 to, float duration)
