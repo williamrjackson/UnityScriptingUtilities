@@ -142,6 +142,16 @@ namespace Wrj
             return meters * 39.3700787f;
         }
 
+        public static float Invert(float f)
+        {
+            if (f > 0f)
+            {
+                return f * -1f;
+            }
+
+            return Mathf.Abs(f);
+        }
+
         // Coroutine list management stuff...
         public static Utils wrjInstance;
         private List<MapToCurve.Manipulation> m_ManipulationList;
@@ -186,9 +196,10 @@ namespace Wrj
         //      WrjUtils.MapToCurve map = new WrjUtils.MapToCurve();
         //      map.ScaleTransform(transform, transform.localScale * .25f, 5, onDone: SomeMethodThatReturnsVoid, pingPong: 3);
 
+        [System.Serializable]
         public class MapToCurve
         {
-            AnimationCurve curve;
+            public AnimationCurve curve;
             public delegate void OnDone();
 
             public static MapToCurve Linear = new MapToCurve(AnimationCurve.Linear(0, 0, 1, 1));
@@ -200,6 +211,7 @@ namespace Wrj
             {
                 public Coroutine coroutine;
                 public Transform transform;
+                public int iterationCount = 0;
                 private string type;
 
                 public Manipulation(string _type, Transform _transform)
@@ -213,7 +225,6 @@ namespace Wrj
                         if (mcp.transform == transform && mcp.type == type && type != "")
                         {
                             mcp.Stop();
-                            Debug.LogWarning("MapToCurve: A manipulation of type \"" + type + "\" on " + transform.name + " has been interrupted and stopped prematurely.");
                         }
                     }
                 }
@@ -303,6 +314,7 @@ namespace Wrj
             private IEnumerator ScaleLocal(Manipulation mcp, Transform tform, Vector3 to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
             {
                 float elapsedTime = 0;
+                mcp.iterationCount++;
                 Vector3 from = tform.localScale;
                 while (elapsedTime < duration)
                 {
@@ -344,16 +356,17 @@ namespace Wrj
                 }
             }
 
-            public Manipulation Move(Transform tform, Vector3 to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
+            public Manipulation Move(Transform tform, Vector3 to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool pendulum = false, OnDone onDone = null)
             {
                 Manipulation mcp = new Manipulation("Move", tform);
-                mcp.coroutine = UtilObject().StartCoroutine(MoveLocal(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+                mcp.coroutine = UtilObject().StartCoroutine(MoveLocal(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, pendulum, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
             }
-            private IEnumerator MoveLocal(Manipulation mcp, Transform tform, Vector3 to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            private IEnumerator MoveLocal(Manipulation mcp, Transform tform, Vector3 to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, bool pendulum, OnDone onDone)
             {
                 float elapsedTime = 0;
+                mcp.iterationCount++;
                 Vector3 from = tform.localPosition;
                 while (elapsedTime < duration)
                 {
@@ -375,19 +388,24 @@ namespace Wrj
                         tform.localPosition = Lerp(from, to, scrubPos);
                     }
                 }
-                tform.localPosition = to;
+                tform.localPosition = Lerp(from, to, 1f);
+
+                if (pendulum && mcp.iterationCount % 2 == 0)
+                {
+                    from = to - from;
+                }
                 if (pingPong > 0)
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(MoveLocal(mcp, tform, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(MoveLocal(mcp, tform, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, pendulum, onDone));
                 }
                 else if (mirrorPingPong > 0)
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(MoveLocal(mcp, tform, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(MoveLocal(mcp, tform, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, pendulum, onDone));
                 }
                 else if (loop > 0)
                 {
                     tform.localPosition = from;
-                    mcp.coroutine = UtilObject().StartCoroutine(MoveLocal(mcp, tform, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(MoveLocal(mcp, tform, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, pendulum, onDone));
                 }
                 else
                 {
@@ -395,16 +413,17 @@ namespace Wrj
                 }
             }
 
-            public Manipulation MoveWorld(Transform tform, Vector3 to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
+            public Manipulation MoveWorld(Transform tform, Vector3 to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool pendulum = false, OnDone onDone = null)
             {
                 Manipulation mcp = new Manipulation("Move", tform);
-                mcp.coroutine = UtilObject().StartCoroutine(MoveWorldspace(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+                mcp.coroutine = UtilObject().StartCoroutine(MoveWorldspace(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, pendulum, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
             }
-            private IEnumerator MoveWorldspace(Manipulation mcp, Transform tform, Vector3 to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            private IEnumerator MoveWorldspace(Manipulation mcp, Transform tform, Vector3 to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, bool pendulum, OnDone onDone)
             {
                 float elapsedTime = 0;
+                mcp.iterationCount++;
                 Vector3 from = tform.position;
                 while (elapsedTime < duration)
                 {
@@ -426,19 +445,25 @@ namespace Wrj
                         tform.position = Lerp(from, to, scrubPos);
                     }
                 }
-                tform.position = to;
+                tform.position = Lerp(from, to, 1f);
+
+                if (pendulum && mcp.iterationCount % 2 == 0)
+                {
+                    from = to - from;
+                }
+
                 if (pingPong > 0)
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(MoveWorldspace(mcp, tform, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(MoveWorldspace(mcp, tform, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, pendulum, onDone));
                 }
                 else if (mirrorPingPong > 0)
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(MoveWorldspace(mcp, tform, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(MoveWorldspace(mcp, tform, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, pendulum, onDone));
                 }
                 else if (loop > 0)
                 {
                     tform.position = from;
-                    mcp.coroutine = UtilObject().StartCoroutine(MoveWorldspace(mcp, tform, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(MoveWorldspace(mcp, tform, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, pendulum, onDone));
                 }
                 else
                 {
@@ -456,6 +481,7 @@ namespace Wrj
             private IEnumerator MovePath(Manipulation mcp, Transform tform, BezierPath path, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, bool inverse, bool align, OnDone onDone)
             {
                 float elapsedTime = 0;
+                mcp.iterationCount++;
                 while (elapsedTime < duration)
                 {
                     yield return new WaitForEndOfFrame();
@@ -496,23 +522,24 @@ namespace Wrj
                     CoroutineComplete(mcp, onDone);
                 }
             }
-            public Manipulation Rotate(Transform tform, Vector3 eulerTo, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool shortestPath = true, OnDone onDone = null)
+            public Manipulation Rotate(Transform tform, Vector3 eulerTo, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool shortestPath = true, bool pendulum = false, OnDone onDone = null)
             {
                 Manipulation mcp = new Manipulation("Rotate", tform);
                 if (shortestPath)
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(RotateLocalQuaternionLerp(mcp, tform, tform.rotation, Quaternion.Euler(eulerTo.x, eulerTo.y, eulerTo.z), duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(RotateLocalQuaternionLerp(mcp, tform, tform.rotation, Quaternion.Euler(eulerTo.x, eulerTo.y, eulerTo.z), duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, pendulum, onDone));
                 }
                 else
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(RotateLocal(mcp, tform, tform.localEulerAngles, eulerTo, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(RotateLocal(mcp, tform, tform.localEulerAngles, eulerTo, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, pendulum, onDone));
                 }
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
             }
-            private IEnumerator RotateLocalQuaternionLerp(Manipulation mcp, Transform tform, Quaternion from, Quaternion to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            private IEnumerator RotateLocalQuaternionLerp(Manipulation mcp, Transform tform, Quaternion from, Quaternion to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, bool pendulum, OnDone onDone)
             {
                 float elapsedTime = 0;
+                mcp.iterationCount++;
                 while (elapsedTime < duration)
                 {
                     yield return new WaitForEndOfFrame();
@@ -533,28 +560,34 @@ namespace Wrj
                         tform.localRotation = Lerp(from, to, scrubPos);
                     }
                 }
-                tform.localRotation = to;
+                tform.localRotation = Lerp(from, to, 1f);
+
+                if (pendulum && mcp.iterationCount % 2 == 0)
+                {
+                    from = Quaternion.Euler(to.eulerAngles - from.eulerAngles);
+                }
                 if (pingPong > 0)
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(RotateLocalQuaternionLerp(mcp, tform, to, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(RotateLocalQuaternionLerp(mcp, tform, to, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, pendulum, onDone));
                 }
                 else if (mirrorPingPong > 0)
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(RotateLocalQuaternionLerp(mcp, tform, to, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(RotateLocalQuaternionLerp(mcp, tform, to, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, pendulum, onDone));
                 }
                 else if (loop > 0)
                 {
                     tform.localRotation = from;
-                    mcp.coroutine = UtilObject().StartCoroutine(RotateLocalQuaternionLerp(mcp, tform, from, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(RotateLocalQuaternionLerp(mcp, tform, from, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, pendulum, onDone));
                 }
                 else
                 {
                     CoroutineComplete(mcp, onDone);
                 }
             }
-            private IEnumerator RotateLocal(Manipulation mcp, Transform tform, Vector3 from, Vector3 to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            private IEnumerator RotateLocal(Manipulation mcp, Transform tform, Vector3 from, Vector3 to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, bool pendulum, OnDone onDone)
             {
                 float elapsedTime = 0;
+                mcp.iterationCount++;
                 while (elapsedTime < duration)
                 {
                     yield return new WaitForEndOfFrame();
@@ -575,19 +608,25 @@ namespace Wrj
                         tform.localEulerAngles = Lerp(from, to, scrubPos);
                     }
                 }
-                tform.localEulerAngles = to;
-                if (pingPong > 0)
+                tform.localEulerAngles = Lerp(from, to, 1f);
+
+                if (pendulum && mcp.iterationCount % 2 == 0)
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(RotateLocal(mcp, tform, to, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone));
+                    from = to - from;
+                }
+
+                if (pingPong > 0) 
+                {
+                    mcp.coroutine = UtilObject().StartCoroutine(RotateLocal(mcp, tform, to, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, pendulum, onDone));
                 }
                 else if (mirrorPingPong > 0)
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(RotateLocal(mcp, tform, to, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(RotateLocal(mcp, tform, to, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, pendulum, onDone));
                 }
                 else if (loop > 0)
                 {
                     tform.localEulerAngles = from;
-                    mcp.coroutine = UtilObject().StartCoroutine(RotateLocal(mcp, tform, from, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(RotateLocal(mcp, tform, from, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, pendulum, onDone));
                 }
                 else
                 {
@@ -605,6 +644,7 @@ namespace Wrj
             {
                 float initVol = audioSource.volume;
                 float elapsedTime = 0;
+                mcp.iterationCount++;
                 while (elapsedTime < duration)
                 {
                     yield return new WaitForEndOfFrame();
@@ -624,7 +664,7 @@ namespace Wrj
                         audioSource.volume = Lerp(initVol, targetVol, scrubPos);
                     }
                 }
-                audioSource.volume = targetVol;
+                audioSource.volume = Lerp(initVol, targetVol, 1f);
                 if (pingPong > 0)
                 {
                     mcp.coroutine = UtilObject().StartCoroutine(Fade(mcp, audioSource, initVol, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone));
@@ -656,6 +696,7 @@ namespace Wrj
                 to.volume = 0;
                 float initB = from.volume;
                 float elapsedTime = 0;
+                mcp.iterationCount++;
                 while (elapsedTime < duration)
                 {
                     yield return new WaitForEndOfFrame();
@@ -717,6 +758,7 @@ namespace Wrj
             private IEnumerator LerpAlpha(Manipulation mcp, Transform tform, float to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
             {
                 float elapsedTime = 0;
+                mcp.iterationCount++;
                 Material mat = tform.GetComponent<Renderer>().material;
 
                 float from = mat.GetColor("_Color").a;
@@ -750,7 +792,7 @@ namespace Wrj
                     mat.SetColor("_Color", color);
                 }
                 Color finalColor = mat.GetColor("_Color");
-                finalColor.a = to;
+                finalColor.a = Lerp(from, to, 1f);
                 mat.SetColor("_Color", finalColor);
                 if (pingPong > 0)
                 {
@@ -775,6 +817,7 @@ namespace Wrj
             private IEnumerator LerpImageAlpha(Manipulation mcp, UnityEngine.UI.Image image, float to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
             {
                 float elapsedTime = 0;
+                mcp.iterationCount++;
                 Transform tform = image.transform;
                 float from = image.color.a;
                 while (elapsedTime < duration)
@@ -800,7 +843,7 @@ namespace Wrj
                     image.color = color;
                 }
                 Color finalColor = image.color;
-                finalColor.a = to;
+                finalColor.a = Lerp(from, to, 1f);
                 image.color = finalColor;
                 if (pingPong > 0)
                 {
@@ -841,6 +884,7 @@ namespace Wrj
             private IEnumerator LerpColor(Manipulation mcp, Transform tform, Color to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
             {
                 float elapsedTime = 0;
+                mcp.iterationCount++;
                 Material mat = tform.GetComponent<Renderer>().material;
                 Color from = mat.GetColor("_Color");
                 while (elapsedTime < duration)
@@ -865,7 +909,7 @@ namespace Wrj
                     }
                     mat.SetColor("_Color", new Color(color.r, color.g, color.b, mat.GetColor("_Color").a));
                 }
-                Color finalColor = to;
+                Color finalColor = Lerp(from, to, 1f);
                 finalColor.a = mat.GetColor("_Color").a;
                 mat.SetColor("_Color", finalColor);
                 if (pingPong > 0)
@@ -890,6 +934,7 @@ namespace Wrj
             private IEnumerator LerpImageColor(Manipulation mcp, UnityEngine.UI.Image image, Color to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
             {
                 float elapsedTime = 0;
+                mcp.iterationCount++;
                 Transform tform = image.transform;
                 Color from = image.color;
                 while (elapsedTime < duration)
@@ -915,7 +960,7 @@ namespace Wrj
                     image.color = color;
                 }
                 Color finalColor = image.color;
-                finalColor = to;
+                finalColor = Lerp(from, to, 1f);
                 image.color = finalColor;
 
                 if (pingPong > 0)
@@ -946,8 +991,8 @@ namespace Wrj
                 }
                 Manipulation[] mcpList = new Manipulation[3];
                 mcpList[0] = Scale(tform, toTform.localScale, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone);
-                mcpList[1] = Move(tform, toTform.localPosition, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, null);
-                mcpList[2] = Rotate(tform, toTform.localEulerAngles, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, true, null);
+                mcpList[1] = Move(tform, toTform.localPosition, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, false, null);
+                mcpList[2] = Rotate(tform, toTform.localEulerAngles, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, true, false, null);
                 return mcpList;
             }
 
@@ -978,39 +1023,4 @@ namespace Wrj
             }
         }
     }
-    [System.Serializable]
-    public class WeightedGameObjects
-    {
-        public WeightedElement[] objectList;
-        private int m_LastSelectedIndex = -1;
-        
-        /// Returns a random element from the list where objects with higher weights are more likely
-        public GameObject GetRandom(bool preventImmediateRepeat = false)
-        {
-            List<int> allOptions = new List<int>();
-
-            for (int i = 0; i < objectList.Length; i++)
-            {
-                if (!preventImmediateRepeat || i != m_LastSelectedIndex)
-                {
-                    for (int j = 0; j < objectList[i].weight; j++)
-                    {
-                        allOptions.Add(i);
-                    }
-                }
-            }
-            int weightedRandomIndex = allOptions[UnityEngine.Random.Range(0, allOptions.Count)];
-            m_LastSelectedIndex = weightedRandomIndex;
-
-            return objectList[weightedRandomIndex].element;
-        }
-        [System.Serializable]
-        public struct WeightedElement
-        {
-            public GameObject element;
-            public int weight;
-        }
-    }
 }
-
-
