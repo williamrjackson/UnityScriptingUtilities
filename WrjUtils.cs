@@ -6,7 +6,7 @@ namespace Wrj
 {
     public class Utils : MonoBehaviour
     {
-        // Returns a component of Type T by finding the existing one, or by instantiating one if not found.
+        /// Returns a component of Type T by finding the existing one, or by instantiating one if not found.
         public static T EnsureComponent<T>(GameObject go) where T : Component
         {
             if (!go.GetComponent<T>())
@@ -16,7 +16,7 @@ namespace Wrj
             return go.GetComponent<T>();
         }
 
-        // Swap items
+        /// Swap items
         public static void Switcheroo<T>(ref T a, ref T b)
         {
             T temp = a;
@@ -24,13 +24,13 @@ namespace Wrj
             b = temp;
         }
 
-        // Supress a compiler warning about unused variables
+        /// Supress a compiler warning about unused variables
         public static void SupressUnusedVarWarning<T>(T sink)
         {
             // Do nothing, but trick the compiler into thinking otherwise.
         }
         
-        // Call a function for a game object and all of its children.
+        /// Call a function for a game object and all of its children.
         public delegate void GameObjectAffector(GameObject gObject);
         public static void AffectGORecursively(GameObject go, GameObjectAffector goa, bool skipParent = false)
         {
@@ -48,7 +48,7 @@ namespace Wrj
             }
         }
 
-        // Ensure an angle in degrees is within 0 - 360.
+        /// Ensure an angle in degrees is within 0 - 360.
         public static float GetPositiveAngle(float angle)
         {
             while (angle <= 0)
@@ -57,19 +57,20 @@ namespace Wrj
             }
             return angle % 360;
         }
+        /// Ensure an angle in degrees is within 0 - 360.
         public static Vector3 GetPositiveAngle(Vector3 angles)
         {
             return new Vector3(GetPositiveAngle(angles.x), GetPositiveAngle(angles.y), GetPositiveAngle(angles.z));
         }
 
-        // Linear remap; Simplified interface, rather than solving the Lerp/InverseLerp puzzle every time.
+        /// Linear remap; Simplified interface, rather than solving the Lerp/InverseLerp puzzle every time.
         public static float Remap(float value, float sourceMin, float sourceMax, float destMin, float destMax)
         {
             return Mathf.Lerp(destMin, destMax, Mathf.InverseLerp(sourceMin, sourceMax, value));
         }
 
-        // Get an array of points representing a quadrartic bezier curve.
-        // https://upload.wikimedia.org/wikipedia/commons/3/3d/B%C3%A9zier_2_big.gif
+        /// Get an array of points representing a quadrartic bezier curve.
+        /// https://upload.wikimedia.org/wikipedia/commons/3/3d/B%C3%A9zier_2_big.gif
         public static Vector3[] QuadraticBezierCurve(Vector3 origin, Vector3 influence, Vector3 destination, int pointCount, bool throughInfluence = false)
         {
             Vector3[] result = new Vector3[pointCount];
@@ -94,8 +95,8 @@ namespace Wrj
             return result;
         }
 
-        // Get an array of points representing a cubic bezier curve.
-        // https://upload.wikimedia.org/wikipedia/commons/d/db/Bézier_3_big.gif
+        /// Get an array of points representing a cubic bezier curve.
+        /// https://upload.wikimedia.org/wikipedia/commons/d/db/Bézier_3_big.gif
         public static Vector3[] CubicBezierCurve(Vector3 origin, Vector3 influenceA, Vector3 influenceB, Vector3 destination, int pointCount)
         {
             Vector3[] result = new Vector3[pointCount];
@@ -120,23 +121,32 @@ namespace Wrj
             return result;
         }
 
-        // Get feet in Unity units/meters
+        /// Run a method after a delay.
+        ///
+        /// Usage:
+        /// Delay(3f, () => Debug.Log("This is a test"));
+        public static void Delay(float delay, System.Action methodWithParameters)
+        {
+            MapToCurve.Ease.Delay(delay, methodWithParameters);
+        }
+
+        /// Get feet in Unity units/meters
         public static float FromFeet(float feet)
         {
             return feet * 0.3048f;
         }
-        // Get Unity units/meters in feet
+        /// Get Unity units/meters in feet
         public static float ToFeet(float meters)
         {
             return meters * 3.2808399f;
         }
 
-        // Get inches in Unity units/meters
+        /// Get inches in Unity units/meters
         public static float FromInches(float inches)
         {
             return inches * 0.0254f;
         }
-        // Get Unity units/meters in inches
+        /// Get Unity units/meters in inches
         public static float ToInches(float meters)
         {
             return meters * 39.3700787f;
@@ -148,10 +158,9 @@ namespace Wrj
             {
                 return f * -1f;
             }
-
             return Mathf.Abs(f);
         }
-
+        
         // Coroutine list management stuff...
         public static Utils wrjInstance;
         private List<MapToCurve.Manipulation> m_ManipulationList;
@@ -193,7 +202,7 @@ namespace Wrj
         // Used like Mathf.Lerp, except not linear
         // Handy functions to manipulate transforms/audio over time.
         // Example:
-        //      WrjUtils.MapToCurve map = new WrjUtils.MapToCurve();
+        //      Wrj.Utils.MapToCurve map = new WrjUtils.MapToCurve();
         //      map.ScaleTransform(transform, transform.localScale * .25f, 5, onDone: SomeMethodThatReturnsVoid, pingPong: 3);
 
         [System.Serializable]
@@ -324,8 +333,7 @@ namespace Wrj
                         StopAllOnTransform(tform);
                         yield break;
                     }
-                    float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
-                    elapsedTime += desiredDelta;
+                    elapsedTime += GetDesiredDelta(useTimeScale);
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
@@ -376,8 +384,7 @@ namespace Wrj
                         StopAllOnTransform(tform);
                         yield break;
                     }
-                    float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
-                    elapsedTime += desiredDelta;
+                    elapsedTime += GetDesiredDelta(useTimeScale);
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
@@ -433,8 +440,7 @@ namespace Wrj
                         StopAllOnTransform(tform);
                         yield break;
                     }
-                    float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
-                    elapsedTime += desiredDelta;
+                    elapsedTime += GetDesiredDelta(useTimeScale);
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
@@ -490,8 +496,7 @@ namespace Wrj
                         StopAllOnTransform(tform);
                         yield break;
                     }
-                    float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
-                    elapsedTime += desiredDelta;
+                    elapsedTime += GetDesiredDelta(useTimeScale);
                     float scrubPos = inverse ? Remap(elapsedTime, 0, duration, 1, 0) : Remap(elapsedTime, 0, duration, 0, 1);
                     Vector3 look = Vector3.zero;
                     if (mirrorCurve)
@@ -548,8 +553,7 @@ namespace Wrj
                         StopAllOnTransform(tform);
                         yield break;
                     }
-                    float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
-                    elapsedTime += desiredDelta;
+                    elapsedTime += GetDesiredDelta(useTimeScale);
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
@@ -596,8 +600,7 @@ namespace Wrj
                         StopAllOnTransform(tform);
                         yield break;
                     }
-                    float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
-                    elapsedTime += desiredDelta;
+                    elapsedTime += GetDesiredDelta(useTimeScale);
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
@@ -652,8 +655,7 @@ namespace Wrj
                     {
                         yield break;
                     }
-                    float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
-                    elapsedTime += desiredDelta;
+                    elapsedTime += GetDesiredDelta(useTimeScale);
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
@@ -704,8 +706,7 @@ namespace Wrj
                     {
                         yield break;
                     }
-                    float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
-                    elapsedTime += desiredDelta;
+                    elapsedTime += GetDesiredDelta(useTimeScale);
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
@@ -778,8 +779,7 @@ namespace Wrj
                         yield break;
                     }
                     Color color = mat.GetColor("_Color");
-                    float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
-                    elapsedTime += desiredDelta;
+                    elapsedTime += GetDesiredDelta(useTimeScale);
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
@@ -829,8 +829,7 @@ namespace Wrj
                         yield break;
                     }
                     Color color = image.color;
-                    float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
-                    elapsedTime += desiredDelta;
+                    elapsedTime += GetDesiredDelta(useTimeScale);
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
@@ -896,8 +895,7 @@ namespace Wrj
                         yield break;
                     }
                     Color color = mat.GetColor("_Color");
-                    float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
-                    elapsedTime += desiredDelta;
+                    elapsedTime += GetDesiredDelta(useTimeScale);
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
@@ -946,8 +944,7 @@ namespace Wrj
                         yield break;
                     }
                     Color color = image.color;
-                    float desiredDelta = useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
-                    elapsedTime += desiredDelta;
+                    elapsedTime += GetDesiredDelta(useTimeScale);
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
@@ -981,6 +978,10 @@ namespace Wrj
                     CoroutineComplete(mcp, onDone);
                 }
             }
+            private float GetDesiredDelta(bool useTimeScale)
+            {
+                return useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
+            }
 
             // Matches the position scale and rotation of a sibling transform.
             public Manipulation[] MatchSibling(Transform tform, Transform toTform, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
@@ -1009,6 +1010,15 @@ namespace Wrj
                 OnDoneMethod = null;
             }
 
+            public void Delay(float delay, System.Action methodWithParameters)
+            {
+                UtilObject().StartCoroutine(DelayCoro(delay, methodWithParameters));
+            }
+            private IEnumerator DelayCoro(float delay, System.Action methodWithParameters)
+            {
+                yield return new WaitForSecondsRealtime(delay);
+                methodWithParameters();
+            }
             // Make sure there's a game object with a WrjUtils component, to run coroutines.
             private Utils UtilObject()
             {

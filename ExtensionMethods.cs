@@ -104,7 +104,7 @@ public static class ExtensionMethods
     /// Move transform in local space over time
     public static void Move(this Transform tForm, Vector3 to, float duration)
     {
-        Wrj.Utils.MapToCurve.Linear.Move(tForm, to, duration, false, 0, 0, 0, false, false, null);
+        Wrj.Utils.MapToCurve.Linear.MoveWorld(tForm, to, duration, false, 0, 0, 0, false, false, null);
     }
     /// Move transform in local space over time
     public static void Move(this GameObject go, Vector3 to, float duration)
@@ -114,7 +114,7 @@ public static class ExtensionMethods
     /// Move transform in local space over time
     public static void EaseMove(this Transform tForm, Vector3 to, float duration)
     {
-        Wrj.Utils.MapToCurve.Ease.Move(tForm, to, duration, false, 0, 0, 0, false, false, null);
+        Wrj.Utils.MapToCurve.Ease.MoveWorld(tForm, to, duration, false, 0, 0, 0, false, false, null);
     }
     /// Move transform in local space over time
     public static void EaseMove(this GameObject go, Vector3 to, float duration)
