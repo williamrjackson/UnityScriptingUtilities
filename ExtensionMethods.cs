@@ -38,6 +38,11 @@ public static class ExtensionMethods
         tForm.gameObject.SetActive(!tForm.gameObject.activeInHierarchy);
     }
 
+    public static Vector3 With(this Vector3 orig, float? x = null, float? y = null, float? z = null)
+    {
+        return new Vector3(x ?? orig.x, y ?? orig.y, z ?? orig.z);
+    }
+
     /// Returns a Vector3 using x, y and 0
     public static Vector3 ToVector3(this Vector2 v2)
     {
