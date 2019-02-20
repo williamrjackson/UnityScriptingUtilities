@@ -44,32 +44,28 @@ public static class ExtensionMethods
         return new Vector3(x ?? orig.x, y ?? orig.y, z ?? orig.z);
     }
 
-    /// Simplifies setting the position of a transform
-    public static Transform SetPositionWith(this Transform tform, float? x = null, float? y = null, float? z = null)
+    /// Returns the transforms position as moved in a direction relative to itself
+    public static Vector3 PosInDir(this Transform tform, float forward = 0f, float right = 0f, float up = 0f)
     {
-        tform.position = tform.position.With(x, y, z);
-        return tform;
+        return tform.position + tform.forward * forward + tform.right * right + tform.up * up;
+    }
+    
+    /// Returns the transforms position as moved in a direction relative to the world
+    public static Vector3 PosInWorldDir(this Transform tform, float forward = 0f, float right = 0f, float up = 0f)
+    {
+        return tform.position + Vector3.forward * forward + Vector3.right * right + Vector3.up * up;
     }
 
-    /// Simplifies setting the local position of a transform
-    public static Transform SetLocalPositionWith(this Transform tform, float? x = null, float? y = null, float? z = null)
+    /// Returns the transforms local position as moved in a direction relative to itself
+    public static Vector3 LocalPosInDir(this Transform tform, float forward = 0f, float right = 0f, float up = 0f)
     {
-        tform.localPosition = tform.localPosition.With(x, y, z);
-        return tform;
+        return tform.localPosition + tform.forward * forward + tform.right * right + tform.up * up;
     }
 
-    /// Moves a transform by the specified amount
-    public static Transform MoveBy(this Transform tform, float x = 0f, float y = 0f, float z = 0f)
+    /// Returns the transforms local position as moved in a direction relative to the world
+    public static Vector3 LocalPosInWorldDir(this Transform tform, float forward = 0f, float right = 0f, float up = 0f)
     {
-        tform.position = tform.position.With(tform.position.x + x, tform.position.y + y, tform.position.z + z);
-        return tform;
-    }
-
-    /// Moves a transform in the specified direction
-    public static Transform MoveInDir(this Transform tform, float forward = 0f, float right = 0f, float up = 0f)
-    {
-        tform.position = tform.position + tform.forward * forward + tform.right * right + tform.up * up;
-        return tform;
+        return tform.localPosition + Vector3.forward * forward + Vector3.right * right + Vector3.up * up;
     }
 
     /// Returns a Vector3 using x, y and 0

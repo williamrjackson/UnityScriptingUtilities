@@ -26,9 +26,9 @@ namespace Wrj
             if (randomBumpObjects.objectList.Length > 0)
                 StartCoroutine(testRandomLoop());
 
-            Utils.MapToCurve.Linear.Move(linTransform, linTransform.localPosition + Vector3.up * 5 + Vector3.right * -1.5f, duration, pingPong: 10);
-            Utils.MapToCurve.EaseIn.Move(easeInTransform, easeInTransform.localPosition + Vector3.up * 5 + Vector3.right * .5f, duration, mirrorCurve: false, pingPong: 10);
-            Utils.MapToCurve.EaseIn.Move(easeOutTransform, easeOutTransform.localPosition + Vector3.up * 5 + Vector3.right * -.5f, duration, mirrorCurve: true, pingPong: 10);
+            Utils.MapToCurve.Linear.MoveWorld(linTransform, linTransform.PosInWorldDir(up: 5f, right: -1.5f), duration, pingPong: 10);
+            Utils.MapToCurve.EaseIn.MoveWorld(easeInTransform, easeInTransform.PosInWorldDir(up: 5f, right: .5f), duration, mirrorCurve: false, pingPong: 10);
+            Utils.MapToCurve.EaseIn.MoveWorld(easeOutTransform, easeOutTransform.PosInWorldDir(up: 5f, right: -.5f), duration, mirrorCurve: true, pingPong: 10);
             Utils.MapToCurve.Ease.MatchSibling(easeTransform, targetTransform, duration, pingPong: 10);
 
             Utils.MapToCurve.Linear.Rotate(linTransform, Vector3.up * 135, duration, shortestPath: false, pingPong: 10);
@@ -72,9 +72,9 @@ namespace Wrj
                 float initY = affected.localScale.y;
                 Vector3 targetScale = new Vector3(1, initY + .1f, 1);
                 Utils.MapToCurve.Ease.Scale(affected, targetScale, .1f);
-                Utils.MapToCurve.Ease.Move(affected, affected.localPosition + affected.up * .05f, .1f);
+                Utils.MapToCurve.Ease.Move(affected, affected.LocalPosInDir(up: .05f), .1f);
                 Utils.MapToCurve.Ease.ChangeColor(affected, Color.Lerp(Color.white, Color.black, (initY - 1) / 10), .1f);
-                yield return new WaitForSecondsRealtime(.5f);
+                yield return new WaitForSecondsRealtime(.25f);
             }
         }
         IEnumerator StopTest()
