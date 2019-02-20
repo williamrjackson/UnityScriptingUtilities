@@ -38,9 +38,38 @@ public static class ExtensionMethods
         tForm.gameObject.SetActive(!tForm.gameObject.activeInHierarchy);
     }
 
+    /// Returns a Vector3 with an axis forced as specified
     public static Vector3 With(this Vector3 orig, float? x = null, float? y = null, float? z = null)
     {
         return new Vector3(x ?? orig.x, y ?? orig.y, z ?? orig.z);
+    }
+
+    /// Simplifies setting the position of a transform
+    public static Transform SetPositionWith(this Transform tform, float? x = null, float? y = null, float? z = null)
+    {
+        tform.position = tform.position.With(x, y, z);
+        return tform;
+    }
+
+    /// Simplifies setting the local position of a transform
+    public static Transform SetLocalPositionWith(this Transform tform, float? x = null, float? y = null, float? z = null)
+    {
+        tform.localPosition = tform.localPosition.With(x, y, z);
+        return tform;
+    }
+
+    /// Moves a transform by the specified amount
+    public static Transform MoveBy(this Transform tform, float x = 0f, float y = 0f, float z = 0f)
+    {
+        tform.position = tform.position.With(tform.position.x + x, tform.position.y + y, tform.position.z + z);
+        return tform;
+    }
+
+    /// Moves a transform in the specified direction
+    public static Transform MoveInDir(this Transform tform, float forward = 0f, float right = 0f, float up = 0f)
+    {
+        tform.position = tform.position + tform.forward * forward + tform.right * right + tform.up * up;
+        return tform;
     }
 
     /// Returns a Vector3 using x, y and 0
