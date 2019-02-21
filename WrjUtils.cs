@@ -254,7 +254,7 @@ namespace Wrj
             {
                 curve = c;
             }
-/// NOTE: Make sure CoroutineDone nulls the coroutine and removes from the list.A
+
             public static void StopAll()
             {
                 if (wrjInstance != null)
