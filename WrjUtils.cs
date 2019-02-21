@@ -636,6 +636,53 @@ namespace Wrj
                     CoroutineComplete(mcp, onDone);
                 }
             }
+            public delegate void FloatReceiver(float f);
+            public Manipulation ManipulateFloat(FloatReceiver receiver, float init, float target, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
+            {
+                Manipulation mcp = new Manipulation("Float", UtilObject().transform);
+                mcp.coroutine = UtilObject().StartCoroutine(FloatManip(mcp, receiver, init, target, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+                UtilObject().AddToCoroList(mcp);
+                return mcp;
+            }
+            private IEnumerator FloatManip(Manipulation mcp, FloatReceiver receiver, float init, float target, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            {
+                float elapsedTime = 0;
+                mcp.iterationCount++;
+                while (elapsedTime < duration)
+                {
+                    yield return new WaitForEndOfFrame();
+
+                    elapsedTime += GetDesiredDelta(useTimeScale);
+                    float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
+                    if (mirrorCurve)
+                    {
+                        receiver(MirrorLerp(init, target, scrubPos));
+                    }
+                    else
+                    {
+                        receiver(Lerp(init, target, scrubPos));
+                    }
+                }
+                receiver(Lerp(init, target, 1f));
+                if (pingPong > 0)
+                {
+                    mcp.coroutine = UtilObject().StartCoroutine(FloatManip(mcp, receiver, target, init, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone));
+                }
+                else if (mirrorPingPong > 0)
+                {
+                    mcp.coroutine = UtilObject().StartCoroutine(FloatManip(mcp, receiver, target, init, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone));
+                }
+                else if (loop > 0)
+                {
+                    receiver(init);
+                    mcp.coroutine = UtilObject().StartCoroutine(FloatManip(mcp, receiver, init, target, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone));
+                }
+                else
+                {
+                    CoroutineComplete(mcp, onDone);
+                }
+            }
+
             public Manipulation FadeAudio(AudioSource audioSource, float targetVol, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
                 Manipulation mcp = new Manipulation("Fade", audioSource.transform);
