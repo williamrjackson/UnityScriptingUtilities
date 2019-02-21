@@ -69,7 +69,7 @@ namespace Wrj
             return Mathf.Lerp(destMin, destMax, Mathf.InverseLerp(sourceMin, sourceMax, value));
         }
 
-        /// Get an array of points representing a quadrartic bezier curve.
+        /// Get an array of points representing a quadratic bezier curve.
         /// https://upload.wikimedia.org/wikipedia/commons/3/3d/B%C3%A9zier_2_big.gif
         public static Vector3[] QuadraticBezierCurve(Vector3 origin, Vector3 influence, Vector3 destination, int pointCount, bool throughInfluence = false)
         {
