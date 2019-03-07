@@ -103,6 +103,8 @@ Each GameObject in an array gets an int representing its weight. Higher weights 
 ## Utility Functions
 - `EnsureComponent<T>(GameObject)`
   - Returns a component instance by finding the one on the game object, or by adding one if not found.
+- `Delay(delayTime, () => Method(withParams))`
+  - Issues a command after the specified delayTime elapses.
 - `Switcheroo<T>(ref T a, ref T b)`
   - Swap items
 - `AffectGORecursively(GameObject, AnyFunctionThatTakesAGameObj)`
