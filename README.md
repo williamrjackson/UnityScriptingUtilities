@@ -10,6 +10,8 @@ Add to projects using:
 Provides values as plotted on an Animation Curve. Used a lot like Mathf.Lerp, except not linear. 
 
 Includes a bunch of functions to manipulate transforms/audio over time. For example, the following will scale, move and rotate a transfrom into a position over 5 seconds. The target position is defined by a sibling transfrom.
+
+Presets for common ease curves from https://github.com/nobutaka/EasingCurvePresets are included
 ```C#
    Wrj.Utils.MapToCurve.Ease.MatchSibling(transform, targetTransform, 5);
 //                       ^        ^          ^            ^           ^
