@@ -100,6 +100,38 @@ public static class ExtensionMethods
         return Wrj.Utils.ToInches(units);
     }
     
+    /// <summary>
+    /// Appends either "A" or "An" to a word depending on whether the first character is a vowel.
+    /// </summary>
+    /// <param name="captitalize"></param>
+    /// <returns>"An owl" or "A bear"</returns>
+    public static string AppendAn(this string word, bool captitalize = false)
+    {
+        string an = "";
+        bool isVowel = "aeiouAEIOU".IndexOf(word[0]) >= 0;
+        if (HasRulebreakingIndefiniteArticle(word))
+        {
+            isVowel = !isVowel;
+        }
+
+        if (isVowel)
+        {
+            an = captitalize ? "An" : "an";
+        }
+        else
+        {
+            an = captitalize ? "A" : "a";
+        }
+
+        return $"{an} {word}";
+    }
+
+    private static bool HasRulebreakingIndefiniteArticle(string word)
+    {
+        string list = " a f h l m n r s u x honest honesty hour heir honour honourable honor honorable herb use union university unit user unity universe uniform usage utility urine uranium unison euphoria utopia unanimity uterus euthanasia ewe ufo unicorn urea urethra euphemism eugenics usurper usability eunuch uni eucalyptus usury eulogy ubiquity universalism urinal universal ewer euro utensil ufology uniformitarianism upsilon ukulele urinalysis usurer ureter uridine ute eugenist eutectic eukaryote ufologist ululation usufruct eustasy unary uvula urus eucatastrophe uraeus ouabain one using ucalegon oncer usanian usufruction eusebius usar usufructuary amazigh usuress euouae ukase euclidianness uke uke uke ukie ureteroureterostomy usurping eustress unakas eudaemon ukrainian unidirectionality utahn unite uranism uranist eudemonia euth ute uranophobia euphoriant uvular ouija uropygium eugarie eugenesis uw iatmul eutripsia uey eugeny euglena ufo unigeniture univalence univalent utile utilitarian ubac eulachon unique usonian oaxaca uniquity eureka onesie universalism uberty uni ubication utonian ubicity euboean uniate euro utopographer esclop euro-american eumenides eucharist univocal euchologion euchre eunoia unix ";
+        return list.IndexOf($" {word.ToLower()} ") >= 0;
+    }
+
     // Shorthand transform manipulation extensions, using MapToCurve
     
     /// Move, rotate and scale the transform to the position of another over time
