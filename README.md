@@ -123,6 +123,10 @@ Each GameObject in an array gets an int representing its weight. Higher weights 
   - Convert feet into Unity Units. Because I'm a silly American that can only visualise space in US standard units.
 - `FromInches(inches)`
   - Convert inches into Unity Units.    
+- `FromInches(inches)`
+  - Convert inches into Unity Units.    
+- `String.PrependAn(capitalize)`
+  - Prepends either "A" or "An" depending on the word.    
 
 ## Bezier Path Editor 
 Editor scripts to create paths. `MapToCurve` includes a tween to follow paths over a duration using a speed curve.

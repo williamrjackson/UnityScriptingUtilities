@@ -101,11 +101,11 @@ public static class ExtensionMethods
     }
     
     /// <summary>
-    /// Appends either "A" or "An" to a word depending on whether the first character is a vowel.
+    /// Prepends either "A" or "An" to a word depending on whether the first character is a vowel sound.
     /// </summary>
     /// <param name="captitalize"></param>
     /// <returns>"An owl" or "A bear"</returns>
-    public static string AppendAn(this string word, bool captitalize = false)
+    public static string PrependAn(this string word, bool captitalize = false)
     {
         string an = "";
         bool isVowel = "aeiouAEIOU".IndexOf(word[0]) >= 0;
