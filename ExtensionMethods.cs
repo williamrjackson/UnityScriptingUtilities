@@ -131,7 +131,27 @@ public static class ExtensionMethods
         string list = " a f h l m n r s u x 8 11 18 80 81 82 83 84 85 86 87 88 89 honest honesty hour heir honour honourable honor honorable herb use union university unit user unity universe uniform usage utility urine uranium unison euphoria utopia unanimity uterus euthanasia ewe ufo unicorn urea urethra euphemism eugenics usurper usability eunuch uni eucalyptus usury eulogy ubiquity universalism urinal universal ewer euro utensil ufology uniformitarianism upsilon ukulele urinalysis usurer ureter uridine ute eugenist eutectic eukaryote ufologist ululation usufruct eustasy unary uvula urus eucatastrophe uraeus ouabain one using ucalegon oncer usanian usufruction eusebius usar usufructuary amazigh usuress euouae ukase euclidianness uke uke uke ukie ureteroureterostomy usurping eustress unakas eudaemon ukrainian unidirectionality utahn unite uranism uranist eudemonia euth ute uranophobia euphoriant uvular ouija uropygium eugarie eugenesis uw iatmul eutripsia uey eugeny euglena ufo unigeniture univalence univalent utile utilitarian ubac eulachon unique usonian oaxaca uniquity eureka onesie universalism uberty uni ubication utonian ubicity euboean uniate euro utopographer esclop euro-american eumenides eucharist univocal euchologion euchre eunoia unix ";
         return list.IndexOf($" {word.ToLower()} ") >= 0;
     }
+    
+    /// <summary>
+    /// Appends "s" or "es" based on common rules.
+    /// </summary>
+    /// <returns>"Puma" -> "Pumas" or "Fox" -> "Foxes"</returns>
+    private static string Pluralize(this string word)
+    {
+        char[] chars = word.ToCharArray();
 
+        char lastLetter = chars[chars.Length - 1];
+        char secondToLastLetter = chars[chars.Length - 2];
+
+        if ((lastLetter == 's' || lastLetter == 'z' || lastLetter == 'x') ||
+            (lastLetter == 'h' && (secondToLastLetter == 'c' || secondToLastLetter == 's')))
+        {
+            return word + "es";
+        }
+
+        return word + "s";
+    }
+    
     // Shorthand transform manipulation extensions, using MapToCurve
     
     /// Move, rotate and scale the transform to the position of another over time
