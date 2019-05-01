@@ -103,11 +103,16 @@ public static class ExtensionMethods
     /// <summary>
     /// Prepends either "A" or "An" to a word depending on whether the first character is a vowel sound.
     /// </summary>
-    /// <param name="captitalize"></param>
+    /// <param name="capitalize"></param>
     /// <returns>"An owl" or "A bear"</returns>
-    public static string PrependAn(this string word, bool captitalize = false)
+    public static string PrependAn(this string word, bool capitalize = false, bool pluralize = false)
     {
         string an = "";
+        if (pluralize)
+        {
+            an = Capitalize("some", capitalize);
+            return $"{an} {Pluralize(word)}";
+        }
         bool isVowel = "aeiouAEIOU".IndexOf(word[0]) >= 0;
         if (HasRulebreakingIndefiniteArticle(word))
         {
@@ -116,11 +121,11 @@ public static class ExtensionMethods
 
         if (isVowel)
         {
-            an = Capitalize("an", captitalize);
+            an = Capitalize("an", capitalize);
         }
         else
         {
-            an = Capitalize("a", captitalize);
+            an = Capitalize("a", capitalize);
         }
 
         return $"{an} {word}";
