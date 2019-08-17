@@ -23,16 +23,17 @@ namespace Wrj
 
 		void Update () 
 		{
-			if (columns < 1)
+			if (columns < 1 || GetComponentsInChildren<Transform>().Length <= 1)
 				return;
 			
-			if (columnSpacing != _cachedColumnSpacing
+			if (   columnSpacing != _cachedColumnSpacing
 				|| rowSpacing != _cachedRowSpacing
 				|| columns != _cachedColumns
 				|| radius != _cachedRadius
 				|| curveAxis != _cachedCurveAxis
 				|| faceDirection != _cachedFaceDirection
-				|| columns != _cachedColumns || _children != GetComponentsInChildren<Transform>())
+				|| columns != _cachedColumns 
+				|| _children != GetComponentsInChildren<Transform>())
 			{
 				_cachedColumnSpacing = columnSpacing;
 				_cachedRowSpacing = rowSpacing;
@@ -42,15 +43,17 @@ namespace Wrj
 				_cachedFaceDirection = faceDirection;
 				_children = GetComponentsInChildren<Transform>();
 
-				int rowCount = transform.childCount / columns;
-				if (transform.childCount % columns != 0)
+				// If there are fewer transforms than columns, pretend there are just that many columns.
+				int appliedColumns = Mathf.Min(columns, _children.Length - 1);
+				int rowCount = transform.childCount / appliedColumns;
+				if (transform.childCount % appliedColumns != 0)
 				{
 					rowCount++;
 				}
 
-				// float leftmostAngle = -(columnSpacing * (columns - 1)) * .5f;
-				float leftmostAngle = (curveAxis == CurveAxis.Rows) ? -((columnSpacing * (columns + 1)) * .5f): -(columnSpacing * (columns - 1)) * .5f;
-				float topmostAngle = -(rowSpacing * (rowCount - 1)) * .5f;
+				// Offsets for centering
+				float leftmostAngle = (curveAxis == CurveAxis.Rows) ? ((columnSpacing * (appliedColumns + 1)) * .5f) : -(columnSpacing * (appliedColumns - 1)) * .5f;
+				float topmostAngle = (curveAxis != CurveAxis.Columns) ?  -((rowSpacing * (rowCount - 1)) * .5f): (rowSpacing * (rowCount - 1)) * .5f;
 
 				float appliedHorizontalSpacing = 0f;
 				float appliedVerticalSpacing = 0f;
@@ -59,6 +62,7 @@ namespace Wrj
 				{
 					columnCount++;
 					
+					// Project to a point on a sphere
 					Quaternion rotation;
 					if (curveAxis == CurveAxis.Columns)
 					{
@@ -96,14 +100,14 @@ namespace Wrj
 					}
 					if (curveAxis == CurveAxis.Columns) 
 					{
-						element.localPosition = element.localPosition.With(y: topmostAngle + appliedVerticalSpacing);
+						element.localPosition = element.localPosition.With(y: topmostAngle - appliedVerticalSpacing);
 					}
 					if (curveAxis == CurveAxis.Rows) 
 					{
-						element.localPosition = element.localPosition.With(x: leftmostAngle + appliedHorizontalSpacing);
+						element.localPosition = element.localPosition.With(x: leftmostAngle - appliedHorizontalSpacing);
 					}
 
-					if (columnCount == columns)
+					if (columnCount == appliedColumns)
 					{
 						columnCount = 0;
 						appliedHorizontalSpacing = 0f;
