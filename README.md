@@ -124,3 +124,6 @@ Each GameObject in an array gets an int representing its weight. Higher weights 
 Editor scripts to create paths. `MapToCurve` includes a tween to follow paths over a duration using a speed curve.
 
 ![Path](PathFollowerExample.gif)    
+
+## 3D Layout Groups
+Basic object distribution scripts that runs in edit mode, dynamically adapting to changes in the child hierarchy. Similar to UI Layout Groups, but for 3D transforms. 
