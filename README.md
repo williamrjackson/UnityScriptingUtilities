@@ -40,8 +40,8 @@ mirrorCurve    - Swap the in/out curve shapes.
                  Get EaseOut by combining the EaseIn curve  with this flag
 loop           - Repeat the manipulation this many times
 pingPong       - Repeat the manipulation forward, then backward, this many times
-mirrorPingPong - pingPong, but inverts the curve when pefrombackward manipulations
-useTimeScale   - Set this to false to ignore time scaling
+mirrorPingPong - pingPong, but inverts the curve when performing backward manipulations
+useTimeScale   - Set this to false to ignore global time scaling
 shortestPath   - In the case of manipulations that include rotation, this will cause minimal
                  possible rotation to get to the target. Without this, a rotation difference > 360 
                  will result in a full positive rotation before reaching the target.
@@ -49,16 +49,16 @@ onDone         - Specify a function to call when the operation completes
 ```
 There are simplified GameObject and Transform Extension Methods for linear and ease manipulations:
 ```
-go.Move(destination, duration);
-go.EaseMove(destination, duration);
-go.Rotate(targetRotation, duration);
-go.EaseRotate(targetRotation, duration);
-go.Scale(targetScale, duration);
-go.EaseScale(TargetScale, duration);
-go.SnapToSibling(targetSibling, duration);
-go.EaseSnapToSibling(targetSibling, duration);
-go.Color(desiredColor, duration);
-go.Alpha(desiredAlpha, duration);
+transform.Move(destination, duration);
+transform.EaseMove(destination, duration);
+transform.Rotate(targetRotation, duration);
+transform.EaseRotate(targetRotation, duration);
+transform.Scale(targetScale, duration);
+transform.EaseScale(TargetScale, duration);
+transform.SnapToSibling(targetSibling, duration);
+transform.EaseSnapToSibling(targetSibling, duration);
+transform.Color(desiredColor, duration);
+transform.Alpha(desiredAlpha, duration);
 ```
 ![Tweening](TweenExample.gif)    
 #### Test Bed Example
