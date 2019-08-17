@@ -100,6 +100,92 @@ public static class ExtensionMethods
         return Wrj.Utils.ToInches(units);
     }
     
+    /// <summary>
+    /// Prepends either "A" or "An" to a word depending on whether the first character is a vowel sound.
+    /// </summary>
+    /// <param name="capitalize"></param>
+    /// <returns>"An owl" or "A bear"</returns>
+    public static string PrependAn(this string word, bool capitalize = false, bool pluralize = false)
+    {
+        string an = "";
+        if (pluralize)
+        {
+            an = Capitalize("some", capitalize);
+            return $"{an} {Pluralize(word)}";
+        }
+        bool isVowel = "aeiouAEIOU".IndexOf(word[0]) >= 0;
+        if (HasRulebreakingIndefiniteArticle(word))
+        {
+            isVowel = !isVowel;
+        }
+
+        if (isVowel)
+        {
+            an = Capitalize("an", capitalize);
+        }
+        else
+        {
+            an = Capitalize("a", capitalize);
+        }
+
+        return $"{an} {word}";
+    }
+
+    private static bool HasRulebreakingIndefiniteArticle(string word)
+    {
+        string list = " a f h l m n r s u x 8 11 18 80 81 82 83 84 85 86 87 88 89 honest honesty hour heir honour honourable honor honorable herb use union university unit user unity universe uniform usage utility urine uranium unison euphoria utopia unanimity uterus euthanasia ewe ufo unicorn urea urethra euphemism eugenics usurper usability eunuch uni eucalyptus usury eulogy ubiquity universalism urinal universal ewer euro utensil ufology uniformitarianism upsilon ukulele urinalysis usurer ureter uridine ute eugenist eutectic eukaryote ufologist ululation usufruct eustasy unary uvula urus eucatastrophe uraeus ouabain one using ucalegon oncer usanian usufruction eusebius usar usufructuary amazigh usuress euouae ukase euclidianness uke uke uke ukie ureteroureterostomy usurping eustress unakas eudaemon ukrainian unidirectionality utahn unite uranism uranist eudemonia euth ute uranophobia euphoriant uvular ouija uropygium eugarie eugenesis uw iatmul eutripsia uey eugeny euglena ufo unigeniture univalence univalent utile utilitarian ubac eulachon unique usonian oaxaca uniquity eureka onesie universalism uberty uni ubication utonian ubicity euboean uniate euro utopographer esclop euro-american eumenides eucharist univocal euchologion euchre eunoia unix ";
+        return list.IndexOf($" {word.ToLower()} ") >= 0;
+    }
+
+    private static string Capitalize(string word, bool capitalize)
+    {
+        if (!capitalize)
+            return char.ToLower(word[0]) + word.Substring(1);
+
+        return char.ToUpper(word[0]) + word.Substring(1);
+    }
+
+    /// <summary>
+    /// Appends "s" or "es" based on common rules.
+    /// </summary>
+    /// <returns>"Puma" -> "Pumas" or "Fox" -> "Foxes"</returns>
+    public static string Pluralize(this string word, bool capitalize = false)
+    {
+        string checkedWord = CheckForIrregularPlural(word);
+        if (checkedWord != null)
+        {
+            return Capitalize(checkedWord, capitalize);
+        }
+        char[] chars = word.ToCharArray();
+
+        char lastLetter = chars[chars.Length - 1];
+        char secondToLastLetter = chars[chars.Length - 2];
+
+        if ((lastLetter == 's' || lastLetter == 'z' || lastLetter == 'x') ||
+            (lastLetter == 'h' && (secondToLastLetter == 'c' || secondToLastLetter == 's')))
+        {
+            return word + "es";
+        }
+
+        return Capitalize(word + "s", capitalize);
+    }
+
+    private static string CheckForIrregularPlural(string word)
+    {
+        Dictionary<string, string> pluralMap = new Dictionary<string, string>()
+        {
+            {"addendum", "addenda"}, {"aircraft", "aircraft"}, {"alumna", "alumnae"}, {"alumnus", "alumni"}, {"analysis", "analyses"}, {"antenna", "antennae"}, {"antithesis", "antitheses"}, {"apex", "apices"}, {"appendix", "appendices"}, {"axis", "axes"}, {"bacillus", "bacilli"}, {"bacterium", "bacteria"}, {"basis", "bases"}, {"beau", "beaux"}, {"bison", "bison"}, {"bureau", "bureaux"}, {"cactus", "cacti"}, {"château", "châteaux"}, {"child", "children"}, {"codex", "codices"}, {"concerto", "concerti"}, {"corpus", "corpora"}, {"crisis", "crises"}, {"criterion", "criteria"}, {"curriculum", "curricula"}, {"datum", "data"}, {"deer", "deer"}, {"diagnosis", "diagnoses"}, {"die", "dice"}, {"dwarf", "dwarves"}, {"ellipsis", "ellipses"}, {"erratum", "errata"}, {"fez", "fezzes"}, {"fish", "fish"}, {"focus", "foci"}, {"foot", "feet"}, {"formula", "formulae"}, {"fungus", "fungi"}, {"genus", "genera"}, {"goose", "geese"}, {"graffito", "graffiti"}, {"grouse", "grouse"}, {"half", "halves"}, {"hoof", "hooves"}, {"hypothesis", "hypotheses"}, {"index", "indices"}, {"larva", "larvae"}, {"libretto", "libretti"}, {"loaf", "loaves"}, {"locus", "loci"}, {"louse", "lice"}, {"man", "men"}, {"matrix", "matrices"}, {"medium", "media"}, {"memorandum", "memoranda"}, {"minutia", "minutiae"}, {"moose", "moose"}, {"mouse", "mice"}, {"nebula", "nebulae"}, {"nucleus", "nuclei"}, {"oasis", "oases"}, {"offspring", "offspring"}, {"opus", "opera"}, {"ovum", "ova"}, {"ox", "oxen"}, {"parenthesis", "parentheses"}, {"phenomenon", "phenomena"}, {"phylum", "phyla"}, {"prognosis", "prognoses"}, {"quiz", "quizzes"}, {"radius", "radii"}, {"referendum", "referenda"}, {"salmon", "salmon"}, {"scarf", "scarves"}, {"self", "selves"}, {"series", "series"}, {"sheep", "sheep"}, {"shrimp", "shrimp"}, {"species", "species"}, {"stimulus", "stimuli"}, {"stratum", "strata"}, {"swine", "swine"}, {"syllabus", "syllabi"}, {"symposium", "symposia"}, {"synopsis", "synopses"}, {"tableau", "tableaux"}, {"thesis", "theses"}, {"thief", "thieves"}, {"tooth", "teeth"}, {"trout", "trout"}, {"tuna", "tuna"}, {"vertebra", "vertebrae"}, {"vertex", "vertices"}, {"vita", "vitae"}, {"vortex", "vortice"}, {"wife", "wives"}, {"wolf", "wolves"}, {"woman", "women"},
+        };
+        foreach (KeyValuePair<string, string> pair in pluralMap)
+        {
+            if (pair.Key == word.ToLower())
+            {
+                return pair.Value;
+            }
+        }
+        return null;
+    }
+    
     // Shorthand transform manipulation extensions, using MapToCurve
     
     /// Move, rotate and scale the transform to the position of another over time

@@ -10,6 +10,8 @@ Add to projects using:
 Provides values as plotted on an Animation Curve. Used a lot like Mathf.Lerp, except not linear. 
 
 Includes a bunch of functions to manipulate transforms/audio over time. For example, the following will scale, move and rotate a transfrom into a position over 5 seconds. The target position is defined by a sibling transfrom.
+
+Presets for common ease curves from https://github.com/nobutaka/EasingCurvePresets are included
 ```C#
    Wrj.Utils.MapToCurve.Ease.MatchSibling(transform, targetTransform, 5);
 //                       ^        ^          ^            ^           ^
@@ -103,6 +105,8 @@ Each GameObject in an array gets an int representing its weight. Higher weights 
 ## Utility Functions
 - `EnsureComponent<T>(GameObject)`
   - Returns a component instance by finding the one on the game object, or by adding one if not found.
+- `Delay(delayTime, () => Method(withParams))`
+  - Issues a command after the specified delayTime elapses.
 - `Switcheroo<T>(ref T a, ref T b)`
   - Swap items
 - `AffectGORecursively(GameObject, AnyFunctionThatTakesAGameObj)`
@@ -119,6 +123,10 @@ Each GameObject in an array gets an int representing its weight. Higher weights 
   - Convert feet into Unity Units. Because I'm a silly American that can only visualise space in US standard units.
 - `FromInches(inches)`
   - Convert inches into Unity Units.    
+- `FromInches(inches)`
+  - Convert inches into Unity Units.    
+- `String.PrependAn(capitalize)`
+  - Prepends either "A" or "An" depending on the word.    
 
 ## Bezier Path Editor 
 Editor scripts to create paths. `MapToCurve` includes a tween to follow paths over a duration using a speed curve.
