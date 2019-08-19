@@ -36,8 +36,8 @@ namespace Wrj
 				{
 					rowCount++;
 				}
-				Vector3 leftmostPos = (columnCentering) ? transform.localPosition.With(x: transform.localPosition.x - (columnSpacing * (columns - 1)) * .5f) : transform.localPosition;
-				Vector3 topmostPos = (rowCentering) ? transform.localPosition.With(y: transform.localPosition.y + (rowSpacing * (rowCount - 1)) * .5f) : transform.localPosition;
+				Vector3 leftmostPos = (columnCentering) ? transform.localPosition.With(x: -(columnSpacing * (columns - 1)) * .5f) : Vector3.zero;
+				Vector3 topmostPos = (rowCentering) ? transform.localPosition.With(y: (rowSpacing * (rowCount - 1)) * .5f) : Vector3.zero;
 
 				float appliedHorizontalSpacing = 0f;
 				float appliedVerticalSpacing = 0f;
