@@ -3,7 +3,8 @@
 namespace Wrj
 {
 	[ExecuteInEditMode]
-	public class GridLayout3d : MonoBehaviour {
+	public class GridLayout3d : MonoBehaviour 
+	{
 		public int columns = 5;
 		private int _cachedColumns;
 		public bool columnCentering = false;

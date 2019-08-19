@@ -35,7 +35,7 @@ namespace Wrj
 			{
 				_cachedHorizontalSpacing = horizontalSpacing;
 				_cachedHorizontalCentering = horizontalCentering;
-				Vector3 leftmostPos = (horizontalCentering) ? transform.localPosition.With(x: transform.localPosition.x - (horizontalSpacing * (transform.childCount - 1)) * .5f) : transform.localPosition;
+				Vector3 leftmostPos = (horizontalCentering) ? transform.localPosition.With(x: -(horizontalSpacing * (transform.childCount - 1)) * .5f) : Vector3.zero;
 				float appliedSpacing = 0f;
 				foreach (Transform element in transform)
 				{
@@ -48,7 +48,7 @@ namespace Wrj
 			{
 				_cachedVerticalSpacing = verticalSpacing;
 				_cachedVerticalCentering = verticalCentering;
-				Vector3 topmostPos = (verticalCentering) ? transform.localPosition.With(y: transform.localPosition.y - (verticalSpacing * (transform.childCount - 1)) * .5f) : transform.localPosition;
+				Vector3 topmostPos = (verticalCentering) ? transform.localPosition.With(y: -(verticalSpacing * (transform.childCount - 1)) * .5f) : Vector3.zero;
 				float appliedSpacing = 0f;
 				foreach (Transform element in transform)
 				{
@@ -61,7 +61,7 @@ namespace Wrj
 			{
 				_cachedDepthSpacing = depthSpacing;
 				_cachedDepthCentering = depthCentering;
-				Vector3 farmostPos = (depthCentering) ? transform.localPosition.With(z: transform.localPosition.z - (depthSpacing * (transform.childCount - 1)) * .5f) : transform.localPosition;
+				Vector3 farmostPos = (depthCentering) ? transform.localPosition.With(z: -(depthSpacing * (transform.childCount - 1)) * .5f) : Vector3.zero;
 				float appliedSpacing = 0f;
 				foreach (Transform element in transform)
 				{
