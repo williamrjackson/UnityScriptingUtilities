@@ -81,6 +81,27 @@ public static class ExtensionMethods
         return new Vector2(v3.x, v3.y);
     }
 
+    
+
+    /// Returns a random element of a list.
+    public static T GetRandom<T>(this System.Collections.Generic.List<T> list)
+    {
+        if (list.Count > 0)
+        {
+            return list[Random.Range(0, list.Count)];
+        }
+        return default(T);
+    }
+    /// Returns a random element of an array.
+    public static T GetRandom<T>(this T[] ar)
+    {
+        if (ar.Length > 0)
+        {
+            return ar[Random.Range(0, ar.Length)];
+        }
+        return default(T);
+    }
+
     /// Returns conversion to Unity Units/Meters from Feet
     public static float FeetToUnits(this float feet)
     {
@@ -107,14 +128,9 @@ public static class ExtensionMethods
     /// </summary>
     /// <param name="capitalize"></param>
     /// <returns>"An owl" or "A bear"</returns>
-    public static string PrependAn(this string word, bool capitalize = false, bool pluralize = false)
+    public static string PrependAn(this string word, bool capitalize = false)
     {
         string an = "";
-        if (pluralize)
-        {
-            an = Capitalize("some", capitalize);
-            return an + " " + Pluralize(word);
-        }
         bool isVowel = "aeiouAEIOU".IndexOf(word[0]) >= 0;
         if (HasRulebreakingIndefiniteArticle(word))
         {
