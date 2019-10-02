@@ -127,6 +127,8 @@ Each GameObject in an array gets an int representing its weight. Higher weights 
   - Convert inches into Unity Units.    
 - `String.PrependAn(capitalize)`
   - Prepends either "A" or "An" depending on the word.    
+- `List.GetRandom()` and `Array.GetRandom()`
+  - Returns a random element from an array or list.    
 
 ## Bezier Path Editor 
 Editor scripts to create paths. `MapToCurve` includes a tween to follow paths over a duration using a speed curve.
