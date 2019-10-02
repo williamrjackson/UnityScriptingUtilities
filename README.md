@@ -132,3 +132,6 @@ Each GameObject in an array gets an int representing its weight. Higher weights 
 Editor scripts to create paths. `MapToCurve` includes a tween to follow paths over a duration using a speed curve.
 
 ![Path](PathFollowerExample.gif)    
+
+## CustomLog 
+UnityEngine.Debug.Log wrapper allowing you to subscribe to log updates, to change in-game Text for example. Inspired by the need to see the Debug.Log entries within a VR experience, without ruining the ability to doubleclick the item in the Unity Console. Also provides the ability to colorize in the Console. Usage: `Wrj.CustomLog.Log("Test", Color.cyan)`. Add `CustomLogTextUpdate` component to an object containing a `TMPro.TextMeshProUGUI`, `UnityEngine.UI.Text` or `TextMesh` to update text each time `CustomLog.Log()` is called.
