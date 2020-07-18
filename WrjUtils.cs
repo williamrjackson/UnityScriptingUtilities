@@ -130,6 +130,18 @@ namespace Wrj
             MapToCurve.Ease.Delay(delay, methodWithParameters);
         }
 
+        public static void SafeTry(System.Action action)
+        {
+            try
+            {
+                action();
+            }
+            catch (System.Exception ex)
+            {
+                UnityEngine.Debug.Log("Exeption: " + ex.Message);
+            }
+        }
+
         /// Get feet in Unity units/meters
         public static float FromFeet(float feet)
         {
@@ -1066,6 +1078,7 @@ namespace Wrj
                 yield return new WaitForSecondsRealtime(delay);
                 methodWithParameters();
             }
+
             // Make sure there's a game object with a WrjUtils component, to run coroutines.
             private Utils UtilObject()
             {

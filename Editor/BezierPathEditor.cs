@@ -48,7 +48,7 @@ namespace Wrj
                 go.transform.parent = connectedObject.transform;
                 go.name = "Node_2";
             }
-            SceneView.onSceneGUIDelegate = CurveEditor;
+            SceneView.duringSceneGui += CurveEditor;
         }
         void CurveEditor(SceneView scene)
         {

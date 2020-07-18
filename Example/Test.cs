@@ -10,8 +10,6 @@ namespace Wrj
     {
         public float duration = 3;
         public bool testStop;
-        public AudioSource audioA;
-        public AudioSource audioB;
         public Transform linTransform;
         public Transform easeOutTransform;
         public Transform easeInTransform;
@@ -42,10 +40,8 @@ namespace Wrj
 
             Utils.MapToCurve.Ease.FadeAlpha(targetTransform, 0, duration, pingPong: 10);
 
-            Utils.MapToCurve.Ease.CrossFadeAudio(audioA, audioB, 1, duration);
-
             Utils.MapToCurve myCurve = new Utils.MapToCurve(scaleCurve);
-            myCurve.Scale(curveScaleTransform, curveScaleTransform.localScale * .5f, duration * .5f, pingPong: 9, onDone: FadeOut);
+            myCurve.Scale(curveScaleTransform, curveScaleTransform.localScale * .5f, duration * .5f, pingPong: 9);
 
             recursiveTestGO.PerChild(SetLayer);
 
@@ -59,11 +55,6 @@ namespace Wrj
             go.layer = LayerMask.NameToLayer("TransparentFX");
         }
 
-        private void FadeOut()
-        {
-            print("OnDone called. Fading out audio");
-            Utils.MapToCurve.Linear.FadeAudio(audioB, 0, duration);
-        }
         IEnumerator testRandomLoop()
         {
             while (true)

@@ -5,9 +5,9 @@ namespace Wrj
 { 
     public class CustomLogTextUpdate : MonoBehaviour
     {
-        private TMPro.TextMeshProUGUI tmpro;
-        private UnityEngine.UI.Text uiText;
-        private TextMesh textMesh;
+        private TMPro.TextMeshProUGUI tmpro = null;
+        private UnityEngine.UI.Text uiText = null;
+        private TextMesh textMesh = null;
 
         void Awake()
         {
