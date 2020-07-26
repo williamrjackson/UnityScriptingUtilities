@@ -3,7 +3,7 @@
 Stuff I use a lot, and a simple AnimationCurve-based tweening interface.   
 
 Add to projects using:  
-`git submodule add https://github.com/williamrjackson/UnityScriptingUtilities.git Assets\ScriptingUtils`
+`$ git submodule add https://github.com/williamrjackson/UnityScriptingUtilities.git Assets/ScriptingUtils`
 
 
 ## MapToCurve
