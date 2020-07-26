@@ -11,7 +11,7 @@ Provides values as plotted on an Animation Curve. Used a lot like Mathf.Lerp, ex
 
 Includes a bunch of functions to manipulate transforms/audio over time. For example, the following will scale, move and rotate a transfrom into a position over 5 seconds. The target position is defined by a sibling transfrom.
 
-Presets for common ease curves from https://github.com/nobutaka/EasingCurvePresets are included
+Presets for common ease curves from https://github.com/aureliendrouet/EasingCurvePresets are included
 ```C#
    Wrj.Utils.MapToCurve.Ease.MatchSibling(transform, targetTransform, 5);
 //                       ^        ^          ^            ^           ^
@@ -121,8 +121,6 @@ Each GameObject in an array gets an int representing its weight. Higher weights 
   - Get an array of points representing a cubic bezier curve. 
 - `FromFeet(feet)`
   - Convert feet into Unity Units. Because I'm a silly American that can only visualise space in US standard units.
-- `FromInches(inches)`
-  - Convert inches into Unity Units.    
 - `FromInches(inches)`
   - Convert inches into Unity Units.    
 - `String.PrependAn(capitalize)`
