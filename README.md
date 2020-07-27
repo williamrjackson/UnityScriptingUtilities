@@ -97,10 +97,26 @@ Wrj.Utils.MapToCurve.Ease.ChangeColor(purpleTransform, Color.magenta, duration, 
 Wrj.Utils.MapToCurve.Ease.FadeAlpha(targetTransform, 0, duration, pingPong: 10);
 
 ```
-## WeightedGameObjects
-Also includes a Weighted Random GameObject class (demonstrated on the right in the gif above).
+## WeightedElements
+Also includes a Weighted Random Object class (demonstrated on the right in the gif above).
 
-Each GameObject in an array gets an int representing its weight. Higher weights are more likely for selection When `WeightedGameObjects.GetRandom()` is called.
+Contains a collection of objects with an int representing its weight. Higher weights are more likely for selection When `weightedElements.GetRandom()` is called.
+
+```
+public Transform weight10;
+public Transform weight5;
+public Transform weight3;
+public Transform weight1;
+WeightedElements<Transform> randomBumpObjects = new WeightedElements<Transform>();
+
+randomBumpObjects.Add(weight10, 10);
+randomBumpObjects.Add(weight5, 5);
+randomBumpObjects.Add(weight3, 3);
+randomBumpObjects.Add(weight1, 1);
+
+// This is moste likely to scale object weight10. But it's fairly unlikely to scale weight1
+randomBumpObjects.GetRandom().localScale = Vector3.one * 1.5f;
+```
 
 ## Utility Functions
 - `EnsureComponent<T>(GameObject)`

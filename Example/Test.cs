@@ -18,11 +18,17 @@ namespace Wrj
         public AnimationCurve scaleCurve;
         public Transform curveScaleTransform;
         public GameObject recursiveTestGO;
-        public WeightedGameObjects randomBumpObjects;
+        public Transform weight10;
+        public Transform weight5;
+        public Transform weight3;
+        public Transform weight1;
+        private WeightedElements<Transform> randomBumpObjects = new WeightedElements<Transform>();
         void Start()
         {
-            if (randomBumpObjects.objectList.Length > 0)
-                StartCoroutine(testRandomLoop());
+            randomBumpObjects.Add(weight10, 10);
+            randomBumpObjects.Add(weight5, 5);
+            randomBumpObjects.Add(weight3, 3);
+            randomBumpObjects.Add(weight1, 1);
 
             Utils.MapToCurve.Linear.MoveWorld(linTransform, linTransform.PosInWorldDir(up: 5f, right: -1.5f), duration, pingPong: 10);
             Utils.MapToCurve.EaseIn.MoveWorld(easeInTransform, easeInTransform.PosInWorldDir(up: 5f, right: .5f), duration, mirrorCurve: false, pingPong: 10);
@@ -43,6 +49,7 @@ namespace Wrj
             Utils.MapToCurve myCurve = new Utils.MapToCurve(scaleCurve);
             myCurve.Scale(curveScaleTransform, curveScaleTransform.localScale * .5f, duration * .5f, pingPong: 9);
 
+            StartCoroutine(testRandomLoop());
             recursiveTestGO.PerChild(SetLayer);
 
             if (testStop)
@@ -59,7 +66,7 @@ namespace Wrj
         {
             while (true)
             {
-                Transform affected = randomBumpObjects.GetRandom().transform;
+                Transform affected = randomBumpObjects.GetRandom(true);
                 float initY = affected.localScale.y;
                 Vector3 targetScale = new Vector3(1, initY + .1f, 1);
                 Utils.MapToCurve.Ease.Scale(affected, targetScale, .1f);

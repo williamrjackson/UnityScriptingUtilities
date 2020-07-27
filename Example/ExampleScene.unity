@@ -407,16 +407,10 @@ MonoBehaviour:
     m_RotationOrder: 4
   curveScaleTransform: {fileID: 184652818}
   recursiveTestGO: {fileID: 898579105}
-  randomBumpObjects:
-    objectList:
-    - element: {fileID: 272368244}
-      weight: 10
-    - element: {fileID: 1851241327}
-      weight: 5
-    - element: {fileID: 1586288791}
-      weight: 3
-    - element: {fileID: 1650736125}
-      weight: 1
+  weight10: {fileID: 272368245}
+  weight5: {fileID: 1851241328}
+  weight3: {fileID: 1586288792}
+  weight1: {fileID: 1650736126}
 --- !u!81 &180486416
 AudioListener:
   m_ObjectHideFlags: 0
