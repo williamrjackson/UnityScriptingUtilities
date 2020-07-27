@@ -102,7 +102,7 @@ Also includes a Weighted Random Object class (demonstrated on the right in the g
 
 Contains a collection of objects with an int representing its weight. Higher weights are more likely for selection When `weightedElements.GetRandom()` is called.
 
-```
+```C#
 public Transform weight10;
 public Transform weight5;
 public Transform weight3;
