@@ -13,7 +13,7 @@ Includes a bunch of functions to manipulate transforms/audio over time. For exam
 
 Presets for common ease curves from https://github.com/aureliendrouet/EasingCurvePresets are included
 ```C#
-   Wrj.Utils.MapToCurve.Ease.MatchSibling(transform, targetTransform, 5);
+   Wrj.Utils.MapToCurve.Ease.MatchSibling(transform, targetTransform, 5f);
 //                       ^        ^          ^            ^           ^
 //                     curve   function   affected   destination   duration
 ```
@@ -114,7 +114,7 @@ randomBumpObjects.Add(weight5, 5);
 randomBumpObjects.Add(weight3, 3);
 randomBumpObjects.Add(weight1, 1);
 
-// This is moste likely to scale object weight10. But it's fairly unlikely to scale weight1
+// This is most likely to scale object weight10. But it's fairly unlikely to scale weight1
 randomBumpObjects.GetRandom().localScale = Vector3.one * 1.5f;
 ```
 
