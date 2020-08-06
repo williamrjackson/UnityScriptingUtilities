@@ -174,21 +174,6 @@ namespace Wrj
             return Mathf.Abs(f);
         }
         
-        // Coroutine list management stuff...
-        // public static Utils wrjInstance;
-        // private List<MapToCurve.Manipulation> m_ManipulationList;
-        // private void InitializeCoroList()
-        // {
-        //     m_ManipulationList = new List<MapToCurve.Manipulation>();
-        // }
-        // private void AddToCoroList(MapToCurve.Manipulation mcp)
-        // {
-        //     m_ManipulationList.Add(mcp);
-        // }
-        // private void CleanCoroList()
-        // {
-        //     m_ManipulationList.RemoveAll(x => x.coroutine == null);
-        // }
         private void CancelAll()
         {
 
@@ -354,7 +339,7 @@ namespace Wrj
             {
                 Manipulation mcp = new Manipulation("Move");
                 mcp.coroutine = Timing.RunCoroutine(MoveLocal(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                //UtilObject().AddToCoroList(mcp);
+
                 return mcp;
             }
             private IEnumerator<float> MoveLocal(Manipulation mcp, Transform tform, Vector3 to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, bool pendulum, OnDone onDone)
@@ -410,7 +395,7 @@ namespace Wrj
             {
                 Manipulation mcp = new Manipulation("Move");
                 mcp.coroutine = Timing.RunCoroutine(MoveWorldspace(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                //UtilObject().AddToCoroList(mcp);
+
                 return mcp;
             }
             private IEnumerator<float> MoveWorldspace(Manipulation mcp, Transform tform, Vector3 to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, bool pendulum, OnDone onDone)
@@ -467,7 +452,7 @@ namespace Wrj
             {
                 Manipulation mcp = new Manipulation("Move");
                 mcp.coroutine = Timing.RunCoroutine(MovePath(mcp, tform, path, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, inverse, align, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                //UtilObject().AddToCoroList(mcp);
+
                 return mcp;
             }
             private IEnumerator<float> MovePath(Manipulation mcp, Transform tform, BezierPath path, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, bool inverse, bool align, OnDone onDone)
@@ -524,7 +509,7 @@ namespace Wrj
                 {
                     mcp.coroutine = Timing.RunCoroutine(RotateLocal(mcp, tform, tform.localEulerAngles, eulerTo, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
-                //UtilObject().AddToCoroList(mcp);
+
                 return mcp;
             }
             private IEnumerator<float> RotateLocalQuaternionLerp(Manipulation mcp, Transform tform, Quaternion from, Quaternion to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, bool pendulum, OnDone onDone)
@@ -627,7 +612,7 @@ namespace Wrj
             {
                 Manipulation mcp = new Manipulation("Float");
                 mcp.coroutine = Timing.RunCoroutine(FloatManip(mcp, receiver, init, target, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
-                //UtilObject().AddToCoroList(mcp);
+
                 return mcp;
             }
             private IEnumerator<float> FloatManip(Manipulation mcp, FloatReceiver receiver, float init, float target, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
@@ -673,7 +658,7 @@ namespace Wrj
             {
                 Manipulation mcp = new Manipulation("Fade");
                 mcp.coroutine = Timing.RunCoroutine(Fade(mcp, audioSource, targetVol, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone), tag: audioSource.gameObject.GetInstanceID().ToString());
-                //UtilObject().AddToCoroList(mcp);
+
                 return mcp;
             }
             private IEnumerator<float> Fade(Manipulation mcp, AudioSource audioSource, float targetVol, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
@@ -723,7 +708,7 @@ namespace Wrj
             {
                 Manipulation mcp = new Manipulation("Fade");
                 mcp.coroutine = Timing.RunCoroutine(CrossFade(mcp, from, to, targetVol, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone), tag: from.gameObject.GetInstanceID().ToString());
-                //UtilObject().AddToCoroList(mcp);
+
                 return mcp;
             }
             private IEnumerator<float> CrossFade(Manipulation mcp, AudioSource from, AudioSource to, float targetVol, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
@@ -785,7 +770,7 @@ namespace Wrj
                 {
                     mcp.coroutine = Timing.RunCoroutine(LerpAlpha(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
-                //UtilObject().AddToCoroList(mcp);
+
                 return mcp;
             }
 
@@ -908,7 +893,7 @@ namespace Wrj
                 {
                     mcp.coroutine = Timing.RunCoroutine(LerpColor(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
-                //UtilObject().AddToCoroList(mcp);
+
                 return mcp;
             }
 
@@ -1046,19 +1031,6 @@ namespace Wrj
             {
                 Timing.CallDelayed(delay, methodWithParameters);
             }
-
-            // Make sure there's a game object with a WrjUtils component, to run coroutines.
-            //private Utils UtilObject()
-            //{
-            //    if (wrjInstance == null)
-            //    {
-            //        GameObject go = new GameObject("_WrjUtilObject");
-            //        DontDestroyOnLoad(go);
-            //        wrjInstance = go.AddComponent<Utils>();
-            //        wrjInstance.InitializeCoroList();
-            //    }
-            //    return wrjInstance;
-            //}
         }
     }
 }
