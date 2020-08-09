@@ -26,9 +26,8 @@ namespace Wrj
 					}
 				}
 			}
-			int weightedRandomIndex = allOptions[UnityEngine.Random.Range(0, allOptions.Count)];
+			int weightedRandomIndex = allOptions.GetRandom();
 			m_LastSelectedIndex = weightedRandomIndex;
-
 			return objectList[weightedRandomIndex].element;
 		}
         public void Add(T element, int weight)

@@ -5,8 +5,13 @@ using UnityEngine;
 
 namespace Wrj
 {
+    public enum RepeatStyle { Loop, PingPong, MirrorPong }
+
     public class Utils : MonoBehaviour
     {
+        // const for infinite repeats
+        public static readonly int Infinity = -1;
+
         /// Returns a component of Type T by finding the existing one, or by instantiating one if not found.
         public static T EnsureComponent<T>(GameObject go) where T : Component
         {
@@ -128,7 +133,7 @@ namespace Wrj
         /// Delay(3f, () => Debug.Log("This is a test"));
         public static void Delay(float delay, System.Action methodWithParameters)
         {
-            MapToCurve.Ease.Delay(delay, methodWithParameters);
+            Timing.CallDelayed(delay, methodWithParameters);
         }
 
         public static void SafeTry(System.Action action)
@@ -145,7 +150,7 @@ namespace Wrj
 
         /// Get feet in Unity units/meters
         public static float FromFeet(float feet)
-        {
+        {                   
             return feet * 0.3048f;
         }
         /// Get Unity units/meters in feet
@@ -176,7 +181,6 @@ namespace Wrj
         
         private void CancelAll()
         {
-
             Timing.KillCoroutines();
         }
         private void CancelByTransform(Transform t)
@@ -190,7 +194,6 @@ namespace Wrj
         // Example:
         //      Wrj.Utils.MapToCurve map = new WrjUtils.MapToCurve();
         //      map.ScaleTransform(transform, transform.localScale * .25f, 5, onDone: SomeMethodThatReturnsVoid, pingPong: 3);
-
         [System.Serializable]
         public class MapToCurve
         {
@@ -206,18 +209,22 @@ namespace Wrj
             {
                 public CoroutineHandle coroutine;
                 public int iterationCount = 0;
-                private string type;
 
-                public Manipulation(string _type)
-                {
-                    type = _type;
-                }
                 public void Stop()
                 {
-                    if (coroutine != null)
-                    {
+                    if (coroutine.IsValid)
                         Timing.KillCoroutines(coroutine);
-                    }
+                }
+
+                public void Pause()
+                {
+                    if (coroutine.IsValid)
+                        Timing.PauseCoroutines(coroutine);
+                }
+                public void Resume()
+                {
+                    if (coroutine.IsValid)
+                        Timing.ResumeCoroutines(coroutine);
                 }
             }
             public MapToCurve()
@@ -238,60 +245,68 @@ namespace Wrj
                 Timing.KillCoroutines(tform.gameObject.GetInstanceID().ToString());
             }
 
+            public static void PauseAllOnTransform(Transform tform)
+            {
+                Timing.PauseCoroutines(tform.gameObject.GetInstanceID().ToString());
+            }
+            public static void ResumeAllOnTransform(Transform tform)
+            {
+                Timing.ResumeCoroutines(tform.gameObject.GetInstanceID().ToString());
+            }
             public float Lerp(float a, float b, float time)
             {
                 return Mathf.LerpUnclamped(a, b, curve.Evaluate(time));
             }
-            public Vector3 Lerp(Vector3 a, Vector3 b, float time)
+            public Vector3 Nerp(Vector3 a, Vector3 b, float time)
             {
                 return Vector3.LerpUnclamped(a, b, curve.Evaluate(time));
             }
-            public Quaternion Lerp(Quaternion a, Quaternion b, float time)
+            public Quaternion Nerp(Quaternion a, Quaternion b, float time)
             {
                 return Quaternion.LerpUnclamped(a, b, curve.Evaluate(time));
             }
-            public Color Lerp(Color a, Color b, float time)
+            public Color Nerp(Color a, Color b, float time)
             {
                 return Color.Lerp(a, b, curve.Evaluate(time));
             }
-            public float MirrorLerp(float a, float b, float time)
+            public float MirrorNerp(float a, float b, float time)
             {
                 float t = Remap(time, -1, 2, 2, -1);
                 return Mathf.LerpUnclamped(a, b, Remap(curve.Evaluate(t), -1, 2, 2, -1));
             }
-            public Vector3 MirrorLerp(Vector3 a, Vector3 b, float time)
+            public Vector3 MirrorNerp(Vector3 a, Vector3 b, float time)
             {
                 float t = Remap(time, -1, 2, 2, -1);
                 return Vector3.LerpUnclamped(a, b, Remap(curve.Evaluate(t), -1, 2, 2, -1));
             }
-            public Quaternion MirrorLerp(Quaternion a, Quaternion b, float time)
+            public Quaternion MirrorNerp(Quaternion a, Quaternion b, float time)
             {
                 float t = Remap(time, -1, 2, 2, -1);
                 return Quaternion.LerpUnclamped(a, b, Remap(curve.Evaluate(t), -1, 2, 2, -1));
             }
-            public Color MirrorLerp(Color a, Color b, float time)
+            public Color MirrorNerp(Color a, Color b, float time)
             {
                 float t = Remap(time, -1, 2, 2, -1);
                 return Color.LerpUnclamped(a, b, Remap(curve.Evaluate(t), -1, 2, 2, -1));
             }
-            public static float Lerp(AnimationCurve c, float a, float b, float time)
+            public static float Nerp(AnimationCurve c, float a, float b, float time)
             {
                 return Mathf.LerpUnclamped(a, b, c.Evaluate(time));
             }
-            public static float MirrorLerp(AnimationCurve c, float a, float b, float time)
+            public static float MirrorNerp(AnimationCurve c, float a, float b, float time)
             {
                 float t = Remap(time, -1, 2, 2, -1);
                 return Remap(Mathf.LerpUnclamped(a, b, c.Evaluate(t)), -1, 2, 2, -1);
             }
 
             // Period-based Manipulation Coroutines...
-            public Manipulation Scale(Transform tform, Vector3 to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
+            public Manipulation Scale(Transform tform, Vector3 to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.PingPong, int iterations = 1, bool useTimeScale = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Scale");
-                mcp.coroutine = Timing.RunCoroutine(ScaleLocal(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                Manipulation mcp = new Manipulation();
+                mcp.coroutine = Timing.RunCoroutine(ScaleLocal(mcp, tform, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 return mcp;
             }
-            private IEnumerator<float> ScaleLocal(Manipulation mcp, Transform tform, Vector3 to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            private IEnumerator<float> ScaleLocal(Manipulation mcp, Transform tform, Vector3 to, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, OnDone onDone)
             {
                 float elapsedTime = 0;
                 mcp.iterationCount++;
@@ -308,41 +323,44 @@ namespace Wrj
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
-                        tform.localScale = MirrorLerp(from, to, scrubPos);
+                        tform.localScale = MirrorNerp(from, to, scrubPos);
                     }
                     else
                     {
-                        tform.localScale = Lerp(from, to, scrubPos);
+                        tform.localScale = Nerp(from, to, scrubPos);
                     }
                 }
                 tform.localScale = to;
-                if (pingPong > 0)
-                {
-                    mcp.coroutine = Timing.RunCoroutine(ScaleLocal(mcp, tform, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else if (mirrorPingPong > 0)
-                {
-                    mcp.coroutine = Timing.RunCoroutine(ScaleLocal(mcp, tform, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else if (loop > 0)
-                {
-                    tform.localScale = from;
-                    mcp.coroutine = Timing.RunCoroutine(ScaleLocal(mcp, tform, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else
+                if (iterations != Infinity) --iterations;
+                if (iterations == 0)
                 {
                     CoroutineComplete(mcp, onDone);
+                    yield break;
+                }
+
+                if (repeatStyle == RepeatStyle.PingPong)
+                {
+                    mcp.coroutine = Timing.RunCoroutine(ScaleLocal(mcp, tform, from, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                }
+                else if (repeatStyle == RepeatStyle.MirrorPong)
+                {
+                    mcp.coroutine = Timing.RunCoroutine(ScaleLocal(mcp, tform, from, duration, !mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                }
+                else if (repeatStyle == RepeatStyle.Loop)
+                {
+                    tform.localScale = from;
+                    mcp.coroutine = Timing.RunCoroutine(ScaleLocal(mcp, tform, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
             }
 
-            public Manipulation Move(Transform tform, Vector3 to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool pendulum = false, OnDone onDone = null)
+            public Manipulation Move(Transform tform, Vector3 to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.PingPong, int iterations = 1, bool useTimeScale = false, bool pendulum = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Move");
-                mcp.coroutine = Timing.RunCoroutine(MoveLocal(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                Manipulation mcp = new Manipulation();
+                mcp.coroutine = Timing.RunCoroutine(MoveLocal(mcp, tform, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
 
                 return mcp;
             }
-            private IEnumerator<float> MoveLocal(Manipulation mcp, Transform tform, Vector3 to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, bool pendulum, OnDone onDone)
+            private IEnumerator<float> MoveLocal(Manipulation mcp, Transform tform, Vector3 to, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, bool pendulum, OnDone onDone)
             {
                 float elapsedTime = 0;
                 mcp.iterationCount++;
@@ -359,46 +377,48 @@ namespace Wrj
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
-                        tform.localPosition = MirrorLerp(from, to, scrubPos);
+                        tform.localPosition = MirrorNerp(from, to, scrubPos);
                     }
                     else
                     {
-                        tform.localPosition = Lerp(from, to, scrubPos);
+                        tform.localPosition = Nerp(from, to, scrubPos);
                     }
                 }
-                tform.localPosition = Lerp(from, to, 1f);
+                tform.localPosition = Nerp(from, to, 1f);
+                if (iterations != Infinity) --iterations;
+                if (iterations == 0)
+                {
+                    CoroutineComplete(mcp, onDone);
+                    yield break;
+                }
 
                 if (pendulum && mcp.iterationCount % 2 == 0)
                 {
                     from = to - from;
                 }
-                if (pingPong > 0)
+                if (repeatStyle == RepeatStyle.PingPong)
                 {
-                    mcp.coroutine = Timing.RunCoroutine(MoveLocal(mcp, tform, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(MoveLocal(mcp, tform, from, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
-                else if (mirrorPingPong > 0)
+                else if (repeatStyle == RepeatStyle.MirrorPong)
                 {
-                    mcp.coroutine = Timing.RunCoroutine(MoveLocal(mcp, tform, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(MoveLocal(mcp, tform, from, duration, !mirrorCurve, repeatStyle, iterations, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
-                else if (loop > 0)
+                else if (repeatStyle == RepeatStyle.Loop)
                 {
                     tform.localPosition = from;
-                    mcp.coroutine = Timing.RunCoroutine(MoveLocal(mcp, tform, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else
-                {
-                    CoroutineComplete(mcp, onDone);
+                    mcp.coroutine = Timing.RunCoroutine(MoveLocal(mcp, tform, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
             }
 
-            public Manipulation MoveWorld(Transform tform, Vector3 to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool pendulum = false, OnDone onDone = null)
+            public Manipulation MoveWorld(Transform tform, Vector3 to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.PingPong, int iterations = 1, bool useTimeScale = false, bool pendulum = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Move");
-                mcp.coroutine = Timing.RunCoroutine(MoveWorldspace(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                Manipulation mcp = new Manipulation();
+                mcp.coroutine = Timing.RunCoroutine(MoveWorldspace(mcp, tform, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
 
                 return mcp;
             }
-            private IEnumerator<float> MoveWorldspace(Manipulation mcp, Transform tform, Vector3 to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, bool pendulum, OnDone onDone)
+            private IEnumerator<float> MoveWorldspace(Manipulation mcp, Transform tform, Vector3 to, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, bool pendulum, OnDone onDone)
             {
                 float elapsedTime = 0;
                 mcp.iterationCount++;
@@ -415,47 +435,50 @@ namespace Wrj
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
-                        tform.position = MirrorLerp(from, to, scrubPos);
+                        tform.position = MirrorNerp(from, to, scrubPos);
                     }
                     else
                     {
-                        tform.position = Lerp(from, to, scrubPos);
+                        tform.position = Nerp(from, to, scrubPos);
                     }
                 }
-                tform.position = Lerp(from, to, 1f);
+                tform.position = Nerp(from, to, 1f);
+                if (iterations != Infinity) --iterations;
+                if (iterations == 0)
+                {
+                    CoroutineComplete(mcp, onDone);
+                    yield break;
+                }
 
                 if (pendulum && mcp.iterationCount % 2 == 0)
                 {
                     from = to - from;
                 }
 
-                if (pingPong > 0)
+                if (repeatStyle == RepeatStyle.PingPong)
                 {
-                    mcp.coroutine = Timing.RunCoroutine(MoveWorldspace(mcp, tform, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(MoveWorldspace(mcp, tform, from, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
-                else if (mirrorPingPong > 0)
+                else if (repeatStyle == RepeatStyle.MirrorPong)
                 {
-                    mcp.coroutine = Timing.RunCoroutine(MoveWorldspace(mcp, tform, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(MoveWorldspace(mcp, tform, from, duration, !mirrorCurve, repeatStyle, iterations, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
-                else if (loop > 0)
+                else if (repeatStyle == RepeatStyle.Loop)
                 {
                     tform.position = from;
-                    mcp.coroutine = Timing.RunCoroutine(MoveWorldspace(mcp, tform, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(MoveWorldspace(mcp, tform, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
-                else
-                {
-                    CoroutineComplete(mcp, onDone);
-                }
+                
             }
 
-            public Manipulation MoveAlongPath(Transform tform, BezierPath path, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool inverse = false, bool align = false, OnDone onDone = null)
+            public Manipulation MoveAlongPath(Transform tform, BezierPath path, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.PingPong, int iterations = 1, bool useTimeScale = false, bool inverse = false, bool align = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Move");
-                mcp.coroutine = Timing.RunCoroutine(MovePath(mcp, tform, path, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, inverse, align, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                Manipulation mcp = new Manipulation();
+                mcp.coroutine = Timing.RunCoroutine(MovePath(mcp, tform, path, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, inverse, align, onDone), tag: tform.gameObject.GetInstanceID().ToString());
 
                 return mcp;
             }
-            private IEnumerator<float> MovePath(Manipulation mcp, Transform tform, BezierPath path, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, bool inverse, bool align, OnDone onDone)
+            private IEnumerator<float> MovePath(Manipulation mcp, Transform tform, BezierPath path, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, bool inverse, bool align, OnDone onDone)
             {
                 float elapsedTime = 0;
                 mcp.iterationCount++;
@@ -472,7 +495,7 @@ namespace Wrj
                     Vector3 look = Vector3.zero;
                     if (mirrorCurve)
                     {
-                        tform.position = path.GetPointOnCurve(MirrorLerp(0, 1, scrubPos), ref look);
+                        tform.position = path.GetPointOnCurve(MirrorNerp(0, 1, scrubPos), ref look);
                     }
                     else
                     {
@@ -481,38 +504,41 @@ namespace Wrj
                     if (align && look != tform.position)
                         tform.rotation = Quaternion.LookRotation(tform.position - look);
                 }
-                if (pingPong > 0)
-                {
-                    mcp.coroutine = Timing.RunCoroutine(MovePath(mcp, tform, path, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, !inverse, align, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else if (mirrorPingPong > 0)
-                {
-                    mcp.coroutine = Timing.RunCoroutine(MovePath(mcp, tform, path, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, !inverse, align, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else if (loop > 0)
-                {
-                    mcp.coroutine = Timing.RunCoroutine(MovePath(mcp, tform, path, duration, mirrorCurve, --loop, 0, 0, useTimeScale, inverse, align, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else
+                if (iterations != Infinity) --iterations;
+                if (iterations == 0)
                 {
                     CoroutineComplete(mcp, onDone);
+                    yield break;
+                }
+
+                if (repeatStyle == RepeatStyle.PingPong)
+                {
+                    mcp.coroutine = Timing.RunCoroutine(MovePath(mcp, tform, path, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, !inverse, align, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                }
+                else if (repeatStyle == RepeatStyle.MirrorPong)
+                {
+                    mcp.coroutine = Timing.RunCoroutine(MovePath(mcp, tform, path, duration, !mirrorCurve, repeatStyle, iterations, useTimeScale, !inverse, align, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                }
+                else if (repeatStyle == RepeatStyle.Loop)
+                {
+                    mcp.coroutine = Timing.RunCoroutine(MovePath(mcp, tform, path, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, inverse, align, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
             }
-            public Manipulation Rotate(Transform tform, Vector3 eulerTo, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool shortestPath = true, bool pendulum = false, OnDone onDone = null)
+            public Manipulation Rotate(Transform tform, Vector3 eulerTo, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.PingPong, int iterations = 1, bool useTimeScale = false, bool shortestPath = true, bool pendulum = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Rotate");
+                Manipulation mcp = new Manipulation();
                 if (shortestPath)
                 {
-                    mcp.coroutine = Timing.RunCoroutine(RotateLocalQuaternionLerp(mcp, tform, tform.rotation, Quaternion.Euler(eulerTo.x, eulerTo.y, eulerTo.z), duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(RotateLocalQuaternionLerp(mcp, tform, tform.rotation, Quaternion.Euler(eulerTo.x, eulerTo.y, eulerTo.z), duration, mirrorCurve, repeatStyle, iterations, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
                 else
                 {
-                    mcp.coroutine = Timing.RunCoroutine(RotateLocal(mcp, tform, tform.localEulerAngles, eulerTo, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(RotateLocal(mcp, tform, tform.localEulerAngles, eulerTo, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
 
                 return mcp;
             }
-            private IEnumerator<float> RotateLocalQuaternionLerp(Manipulation mcp, Transform tform, Quaternion from, Quaternion to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, bool pendulum, OnDone onDone)
+            private IEnumerator<float> RotateLocalQuaternionLerp(Manipulation mcp, Transform tform, Quaternion from, Quaternion to, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, bool pendulum, OnDone onDone)
             {
                 float elapsedTime = 0;
                 mcp.iterationCount++;
@@ -528,38 +554,40 @@ namespace Wrj
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
-                        tform.localRotation = MirrorLerp(from, to, scrubPos);
+                        tform.localRotation = MirrorNerp(from, to, scrubPos);
                     }
                     else
                     {
-                        tform.localRotation = Lerp(from, to, scrubPos);
+                        tform.localRotation = Nerp(from, to, scrubPos);
                     }
                 }
-                tform.localRotation = Lerp(from, to, 1f);
+                tform.localRotation = Nerp(from, to, 1f);
+                if (iterations != Infinity) --iterations;
+                if (iterations == 0)
+                {
+                    CoroutineComplete(mcp, onDone);
+                    yield break;
+                }
 
                 if (pendulum && mcp.iterationCount % 2 == 0)
                 {
                     from = Quaternion.Euler(to.eulerAngles - from.eulerAngles);
                 }
-                if (pingPong > 0)
+                if (repeatStyle == RepeatStyle.PingPong)
                 {
-                    mcp.coroutine = Timing.RunCoroutine(RotateLocalQuaternionLerp(mcp, tform, to, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(RotateLocalQuaternionLerp(mcp, tform, to, from, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
-                else if (mirrorPingPong > 0)
+                else if (repeatStyle == RepeatStyle.MirrorPong)
                 {
-                    mcp.coroutine = Timing.RunCoroutine(RotateLocalQuaternionLerp(mcp, tform, to, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(RotateLocalQuaternionLerp(mcp, tform, to, from, duration, !mirrorCurve, repeatStyle, iterations, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
-                else if (loop > 0)
+                else if (repeatStyle == RepeatStyle.Loop)
                 {
                     tform.localRotation = from;
-                    mcp.coroutine = Timing.RunCoroutine(RotateLocalQuaternionLerp(mcp, tform, from, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else
-                {
-                    CoroutineComplete(mcp, onDone);
+                    mcp.coroutine = Timing.RunCoroutine(RotateLocalQuaternionLerp(mcp, tform, from, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
             }
-            private IEnumerator<float> RotateLocal(Manipulation mcp, Transform tform, Vector3 from, Vector3 to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, bool pendulum, OnDone onDone)
+            private IEnumerator<float> RotateLocal(Manipulation mcp, Transform tform, Vector3 from, Vector3 to, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, bool pendulum, OnDone onDone)
             {
                 float elapsedTime = 0;
                 mcp.iterationCount++;
@@ -575,47 +603,49 @@ namespace Wrj
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
-                        tform.localEulerAngles = MirrorLerp(from, to, scrubPos);
+                        tform.localEulerAngles = MirrorNerp(from, to, scrubPos);
                     }
                     else
                     {
-                        tform.localEulerAngles = Lerp(from, to, scrubPos);
+                        tform.localEulerAngles = Nerp(from, to, scrubPos);
                     }
                 }
-                tform.localEulerAngles = Lerp(from, to, 1f);
+                tform.localEulerAngles = Nerp(from, to, 1f);
+                if (iterations != Infinity) --iterations;
+                if (iterations == 0)
+                {
+                    CoroutineComplete(mcp, onDone);
+                    yield break;
+                }
 
                 if (pendulum && mcp.iterationCount % 2 == 0)
                 {
                     from = to - from;
                 }
 
-                if (pingPong > 0) 
+                if (repeatStyle == RepeatStyle.PingPong) 
                 {
-                    mcp.coroutine = Timing.RunCoroutine(RotateLocal(mcp, tform, to, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(RotateLocal(mcp, tform, to, from, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
-                else if (mirrorPingPong > 0)
+                else if (repeatStyle == RepeatStyle.MirrorPong)
                 {
-                    mcp.coroutine = Timing.RunCoroutine(RotateLocal(mcp, tform, to, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(RotateLocal(mcp, tform, to, from, duration, !mirrorCurve, repeatStyle, iterations, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
-                else if (loop > 0)
+                else if (repeatStyle == RepeatStyle.Loop)
                 {
                     tform.localEulerAngles = from;
-                    mcp.coroutine = Timing.RunCoroutine(RotateLocal(mcp, tform, from, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else
-                {
-                    CoroutineComplete(mcp, onDone);
+                    mcp.coroutine = Timing.RunCoroutine(RotateLocal(mcp, tform, from, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, pendulum, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
             }
             public delegate void FloatReceiver(float f);
-            public Manipulation ManipulateFloat(FloatReceiver receiver, float init, float target, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
+            public Manipulation ManipulateFloat(FloatReceiver receiver, float init, float target, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.PingPong, int iterations = 1, bool useTimeScale = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Float");
-                mcp.coroutine = Timing.RunCoroutine(FloatManip(mcp, receiver, init, target, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+                Manipulation mcp = new Manipulation();
+                mcp.coroutine = Timing.RunCoroutine(FloatManip(mcp, receiver, init, target, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
 
                 return mcp;
             }
-            private IEnumerator<float> FloatManip(Manipulation mcp, FloatReceiver receiver, float init, float target, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            private IEnumerator<float> FloatManip(Manipulation mcp, FloatReceiver receiver, float init, float target, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, OnDone onDone)
             {
                 float elapsedTime = 0;
                 mcp.iterationCount++;
@@ -627,7 +657,7 @@ namespace Wrj
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
-                        receiver(MirrorLerp(init, target, scrubPos));
+                        receiver(MirrorNerp(init, target, scrubPos));
                     }
                     else
                     {
@@ -635,33 +665,36 @@ namespace Wrj
                     }
                 }
                 receiver(Lerp(init, target, 1f));
-                if (pingPong > 0)
-                {
-                    mcp.coroutine = Timing.RunCoroutine(FloatManip(mcp, receiver, target, init, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone));
-                }
-                else if (mirrorPingPong > 0)
-                {
-                    mcp.coroutine = Timing.RunCoroutine(FloatManip(mcp, receiver, target, init, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone));
-                }
-                else if (loop > 0)
-                {
-                    receiver(init);
-                    mcp.coroutine = Timing.RunCoroutine(FloatManip(mcp, receiver, init, target, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone));
-                }
-                else
+                if (iterations != Infinity) --iterations;
+                if (iterations == 0)
                 {
                     CoroutineComplete(mcp, onDone);
+                    yield break;
+                }
+
+                if (repeatStyle == RepeatStyle.PingPong)
+                {
+                    mcp.coroutine = Timing.RunCoroutine(FloatManip(mcp, receiver, target, init, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
+                }
+                else if (repeatStyle == RepeatStyle.MirrorPong)
+                {
+                    mcp.coroutine = Timing.RunCoroutine(FloatManip(mcp, receiver, target, init, duration, !mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
+                }
+                else if (repeatStyle == RepeatStyle.Loop)
+                {
+                    receiver(init);
+                    mcp.coroutine = Timing.RunCoroutine(FloatManip(mcp, receiver, init, target, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
                 }
             }
 
-            public Manipulation FadeAudio(AudioSource audioSource, float targetVol, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
+            public Manipulation FadeAudio(AudioSource audioSource, float targetVol, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.PingPong, int iterations = 1, bool useTimeScale = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Fade");
-                mcp.coroutine = Timing.RunCoroutine(Fade(mcp, audioSource, targetVol, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone), tag: audioSource.gameObject.GetInstanceID().ToString());
+                Manipulation mcp = new Manipulation();
+                mcp.coroutine = Timing.RunCoroutine(Fade(mcp, audioSource, targetVol, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: audioSource.gameObject.GetInstanceID().ToString());
 
                 return mcp;
             }
-            private IEnumerator<float> Fade(Manipulation mcp, AudioSource audioSource, float targetVol, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            private IEnumerator<float> Fade(Manipulation mcp, AudioSource audioSource, float targetVol, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, OnDone onDone)
             {
                 float initVol = audioSource.volume;
                 float elapsedTime = 0;
@@ -677,7 +710,7 @@ namespace Wrj
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
-                        audioSource.volume = MirrorLerp(initVol, targetVol, scrubPos);
+                        audioSource.volume = MirrorNerp(initVol, targetVol, scrubPos);
                     }
                     else
                     {
@@ -685,33 +718,36 @@ namespace Wrj
                     }
                 }
                 audioSource.volume = Lerp(initVol, targetVol, 1f);
-                if (pingPong > 0)
-                {
-                    mcp.coroutine = Timing.RunCoroutine(Fade(mcp, audioSource, initVol, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone), tag: audioSource.gameObject.GetInstanceID().ToString());
-                }
-                else if (mirrorPingPong > 0)
-                {
-                    mcp.coroutine = Timing.RunCoroutine(Fade(mcp, audioSource, initVol, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone), tag: audioSource.gameObject.GetInstanceID().ToString());
-                }
-                else if (loop > 0)
-                {
-                    audioSource.volume = initVol;
-                    mcp.coroutine = Timing.RunCoroutine(Fade(mcp, audioSource, targetVol, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone), tag: audioSource.gameObject.GetInstanceID().ToString());
-                }
-                else
+                if (iterations != Infinity) --iterations;
+                if (iterations == 0)
                 {
                     CoroutineComplete(mcp, onDone);
+                    yield break;
+                }
+
+                if (repeatStyle == RepeatStyle.PingPong)
+                {
+                    mcp.coroutine = Timing.RunCoroutine(Fade(mcp, audioSource, initVol, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: audioSource.gameObject.GetInstanceID().ToString());
+                }
+                else if (repeatStyle == RepeatStyle.MirrorPong)
+                {
+                    mcp.coroutine = Timing.RunCoroutine(Fade(mcp, audioSource, initVol, duration, !mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: audioSource.gameObject.GetInstanceID().ToString());
+                }
+                else if (repeatStyle == RepeatStyle.Loop)
+                {
+                    audioSource.volume = initVol;
+                    mcp.coroutine = Timing.RunCoroutine(Fade(mcp, audioSource, targetVol, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: audioSource.gameObject.GetInstanceID().ToString());
                 }
             }
 
-            public Manipulation CrossFadeAudio(AudioSource from, AudioSource to, float targetVol, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
+            public Manipulation CrossFadeAudio(AudioSource from, AudioSource to, float targetVol, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.PingPong, int iterations = 1, bool useTimeScale = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Fade");
-                mcp.coroutine = Timing.RunCoroutine(CrossFade(mcp, from, to, targetVol, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone), tag: from.gameObject.GetInstanceID().ToString());
+                Manipulation mcp = new Manipulation();
+                mcp.coroutine = Timing.RunCoroutine(CrossFade(mcp, from, to, targetVol, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: from.gameObject.GetInstanceID().ToString());
 
                 return mcp;
             }
-            private IEnumerator<float> CrossFade(Manipulation mcp, AudioSource from, AudioSource to, float targetVol, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            private IEnumerator<float> CrossFade(Manipulation mcp, AudioSource from, AudioSource to, float targetVol, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, OnDone onDone)
             {
                 to.volume = 0;
                 float initB = from.volume;
@@ -728,8 +764,8 @@ namespace Wrj
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
-                        to.volume = MirrorLerp(0, targetVol, scrubPos);
-                        from.volume = MirrorLerp(initB, 0, scrubPos);
+                        to.volume = MirrorNerp(0, targetVol, scrubPos);
+                        from.volume = MirrorNerp(initB, 0, scrubPos);
                     }
                     else
                     {
@@ -739,42 +775,45 @@ namespace Wrj
                 }
                 to.volume = targetVol;
                 from.volume = 0;
-                if (pingPong > 0)
+                if (iterations != Infinity) --iterations;
+                if (iterations == 0)
                 {
-                    mcp.coroutine = Timing.RunCoroutine(CrossFade(mcp, to, from, targetVol, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone), tag: from.gameObject.GetInstanceID().ToString());
+                    CoroutineComplete(mcp, onDone);
+                    yield break;
                 }
-                else if (mirrorPingPong > 0)
+
+                if (repeatStyle == RepeatStyle.PingPong)
                 {
-                    mcp.coroutine = Timing.RunCoroutine(CrossFade(mcp, to, from, targetVol, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone), tag: from.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(CrossFade(mcp, to, from, targetVol, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: from.gameObject.GetInstanceID().ToString());
                 }
-                else if (loop > 0)
+                else if (repeatStyle == RepeatStyle.MirrorPong)
+                {
+                    mcp.coroutine = Timing.RunCoroutine(CrossFade(mcp, to, from, targetVol, duration, !mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: from.gameObject.GetInstanceID().ToString());
+                }
+                else if (repeatStyle == RepeatStyle.Loop)
                 {
                     from.volume = initB;
                     to.volume = 0;
-                    mcp.coroutine = Timing.RunCoroutine(CrossFade(mcp, from, to, targetVol, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone), tag: from.gameObject.GetInstanceID().ToString());
-                }
-                else
-                {
-                    CoroutineComplete(mcp, onDone);
+                    mcp.coroutine = Timing.RunCoroutine(CrossFade(mcp, from, to, targetVol, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: from.gameObject.GetInstanceID().ToString());
                 }
             }
 
-            public Manipulation FadeAlpha(Transform tform, float to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
+            public Manipulation FadeAlpha(Transform tform, float to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.PingPong, int iterations = 1, bool useTimeScale = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Alpha");
+                Manipulation mcp = new Manipulation();
                 if (tform.GetComponent<UnityEngine.UI.Image>())
                 {
-                    mcp.coroutine = Timing.RunCoroutine(LerpImageAlpha(mcp, tform.GetComponent<UnityEngine.UI.Image>(), to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(LerpImageAlpha(mcp, tform.GetComponent<UnityEngine.UI.Image>(), to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
                 else
                 {
-                    mcp.coroutine = Timing.RunCoroutine(LerpAlpha(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(LerpAlpha(mcp, tform, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
 
                 return mcp;
             }
 
-            private IEnumerator<float> LerpAlpha(Manipulation mcp, Transform tform, float to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            private IEnumerator<float> LerpAlpha(Manipulation mcp, Transform tform, float to, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, OnDone onDone)
             {
                 float elapsedTime = 0;
                 mcp.iterationCount++;
@@ -801,7 +840,7 @@ namespace Wrj
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
-                        color.a = MirrorLerp(from, to, scrubPos);
+                        color.a = MirrorNerp(from, to, scrubPos);
                     }
                     else
                     {
@@ -812,27 +851,30 @@ namespace Wrj
                 Color finalColor = mat.GetColor("_Color");
                 finalColor.a = Lerp(from, to, 1f);
                 mat.SetColor("_Color", finalColor);
-                if (pingPong > 0)
+                if (iterations != Infinity) --iterations;
+                if (iterations == 0)
                 {
-                    mcp.coroutine = Timing.RunCoroutine(LerpAlpha(mcp, tform, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    CoroutineComplete(mcp, onDone);
+                    yield break;
                 }
-                else if (mirrorPingPong > 0)
+
+                if (repeatStyle == RepeatStyle.PingPong)
                 {
-                    mcp.coroutine = Timing.RunCoroutine(LerpAlpha(mcp, tform, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(LerpAlpha(mcp, tform, from, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
-                else if (loop > 0)
+                else if (repeatStyle == RepeatStyle.MirrorPong)
+                {
+                    mcp.coroutine = Timing.RunCoroutine(LerpAlpha(mcp, tform, from, duration, !mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                }
+                else if (repeatStyle == RepeatStyle.Loop)
                 {
                     finalColor.a = from;
                     mat.SetColor("_Color", finalColor);
-                    mcp.coroutine = Timing.RunCoroutine(LerpAlpha(mcp, tform, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else
-                {
-                    CoroutineComplete(mcp, onDone);
+                    mcp.coroutine = Timing.RunCoroutine(LerpAlpha(mcp, tform, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
             }
 
-            private IEnumerator<float> LerpImageAlpha(Manipulation mcp, UnityEngine.UI.Image image, float to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            private IEnumerator<float> LerpImageAlpha(Manipulation mcp, UnityEngine.UI.Image image, float to, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, OnDone onDone)
             {
                 float elapsedTime = 0;
                 mcp.iterationCount++;
@@ -851,7 +893,7 @@ namespace Wrj
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
-                        color.a = MirrorLerp(from, to, scrubPos);
+                        color.a = MirrorNerp(from, to, scrubPos);
                     }
                     else
                     {
@@ -862,43 +904,46 @@ namespace Wrj
                 Color finalColor = image.color;
                 finalColor.a = Lerp(from, to, 1f);
                 image.color = finalColor;
-                if (pingPong > 0)
+                if (iterations != Infinity) --iterations;
+                if (iterations == 0)
                 {
-                    mcp.coroutine = Timing.RunCoroutine(LerpImageAlpha(mcp, image, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    CoroutineComplete(mcp, onDone);
+                    yield break;
                 }
-                else if (mirrorPingPong > 0)
+
+                if (repeatStyle == RepeatStyle.PingPong)
                 {
-                    mcp.coroutine = Timing.RunCoroutine(LerpImageAlpha(mcp, image, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(LerpImageAlpha(mcp, image, from, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
-                else if (loop > 0)
+                else if (repeatStyle == RepeatStyle.MirrorPong)
+                {
+                    mcp.coroutine = Timing.RunCoroutine(LerpImageAlpha(mcp, image, from, duration, !mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                }
+                else if (repeatStyle == RepeatStyle.Loop)
                 {
                     finalColor.a = from;
                     image.color = finalColor;
-                    mcp.coroutine = Timing.RunCoroutine(LerpImageAlpha(mcp, image, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else
-                {
-                    CoroutineComplete(mcp, onDone);
+                    mcp.coroutine = Timing.RunCoroutine(LerpImageAlpha(mcp, image, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
             }
 
-            public Manipulation ChangeColor(Transform tform, Color to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
+            public Manipulation ChangeColor(Transform tform, Color to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.PingPong, int iterations = 1, bool useTimeScale = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Color");
+                Manipulation mcp = new Manipulation();
                 if (tform.GetComponent<UnityEngine.UI.Image>())
                 {
-                    mcp.coroutine = Timing.RunCoroutine(LerpImageColor(mcp, tform.GetComponent<UnityEngine.UI.Image>(), to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(LerpImageColor(mcp, tform.GetComponent<UnityEngine.UI.Image>(), to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
                 else
                 {
-                    mcp.coroutine = Timing.RunCoroutine(LerpColor(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                    mcp.coroutine = Timing.RunCoroutine(LerpColor(mcp, tform, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
 
                 return mcp;
             }
 
             // Being careful not to impact alpha, so this can be used simultaneously with ChangAlpha()
-            private IEnumerator<float> LerpColor(Manipulation mcp, Transform tform, Color to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            private IEnumerator<float> LerpColor(Manipulation mcp, Transform tform, Color to, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, OnDone onDone)
             {
                 float elapsedTime = 0;
                 mcp.iterationCount++;
@@ -917,37 +962,40 @@ namespace Wrj
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
-                        color = MirrorLerp(from, to, scrubPos);
+                        color = MirrorNerp(from, to, scrubPos);
                     }
                     else
                     {
-                        color = Lerp(from, to, scrubPos);
+                        color = Nerp(from, to, scrubPos);
                     }
                     mat.SetColor("_Color", new Color(color.r, color.g, color.b, mat.GetColor("_Color").a));
                 }
-                Color finalColor = Lerp(from, to, 1f);
+                Color finalColor = Nerp(from, to, 1f);
                 finalColor.a = mat.GetColor("_Color").a;
                 mat.SetColor("_Color", finalColor);
-                if (pingPong > 0)
-                {
-                    mcp.coroutine = Timing.RunCoroutine(LerpColor(mcp, tform, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else if (mirrorPingPong > 0)
-                {
-                    mcp.coroutine = Timing.RunCoroutine(LerpColor(mcp, tform, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else if (loop > 0)
-                {
-                    mat.SetColor("_Color", from);
-                    mcp.coroutine = Timing.RunCoroutine(LerpColor(mcp, tform, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else
+                if (iterations != Infinity) --iterations;
+                if (iterations == 0)
                 {
                     CoroutineComplete(mcp, onDone);
+                    yield break;
+                }
+
+                if (repeatStyle == RepeatStyle.PingPong)
+                {
+                    mcp.coroutine = Timing.RunCoroutine(LerpColor(mcp, tform, from, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                }
+                else if (repeatStyle == RepeatStyle.MirrorPong)
+                {
+                    mcp.coroutine = Timing.RunCoroutine(LerpColor(mcp, tform, from, duration, !mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                }
+                else if (repeatStyle == RepeatStyle.Loop)
+                {
+                    mat.SetColor("_Color", from);
+                    mcp.coroutine = Timing.RunCoroutine(LerpColor(mcp, tform, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
             }
 
-            private IEnumerator<float> LerpImageColor(Manipulation mcp, UnityEngine.UI.Image image, Color to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            private IEnumerator<float> LerpImageColor(Manipulation mcp, UnityEngine.UI.Image image, Color to, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, OnDone onDone)
             {
                 float elapsedTime = 0;
                 mcp.iterationCount++;
@@ -966,34 +1014,36 @@ namespace Wrj
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
-                        color = MirrorLerp(from, to, scrubPos);
+                        color = MirrorNerp(from, to, scrubPos);
                     }
                     else
                     {
-                        color = Lerp(from, to, scrubPos);
+                        color = Nerp(from, to, scrubPos);
                     }
                     image.color = color;
                 }
                 Color finalColor = image.color;
-                finalColor = Lerp(from, to, 1f);
+                finalColor = Nerp(from, to, 1f);
                 image.color = finalColor;
-
-                if (pingPong > 0)
-                {
-                    mcp.coroutine = Timing.RunCoroutine(LerpImageColor(mcp, image, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else if (mirrorPingPong > 0)
-                {
-                    mcp.coroutine = Timing.RunCoroutine(LerpImageColor(mcp, image, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else if (loop > 0)
-                {
-                    image.color = from;
-                    mcp.coroutine = Timing.RunCoroutine(LerpImageColor(mcp, image, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
-                }
-                else
+                if (iterations != Infinity) --iterations;
+                if (iterations == 0)
                 {
                     CoroutineComplete(mcp, onDone);
+                    yield break;
+                }
+
+                if (repeatStyle == RepeatStyle.PingPong)
+                {
+                    mcp.coroutine = Timing.RunCoroutine(LerpImageColor(mcp, image, from, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                }
+                else if (repeatStyle == RepeatStyle.MirrorPong)
+                {
+                    mcp.coroutine = Timing.RunCoroutine(LerpImageColor(mcp, image, from, duration, !mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
+                }
+                else if (repeatStyle == RepeatStyle.Loop)
+                {
+                    image.color = from;
+                    mcp.coroutine = Timing.RunCoroutine(LerpImageColor(mcp, image, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone), tag: tform.gameObject.GetInstanceID().ToString());
                 }
             }
             private float GetDesiredDelta(bool useTimeScale)
@@ -1002,16 +1052,16 @@ namespace Wrj
             }
 
             // Matches the position scale and rotation of a sibling transform.
-            public Manipulation[] MatchSibling(Transform tform, Transform toTform, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
+            public Manipulation[] MatchSibling(Transform tform, Transform toTform, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.PingPong, int iterations = 1, bool useTimeScale = false, OnDone onDone = null)
             {
                 if (tform.parent != toTform.parent)
                 {
                     Debug.LogWarning("Attempting to match a target that is not a sibling. No guarantee that scale, position, rotation will match.");
                 }
                 Manipulation[] mcpList = new Manipulation[3];
-                mcpList[0] = Scale(tform, toTform.localScale, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone);
-                mcpList[1] = Move(tform, toTform.localPosition, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, false, null);
-                mcpList[2] = Rotate(tform, toTform.localEulerAngles, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, true, false, null);
+                mcpList[0] = Scale(tform, toTform.localScale, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone);
+                mcpList[1] = Move(tform, toTform.localPosition, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, false, null);
+                mcpList[2] = Rotate(tform, toTform.localEulerAngles, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, true, false, null);
                 return mcpList;
             }
 
@@ -1025,11 +1075,6 @@ namespace Wrj
                     OnDoneMethod = null;
                 }
                 OnDoneMethod = null;
-            }
-
-            public void Delay(float delay, System.Action methodWithParameters)
-            {
-                Timing.CallDelayed(delay, methodWithParameters);
             }
         }
     }

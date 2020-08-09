@@ -215,7 +215,7 @@ public static class ExtensionMethods
     /// Strongly recommended that the target transform shares the parent of this transform.
     public static void SnapToSibling(this Transform tForm, Transform to, float duration)
     {
-        Wrj.Utils.MapToCurve.Linear.MatchSibling(tForm, to, duration, false, 0, 0, 0, false, null);
+        Wrj.Utils.MapToCurve.Linear.MatchSibling(tForm, to, duration, false, Wrj.RepeatStyle.Loop, 1, false, null);
     }
     /// Move, rotate and scale the transform to the position of another over time
     ///
@@ -229,7 +229,7 @@ public static class ExtensionMethods
     /// Strongly recommended that the target transform shares the parent of this transform.
     public static void EaseSnapToSibling(this Transform tForm, Transform to, float duration)
     {
-        Wrj.Utils.MapToCurve.Ease.MatchSibling(tForm, to, duration, false, 0, 0, 0, false, null);
+        Wrj.Utils.MapToCurve.Ease.MatchSibling(tForm, to, duration, false, Wrj.RepeatStyle.Loop, 1, false, null);
     }
     /// Move, rotate and scale the transform to the position of another over time
     ///
@@ -242,7 +242,7 @@ public static class ExtensionMethods
     /// Move transform in local space over time
     public static void Move(this Transform tForm, Vector3 to, float duration)
     {
-        Wrj.Utils.MapToCurve.Linear.MoveWorld(tForm, to, duration, false, 0, 0, 0, false, false, null);
+        Wrj.Utils.MapToCurve.Linear.MoveWorld(tForm, to, duration, false, Wrj.RepeatStyle.Loop, 1, false, false, null);
     }
     /// Move transform in local space over time
     public static void Move(this GameObject go, Vector3 to, float duration)
@@ -252,7 +252,7 @@ public static class ExtensionMethods
     /// Move transform in local space over time
     public static void EaseMove(this Transform tForm, Vector3 to, float duration)
     {
-        Wrj.Utils.MapToCurve.Ease.MoveWorld(tForm, to, duration, false, 0, 0, 0, false, false, null);
+        Wrj.Utils.MapToCurve.Ease.MoveWorld(tForm, to, duration, false, Wrj.RepeatStyle.Loop, 1, false, false, null);
     }
     /// Move transform in local space over time
     public static void EaseMove(this GameObject go, Vector3 to, float duration)
@@ -263,7 +263,7 @@ public static class ExtensionMethods
     /// Rotate transform over time
     public static void LinearRotate(this Transform tForm, Vector3 to, float duration)
     {
-        Wrj.Utils.MapToCurve.Linear.Rotate(tForm, to, duration, false, 0, 0, 0, false, true, false, null);
+        Wrj.Utils.MapToCurve.Linear.Rotate(tForm, to, duration, false, Wrj.RepeatStyle.Loop, 1, false, true, false, null);
     }
     /// Rotate transform over time
     public static void Rotate(this GameObject go, Vector3 to, float duration)
@@ -273,7 +273,7 @@ public static class ExtensionMethods
     /// Rotate transform over time
     public static void EaseRotate(this Transform tForm, Vector3 to, float duration)
     {
-        Wrj.Utils.MapToCurve.Ease.Rotate(tForm, to, duration, false, 0, 0, 0, false, true, false, null);
+        Wrj.Utils.MapToCurve.Ease.Rotate(tForm, to, duration, false, Wrj.RepeatStyle.Loop, 1, false, true, false, null);
     }
     /// Rotate transform over time
     public static void EaseRotate(this GameObject go, Vector3 to, float duration)
@@ -284,12 +284,12 @@ public static class ExtensionMethods
     /// Change transforms scale over time
     public static void Scale(this Transform tForm, Vector3 to, float duration)
     {
-        Wrj.Utils.MapToCurve.Linear.Scale(tForm, to, duration, false, 0, 0, 0, false, null);
+        Wrj.Utils.MapToCurve.Linear.Scale(tForm, to, duration, false, Wrj.RepeatStyle.Loop, 1, false, null);
     }
     /// Change transforms scale over time using a multiplier
     public static void Scale(this Transform tForm, float to, float duration)
     {
-        Wrj.Utils.MapToCurve.Linear.Scale(tForm, tForm.localScale * to, duration, false, 0, 0, 0, false, null);
+        Wrj.Utils.MapToCurve.Linear.Scale(tForm, tForm.localScale * to, duration, false, Wrj.RepeatStyle.Loop, 1, false, null);
     }
     /// Change transforms scale over time
     public static void Scale(this GameObject go, Vector3 to, float duration)
@@ -304,12 +304,12 @@ public static class ExtensionMethods
     /// Change transforms scale over time
     public static void EaseScale(this Transform tForm, Vector3 to, float duration)
     {
-        Wrj.Utils.MapToCurve.Ease.Scale(tForm, to, duration, false, 0, 0, 0, false, null);
+        Wrj.Utils.MapToCurve.Ease.Scale(tForm, to, duration, false, Wrj.RepeatStyle.Loop, 1, false, null);
     }
     /// Change transforms scale over time using a multiplier
     public static void EaseScale(this Transform tForm, float to, float duration)
     {
-        Wrj.Utils.MapToCurve.Ease.Scale(tForm, tForm.localScale * to, duration, false, 0, 0, 0, false, null);
+        Wrj.Utils.MapToCurve.Ease.Scale(tForm, tForm.localScale * to, duration, false, Wrj.RepeatStyle.Loop, 1, false, null);
     }
     /// Change transforms scale over time
     public static void EaseScale(this GameObject go, Vector3 to, float duration)
@@ -325,7 +325,7 @@ public static class ExtensionMethods
     /// Change Color Over Time
     public static void Color(this Transform tForm, Color to, float duration)
     {
-        Wrj.Utils.MapToCurve.Linear.ChangeColor(tForm, to, duration, false, 0, 0, 0, false, null);
+        Wrj.Utils.MapToCurve.Linear.ChangeColor(tForm, to, duration, false, Wrj.RepeatStyle.Loop, 1, false, null);
     }
     /// Change Color Over Time
     public static void Color(this GameObject go, Color to, float duration)
@@ -336,7 +336,7 @@ public static class ExtensionMethods
     /// Change transparency over time
     public static void Alpha(this Transform tForm, float to, float duration)
     {
-        Wrj.Utils.MapToCurve.Linear.FadeAlpha(tForm, to, duration, false, 0, 0, 0, false, null);
+        Wrj.Utils.MapToCurve.Linear.FadeAlpha(tForm, to, duration, false, Wrj.RepeatStyle.Loop, 1, false, null);
     }
     /// Change transparency over time
     public static void Alpha(this GameObject go, float to, float duration)
