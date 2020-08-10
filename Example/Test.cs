@@ -76,6 +76,7 @@ namespace Wrj
 
         IEnumerator StopTest()
         {
+            CustomLog.Log("Testing custom log...", Color.magenta);
             yield return new WaitForSecondsRealtime(1);
             Utils.MapToCurve.StopAllOnTransform(curveScaleTransform);
             yield return new WaitForSecondsRealtime(2);

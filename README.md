@@ -11,7 +11,8 @@ Provides values as plotted on an Animation Curve. Used a lot like Mathf.Lerp, ex
 
 Includes a bunch of functions to manipulate transforms/audio over time. For example, the following will scale, move and rotate a transfrom into a position over 5 seconds. The target position is defined by a sibling transfrom.
 
-Presets for common ease curves from https://github.com/aureliendrouet/EasingCurvePresets are included
+Presets for common ease curves from https://github.com/aureliendrouet/EasingCurvePresets are included    
+This also uses the super-cool More Effective Coroutines[Free] for the performance benefits: https://assetstore.unity.com/packages/tools/animation/more-effective-coroutines-free-54975
 ```C#
    Wrj.Utils.MapToCurve.Ease.MatchSibling(transform, targetTransform, 5);
 //                       ^        ^          ^            ^           ^
@@ -102,7 +103,7 @@ Also includes a Weighted Random Object class (demonstrated on the right in the g
 
 Contains a collection of objects with an int representing its weight. Higher weights are more likely for selection When `weightedElements.GetRandom()` is called.
 
-```
+```C#
 public Transform weight10;
 public Transform weight5;
 public Transform weight3;
@@ -114,7 +115,7 @@ randomBumpObjects.Add(weight5, 5);
 randomBumpObjects.Add(weight3, 3);
 randomBumpObjects.Add(weight1, 1);
 
-// This is moste likely to scale object weight10. But it's fairly unlikely to scale weight1
+// This is most likely to scale object weight10. But it's fairly unlikely to scale weight1
 randomBumpObjects.GetRandom().localScale = Vector3.one * 1.5f;
 ```
 

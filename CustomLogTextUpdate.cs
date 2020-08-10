@@ -12,6 +12,8 @@ namespace Wrj
         void Awake()
         {
             tmpro = GetComponent<TMPro.TextMeshProUGUI>();
+            uiText = GetComponent<UnityEngine.UI.Text>();
+            textMesh = GetComponent<TextMesh>();
             CustomLog.OnLogUpdate += LogUpdate;
         }
 
