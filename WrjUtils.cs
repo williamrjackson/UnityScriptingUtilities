@@ -124,8 +124,8 @@ namespace Wrj
         /// Run a method after a delay.
         ///
         /// Usage:
-        /// Delay(3f, () => Debug.Log("This is a test"));
-        public static void Delay(float delay, System.Action methodWithParameters)
+        /// DeferredExecution(3f, () => Debug.Log("This is a test"));
+        public static void DeferredExecution(float delay, System.Action methodWithParameters)
         {
             MapToCurve.Ease.Delay(delay, methodWithParameters);
         }

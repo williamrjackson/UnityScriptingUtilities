@@ -104,7 +104,10 @@ namespace Wrj
             Clear();
             ApplyLinearWeights(source);
         }
-        
+
+        public WeightedElements()
+        {
+        }
 
         [System.Serializable]
 		private class WeightedElement

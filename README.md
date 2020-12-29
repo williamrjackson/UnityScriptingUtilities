@@ -123,7 +123,7 @@ randomBumpObjects.GetRandom().localScale = Vector3.one * 1.5f;
 ## Utility Functions
 - `EnsureComponent<T>(GameObject)`
   - Returns a component instance by finding the one on the game object, or by adding one if not found.
-- `Delay(delayTime, () => Method(withParams))`
+- `DeferredExecution(delayTime, () => Method(withParams))`
   - Issues a command after the specified delayTime elapses.
 - `Switcheroo<T>(ref T a, ref T b)`
   - Swap items
