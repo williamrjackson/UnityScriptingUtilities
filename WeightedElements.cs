@@ -4,35 +4,35 @@ using UnityEngine;
 
 namespace Wrj
 {
-	[System.Serializable]
-	public class WeightedElements<T>
-	{
-		private List<WeightedElement> objectList = new List<WeightedElement>();
-		private int m_LastSelectedIndex = -1;
+    [System.Serializable]
+    public class WeightedElements<T>
+    {
+        private List<WeightedElement> objectList = new List<WeightedElement>();
+        private int m_LastSelectedIndex = -1;
 
         /// <summary>
         /// Returns a random element from the list where objects with higher weights are more likely
         /// </summary>
         public T GetRandom(bool preventImmediateRepeat = false)
-		{
+        {
             if (objectList.Count < 2) return objectList[0].element;
             List<int> allOptions = new List<int>();
 
-			for (int i = 0; i < objectList.Count; i++)
-			{
-				if (!preventImmediateRepeat || i != m_LastSelectedIndex)
-				{
-					for (int j = 0; j < objectList[i].weight; j++)
-					{
-						allOptions.Add(i);
-					}
-				}
-			}
-			int weightedRandomIndex = allOptions[UnityEngine.Random.Range(0, allOptions.Count)];
-			m_LastSelectedIndex = weightedRandomIndex;
+            for (int i = 0; i < objectList.Count; i++)
+            {
+                if (!preventImmediateRepeat || i != m_LastSelectedIndex)
+                {
+                    for (int j = 0; j < objectList[i].weight; j++)
+                    {
+                        allOptions.Add(i);
+                    }
+                }
+            }
+            int weightedRandomIndex = allOptions[UnityEngine.Random.Range(0, allOptions.Count)];
+            m_LastSelectedIndex = weightedRandomIndex;
 
-			return objectList[weightedRandomIndex].element;
-		}
+            return objectList[weightedRandomIndex].element;
+        }
         public void Add(T element, int weight)
         {
             objectList.Add(new WeightedElement(element, weight));
@@ -89,20 +89,20 @@ namespace Wrj
                 }
 
                 int weight = Mathf.RoundToInt(curveVal * 100f);
-                
-                Add(source[i], weight);
+
+                Add(source[i], Mathf.Max(1, weight));
             }
         }
 
-        public WeightedElements (List<T> source, AnimationCurve curve)
+        public WeightedElements (List<T> source, AnimationCurve curve, bool invert=false)
         {
             Clear();
-            ApplyCurveWeights(source, curve);
+            ApplyCurveWeights(source, curve, invert);
         }
-        public WeightedElements (List<T> source)
+        public WeightedElements (List<T> source, bool invert=false)
         {
             Clear();
-            ApplyLinearWeights(source);
+            ApplyLinearWeights(source, invert);
         }
 
         public WeightedElements()

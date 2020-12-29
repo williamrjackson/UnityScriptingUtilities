@@ -127,7 +127,7 @@ namespace Wrj
         /// DeferredExecution(3f, () => Debug.Log("This is a test"));
         public static void DeferredExecution(float delay, System.Action methodWithParameters)
         {
-            MapToCurve.Ease.Delay(delay, methodWithParameters);
+            MapToCurve.Linear.Delay(delay, methodWithParameters);
         }
 
         public static void SafeTry(System.Action action)
