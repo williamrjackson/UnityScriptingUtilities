@@ -100,7 +100,9 @@ Wrj.Utils.MapToCurve.Ease.FadeAlpha(targetTransform, 0, duration, pingPong: 10);
 ## WeightedElements
 Also includes a Weighted Random Object class (demonstrated on the right in the gif above).
 
-Contains a collection of objects with an int representing its weight. Higher weights are more likely for selection When `weightedElements.GetRandom()` is called.
+Contains a collection of objects with an int representing its weight. Higher weights are more likely for selection When `weightedElements.GetRandom()` is called.   
+
+Can also be initialized with a source `List<T>` and an `AnimationCurve` representing the desired weights.     
 
 ```C#
 public Transform weight10;
