@@ -24,7 +24,7 @@ public class CurvedWeightedTest : MonoBehaviour
     {
         while (true)
         {
-            Transform affected = weightedElements.GetRandom();
+            Transform affected = weightedElements.GetRandom(true);
             float initY = affected.localScale.y;
             Vector3 targetScale = affected.localScale.With(y: initY + .1f);
             Wrj.Utils.MapToCurve.Ease.Scale(affected, targetScale, .1f);
