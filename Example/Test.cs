@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Wrj
 {
-
     public class Test : MonoBehaviour
     {
         public float duration = 3;

@@ -143,8 +143,12 @@ randomBumpObjects.GetRandom().localScale = Vector3.one * 1.5f;
   - Convert inches into Unity Units.    
 - `String.PrependAn(capitalize)`
   - Prepends either "A" or "An" depending on the word.    
+- `String.Pluralize(capitalize)`
+  - Appends "s" or "es" based on common rules. Uses dictionary of common outliers. "Puma" -> "Pumas"; "Fox" -> "Foxes"; "Index" -> "Indices"    
 - `List.GetRandom()` and `Array.GetRandom()`
   - Returns a random element from an array or list.    
+- `CoinFlip`
+  - Returns true or false at random.    
 
 ## Bezier Path Editor 
 Editor scripts to create paths. `MapToCurve` includes a tween to follow paths over a duration using a speed curve.
@@ -152,7 +156,7 @@ Editor scripts to create paths. `MapToCurve` includes a tween to follow paths ov
 ![Path](PathFollowerExample.gif)    
 
 ## 3D Layout Groups
-Basic object distribution scripts that runs in edit mode, dynamically adapting to changes in the child hierarchy. Similar to UI Layout Groups, but for 3D transforms. 
+Basic object distribution scripts that run in edit mode, dynamically adapting to changes in the child hierarchy. Similar to UI Layout Groups, but for 3D transforms. Offers flat grid distribution and curved grid distribution.
 
 ## CustomLog 
 UnityEngine.Debug.Log wrapper allowing you to subscribe to log updates, to change in-game Text for example. Inspired by the need to see the Debug.Log entries within a VR experience, without ruining the ability to doubleclick the item in the Unity Console. Also provides the ability to colorize in the Console. Usage: `Wrj.CustomLog.Log("Test", Color.cyan)`. Add `CustomLogTextUpdate` component to an object containing a `TMPro.TextMeshProUGUI`, `UnityEngine.UI.Text` or `TextMesh` to update text each time `CustomLog.Log()` is called.

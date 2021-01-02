@@ -172,7 +172,12 @@ namespace Wrj
             }
             return Mathf.Abs(f);
         }
-        
+		
+        public static bool CoinFlip
+        {
+            get { return (Random.Range(-1f, 1f) > 0) ? true : false; }
+        }
+
         // Coroutine list management stuff...
         public static Utils wrjInstance;
         private List<MapToCurve.Manipulation> m_ManipulationList;
