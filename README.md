@@ -5,6 +5,8 @@ Stuff I use a lot, and a simple AnimationCurve-based tweening interface.
 Add to projects using:  
 `$ git submodule add https://github.com/williamrjackson/UnityScriptingUtilities.git Assets/ScriptingUtils`
 
+Or import the [Unity Package](https://github.com/williamrjackson/UnityScriptingUtilities/raw/master/UnityScriptingUtilities.unitypackage).
+
 
 ## MapToCurve
 Provides values as plotted on an Animation Curve. Used a lot like Mathf.Lerp, except not linear. 
