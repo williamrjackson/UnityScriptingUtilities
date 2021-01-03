@@ -21,7 +21,7 @@ namespace Wrj
         {
             foreach ( BezierPath path in FindObjectsOfType<BezierPath>())
             {
-                path.RefreshChildIndexes();
+                path.RefreshChildIndices();
             }
         }
 

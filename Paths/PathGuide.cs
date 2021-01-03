@@ -42,7 +42,7 @@ namespace Wrj
             Undo.RegisterFullObjectHierarchyUndo(dupe.transform.parent.gameObject, "");
             Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
             Selection.activeGameObject = dupe;
-            GetOwnerPath().RefreshChildIndexes();
+            GetOwnerPath().RefreshChildIndices();
             #endif
         }
 

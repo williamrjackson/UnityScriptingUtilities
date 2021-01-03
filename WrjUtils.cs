@@ -497,11 +497,19 @@ namespace Wrj
             public Manipulation MoveAlongPath(Transform tform, BezierPath path, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool inverse = false, bool align = false, OnDone onDone = null)
             {
                 Manipulation mcp = new Manipulation("Move", tform);
+                mcp.coroutine = UtilObject().StartCoroutine(MovePath(mcp, tform, path.Curve, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, inverse, align, onDone));
+                UtilObject().AddToCoroList(mcp);
+                return mcp;
+            }
+
+            public Manipulation MoveAlongPath(Transform tform, Vector3[] path, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool inverse = false, bool align = false, OnDone onDone = null)
+            {
+                Manipulation mcp = new Manipulation("Move", tform);
                 mcp.coroutine = UtilObject().StartCoroutine(MovePath(mcp, tform, path, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, inverse, align, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
             }
-            private IEnumerator MovePath(Manipulation mcp, Transform tform, BezierPath path, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, bool inverse, bool align, OnDone onDone)
+            private IEnumerator MovePath(Manipulation mcp, Transform tform, Vector3[] path, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, bool inverse, bool align, OnDone onDone)
             {
                 float elapsedTime = 0;
                 mcp.iterationCount++;
@@ -518,11 +526,11 @@ namespace Wrj
                     Vector3 look = Vector3.zero;
                     if (mirrorCurve)
                     {
-                        tform.position = path.GetPointOnCurve(MirrorLerp(0, 1, scrubPos), ref look);
+                        tform.position = BezierPath.GetPointOnCurve(path, MirrorLerp(0, 1, scrubPos), ref look);
                     }
                     else
                     {
-                        tform.position = path.GetPointOnCurve(Lerp(0, 1, scrubPos), ref look);
+                        tform.position = BezierPath.GetPointOnCurve(path, Lerp(0, 1, scrubPos), ref look);
                     }
                     if (align && look != tform.position)
                         tform.rotation = Quaternion.LookRotation(tform.position - look);
