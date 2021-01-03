@@ -158,5 +158,11 @@ Editor scripts to create paths. `MapToCurve` includes a tween to follow paths ov
 ## 3D Layout Groups
 Basic object distribution scripts that run in edit mode, dynamically adapting to changes in the child hierarchy. Similar to UI Layout Groups, but for 3D transforms. Offers flat grid distribution and curved grid distribution.
 
+## ObjectPool    
+Creates and enables game objects, recycling whenever possible.
+
+## AudioPool    
+Plays an AudioClip by cycling through multiple audio sources, preventing clicks and pops. Also includes RandomizedSoundEffect component that picks a random sample from a list, randomizing pitch and volume within a specified range.
+
 ## CustomLog 
 UnityEngine.Debug.Log wrapper allowing you to subscribe to log updates, to change in-game Text for example. Inspired by the need to see the Debug.Log entries within a VR experience, without ruining the ability to doubleclick the item in the Unity Console. Also provides the ability to colorize in the Console. Usage: `Wrj.CustomLog.Log("Test", Color.cyan)`. Add `CustomLogTextUpdate` component to an object containing a `TMPro.TextMeshProUGUI`, `UnityEngine.UI.Text` or `TextMesh` to update text each time `CustomLog.Log()` is called.
