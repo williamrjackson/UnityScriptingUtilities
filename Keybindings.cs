@@ -3,13 +3,18 @@ using UnityEngine.Events;
 
 namespace Wrj
 {		
-	public class Keybindings : MonoBehaviour {
+	public class Keybindings : MonoBehaviour 
+	{	
+		public ActionKeyCommand[] actionKeys;
 		public ButtonKeyCommand[] buttonKeys;
 		public ToggleKeyCommand[] toggleKeys;
-		public ActionKeyCommand[] actionKeys;
 		public HierarchyToggles[] objectEnableKeys;
+
 		void Update() {
-			if (!Input.anyKeyDown)
+			// If no keys are down, don't check for keys.
+			// If there are any actionKeys enabled, we could be awaiting a KeyUp. 
+			// So check anyway.
+			if (!Input.anyKeyDown && actionKeys.Length == 0)
 			{
 				return;
 			}
@@ -47,7 +52,11 @@ namespace Wrj
 			{
 				if (Input.GetKeyDown(actionKey.key))
 				{
-					actionKey.action.Invoke();
+					actionKey.keyDownAction.Invoke();
+				}
+				else if (Input.GetKeyUp(actionKey.key))
+				{
+					actionKey.keyUpAction.Invoke();
 				}
 			}
 
@@ -63,27 +72,27 @@ namespace Wrj
 		[System.Serializable]
 		public class ButtonKeyCommand
 		{
-			public UnityEngine.UI.Button button;
 			public KeyCode key;
+			public UnityEngine.UI.Button button;
 		}
 		[System.Serializable]
 		public class ToggleKeyCommand
 		{
-			public UnityEngine.UI.Toggle toggle;
 			public KeyCode key;
+			public UnityEngine.UI.Toggle toggle;
 		}
 		[System.Serializable]
 		public class ActionKeyCommand
 		{
-			public UnityEvent action;
 			public KeyCode key;
+			public UnityEvent keyDownAction;
+			public UnityEvent keyUpAction;
 		}
 		[System.Serializable]
-
 		public class HierarchyToggles
 		{
-			public GameObject go;
 			public KeyCode key;
+			public GameObject go;
 		}
 		
 	}
