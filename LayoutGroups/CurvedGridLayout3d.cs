@@ -82,18 +82,18 @@ namespace Wrj
 					element.localPosition = pos;
 					appliedHorizontalSpacing += columnSpacing;
 
-					if (faceDirection == FaceDirection.Toward)
+					if (faceDirection == FaceDirection.Away)
 					{
 						element.LookAt(element.position - transform.forward);
 					}
-					else if (faceDirection == FaceDirection.Away)
+					else if (faceDirection == FaceDirection.Toward)
 					{
 						element.LookAt(element.position + transform.forward);
 					}
 					else
 					{	
 						element.LookAt(transform.position);
-						if (faceDirection == FaceDirection.Outward)
+						if (faceDirection == FaceDirection.Inward)
 						{
 							element.LookAt(element.position - element.forward);
 						}
