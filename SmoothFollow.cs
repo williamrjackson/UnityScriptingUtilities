@@ -5,7 +5,7 @@ namespace Wrj
 	public class SmoothFollow : MonoBehaviour
 	{
 		[SerializeField]
-		private Transform followTarget;
+		private Transform followTarget = null;
 		[SerializeField]
 		private float smoothTime = 0.3F;
 		[SerializeField]

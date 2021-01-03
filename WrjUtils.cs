@@ -283,6 +283,10 @@ namespace Wrj
                     wrjInstance.CancelByTransform(tform);
             }
 
+            public float CurvedRemap(float value, float sourceMin, float sourceMax, float destMin, float destMax)
+            {
+                return Lerp(destMin, destMax, Mathf.InverseLerp(sourceMin, sourceMax, value));
+            }
             public float Lerp(float a, float b, float time)
             {
                 return Mathf.LerpUnclamped(a, b, curve.Evaluate(time));
