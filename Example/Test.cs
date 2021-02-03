@@ -29,24 +29,24 @@ namespace Wrj
             randomBumpObjects.Add(weight3, 3);
             randomBumpObjects.Add(weight1, 1);
 
-            Utils.MapToCurve.Linear.MoveWorld(linTransform, linTransform.PosInWorldDir(up: 5f, right: -1.5f), duration, pingPong: 10);
-            Utils.MapToCurve.EaseIn.MoveWorld(easeInTransform, easeInTransform.PosInWorldDir(up: 5f, right: .5f), duration, mirrorCurve: false, pingPong: 10);
-            Utils.MapToCurve.EaseIn.MoveWorld(easeOutTransform, easeOutTransform.PosInWorldDir(up: 5f, right: -.5f), duration, mirrorCurve: true, pingPong: 10);
-            Utils.MapToCurve.Ease.MatchSibling(easeTransform, targetTransform, duration, pingPong: 10);
+            Utils.MapToCurve.Linear.MoveWorld(linTransform, linTransform.PosInWorldDir(up: 5f, right: -1.5f), duration, pingPong: -1);
+            Utils.MapToCurve.EaseIn.MoveWorld(easeInTransform, easeInTransform.PosInWorldDir(up: 5f, right: .5f), duration, mirrorCurve: false, pingPong: -1);
+            Utils.MapToCurve.EaseIn.MoveWorld(easeOutTransform, easeOutTransform.PosInWorldDir(up: 5f, right: -.5f), duration, mirrorCurve: true, pingPong: -1);
+            Utils.MapToCurve.Ease.MatchSibling(easeTransform, targetTransform, duration, pingPong: -1);
 
-            Utils.MapToCurve.Linear.Rotate(linTransform, Vector3.up * 135, duration, shortestPath: false, pingPong: 10);
-            Utils.MapToCurve.EaseIn.Rotate(easeInTransform, Vector3.up * -360, duration, shortestPath: false, pingPong: 10);
+            Utils.MapToCurve.Linear.Rotate(linTransform, Vector3.up * 135, duration, shortestPath: false, pingPong: -1);
+            Utils.MapToCurve.EaseIn.Rotate(easeInTransform, Vector3.up * -360, duration, shortestPath: false, pingPong: -1);
             Utils.MapToCurve.EaseIn.Rotate(easeOutTransform, Vector3.forward * -720, duration, shortestPath: false, mirrorPingPong: 10);
 
-            Utils.MapToCurve.Ease.ChangeColor(linTransform, Color.black, duration, pingPong: 10);
-            Utils.MapToCurve.Ease.ChangeColor(easeInTransform, Color.red, duration, pingPong: 10);
-            Utils.MapToCurve.Ease.ChangeColor(easeOutTransform, Color.blue, duration, pingPong: 10);
-            Utils.MapToCurve.Ease.ChangeColor(easeTransform, Color.magenta, duration, pingPong: 10);
+            Utils.MapToCurve.Ease.ChangeColor(linTransform, Color.black, duration, pingPong: -1);
+            Utils.MapToCurve.Ease.ChangeColor(easeInTransform, Color.red, duration, pingPong: -1);
+            Utils.MapToCurve.Ease.ChangeColor(easeOutTransform, Color.blue, duration, pingPong: -1);
+            Utils.MapToCurve.Ease.ChangeColor(easeTransform, Color.magenta, duration, pingPong: -1);
 
-            Utils.MapToCurve.Ease.FadeAlpha(targetTransform, 0, duration, pingPong: 10);
+            Utils.MapToCurve.Ease.FadeAlpha(targetTransform, 0, duration, pingPong: -1);
 
             Utils.MapToCurve myCurve = new Utils.MapToCurve(scaleCurve);
-            myCurve.Scale(curveScaleTransform, curveScaleTransform.localScale * .5f, duration * .5f, pingPong: 9);
+            myCurve.Scale(curveScaleTransform, curveScaleTransform.localScale * .5f, duration * .5f, pingPong: 5);
 
             StartCoroutine(testRandomLoop());
             recursiveTestGO.PerChild(SetLayer);

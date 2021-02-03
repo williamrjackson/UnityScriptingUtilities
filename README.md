@@ -168,3 +168,11 @@ Plays an AudioClip by cycling through multiple audio sources, preventing clicks 
 
 ## CustomLog 
 UnityEngine.Debug.Log wrapper allowing you to subscribe to log updates, to change in-game Text for example. Inspired by the need to see the Debug.Log entries within a VR experience, without ruining the ability to doubleclick the item in the Unity Console. Also provides the ability to colorize in the Console. Usage: `Wrj.CustomLog.Log("Test", Color.cyan)`. Add `CustomLogTextUpdate` component to an object containing a `TMPro.TextMeshProUGUI`, `UnityEngine.UI.Text` or `TextMesh` to update text each time `CustomLog.Log()` is called.
+
+## Custom Script Creation Options  
+![CustomCreationPrefs](Prefs.png)    
+
+- Custom Script Path
+  - New scripts created directly on GameObjects or in Assets root will automatically move to the Custom Script Path. Leave blank to disable.
+- Default Namespace
+  -  Automatically adds a default namespace to newly created scripts. Requires a custom monobehavior script in `%EDITOR_PATH%\\Data\\Resources\\ScriptTemplates` containing the variable `#NAMESPACE#`.

@@ -5,13 +5,13 @@ namespace Wrj
 { 
     public class CustomLogTextUpdate : MonoBehaviour
     {
-        private TMPro.TextMeshProUGUI tmpro = null;
+        private TMPro.TextMeshPro tmpro = null;
         private UnityEngine.UI.Text uiText = null;
         private TextMesh textMesh = null;
 
         void Awake()
         {
-            tmpro = GetComponent<TMPro.TextMeshProUGUI>();
+            tmpro = GetComponent<TMPro.TextMeshPro>();
             uiText = GetComponent<UnityEngine.UI.Text>();
             textMesh = GetComponent<TextMesh>();
             CustomLog.OnLogUpdate += LogUpdate;

@@ -145,6 +145,32 @@ public static class ExtensionMethods
     }
 
     /// <summary>
+    /// Returns a log of items in a list.
+    /// </summary>
+    public static string Printable<T>(this List<T> list)
+    {
+        string str = "";
+        for (int i = 0; i < list.Count; i++)
+        {
+            str += i + ":{" + list[i].ToString() + "}";
+            if (i != list.Count - 1) str += ", ";
+        }
+        return str;
+    }
+    /// <summary>
+    /// Returns a log of items in an array.
+    /// </summary>
+    public static string Printable<T>(this T[] array)
+    {
+        string str = "";
+        for (int i = 0; i < array.Length; i++)
+        {
+            str += i + ":{" + array[i].ToString() + "}";
+            if (i != array.Length - 1) str += ", ";
+        }
+        return str;
+    }
+    /// <summary>
     /// Returns conversion to Unity Units/Meters from Feet
     /// </summary>
     public static float FeetToUnits(this float feet)
