@@ -143,6 +143,80 @@ public static class ExtensionMethods
         }
         return default(T);
     }
+    /// <summary>
+    /// <para>Converts to a multichannel clip with content only on the target channel</para>
+    /// <para>Clip channel count is based on current Audio Speaker Mode</para>
+    /// Useful for sending audio to a specific speaker in a surround sound configuration.
+    /// </summary>
+    /// <param name="originalClip"></param>
+    /// <param name="targetChannel"></param>
+    /// <returns>Multichannel audio clip with contents exclusively on the target channel</returns>
+    public static AudioClip SpeakerSpecificClip(this AudioClip originalClip, int targetChannel)
+    {
+        int numberOfChannels = 2;
+        switch (AudioSettings.speakerMode)
+        {
+            case AudioSpeakerMode.Mono:
+                numberOfChannels = 1;
+                break;
+            case AudioSpeakerMode.Quad:
+                numberOfChannels = 4;
+                break;
+            case AudioSpeakerMode.Surround:
+                numberOfChannels = 5;
+                break;
+            case AudioSpeakerMode.Mode5point1:
+                numberOfChannels = 6;
+                break;
+            case AudioSpeakerMode.Mode7point1:
+                numberOfChannels = 8;
+                break;
+        }
+
+        // ensure source clip has a sample, to prevent AudioClip.Create error
+        if (originalClip.length == 0)
+        {
+            originalClip = AudioClip.Create(originalClip.name, 1, originalClip.channels, originalClip.frequency, false);
+        }
+        // Create a new clip with the target amount of channels.
+        AudioClip clip = AudioClip.Create(originalClip.name + "_" + numberOfChannels, originalClip.samples, numberOfChannels, originalClip.frequency, false);
+
+        // Data for new clip
+        float[] audioData = new float[originalClip.samples * numberOfChannels];
+        // Original clip data
+        float[] originalAudioData = new float[originalClip.samples * originalClip.channels];
+        originalClip.GetData(originalAudioData, 0);
+
+        // Fill in the audio from the original clip into the target channel. Samples are interleaved by channel (L0, R0, L1, R1, etc).
+        int originalClipIndex = 0;
+        if (targetChannel < 0)
+        {
+            for (int ix = 0; ix < numberOfChannels; ix++)
+            {
+                originalClipIndex = 0;
+                for (int j = ix; j < audioData.Length; j += numberOfChannels)
+                {
+                    audioData[j] = originalAudioData[originalClipIndex];
+                    originalClipIndex += originalClip.channels;
+                }
+            }
+        }
+        else
+        {
+            for (int i = targetChannel; i < audioData.Length; i += numberOfChannels)
+            {
+                audioData[i] = originalAudioData[originalClipIndex];
+                originalClipIndex += originalClip.channels;
+            }
+        }
+
+        if (!clip.SetData(audioData, 0))
+        {
+            Debug.Log("Speaker-specific clip creation failed.");
+            return null;
+        }
+        return clip;
+    }
 
     /// <summary>
     /// Returns a log of items in a list.
