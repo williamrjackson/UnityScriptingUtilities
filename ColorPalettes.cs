@@ -1,6 +1,60 @@
 using UnityEngine;
 namespace Wrj
 {
+    public class ColorHarmony
+    {
+        public static Color Complementary(Color color)
+        {
+            Color.RGBToHSV(color, out float h, out float s, out float v);
+            h = (h + .5f) % 1f;
+            return Color.HSVToRGB(h, s, v);
+        }
+        public static Color[] SplitComplementary(Color color)
+        {
+            Color.RGBToHSV(color, out float h, out float s, out float v);
+            Color[] results = new Color[3];
+            results[0] = Color.HSVToRGB((h + .5833333f) % 1f, s, v);
+            results[1] = color;
+            results[2] = Color.HSVToRGB((h + .4166667f) % 1f, s, v);
+            return results;
+        }
+        public static Color[] Triadic(Color color)
+        {
+            Color.RGBToHSV(color, out float h, out float s, out float v);
+            Color[] results = new Color[3];
+            results[0] = Color.HSVToRGB((h + .333f) % 1f, s, v);
+            results[1] = color;
+            results[2] = Color.HSVToRGB((h + .666f) % 1f, s, v);
+            return results;
+        }
+        public static Color[] Tetradic(Color color)
+        {
+            Color.RGBToHSV(color, out float h, out float s, out float v);
+            Color comp = Complementary(color);
+            Color.RGBToHSV(comp, out float hC, out float sC, out float vC);
+            Color[] results = new Color[4];
+            results[0] = color;
+            results[1] = Color.HSVToRGB((h + .097f) % 1f, s, v);
+            results[2] = comp;
+            results[3] = Color.HSVToRGB((hC + .097f) % 1f, sC, vC);
+            return results;
+        }
+        public static Color Monochromatic(Color color)
+        {
+            Color.RGBToHSV(color, out float h, out float s, out float v);
+            v = Mathf.Clamp01(v - .2f); 
+            s = Mathf.Clamp01(v - .1f);
+            return Color.HSVToRGB(h, s, v);
+        }
+        public static Color[] Analogous(Color color)
+        {
+            Color.RGBToHSV(color, out float h, out float s, out float v);
+            Color[] results = new Color[3];
+            results[0] = Color.HSVToRGB((h + .08f) % 1f, s, v);
+            results[2] = Color.HSVToRGB((h - .08f) % 1f, s, v);
+            return results;
+        }
+    }
     public class FlatUIPalette
     {
         public static Color Turquoise => new Color(0.101960786f, 0.7372549f, 0.6117647f);
@@ -9,7 +63,7 @@ namespace Wrj
         public static Color Nephritis => new Color(0.15294118f, 0.68235296f, 0.3764706f);
         public static Color PeterRiver => new Color(0.20392157f, 0.59607846f, 0.85882354f);
         public static Color BelizeHole => new Color(0.16078432f, 0.5019608f, 0.7254902f);
-        public static Color WetAsphalt => new Color(0.20392157f, 0.28627452f, 0.36862746f);
+        public static Color WetAsphalt => new Color(0.20392157f, 0.28627452f, 0.3862746f);
         public static Color MidnightBlue => new Color(0.17254902f, 0.24313726f, 0.3137255f);
         public static Color SoftPink => new Color(0.9176471f, 0.29803923f, 0.53333336f);
         public static Color StrongPink => new Color(0.79215693f, 0.17254902f, 0.40784317f);

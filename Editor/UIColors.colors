@@ -45,7 +45,7 @@ MonoBehaviour:
     m_Color: {r: 0.9019608, g: 0.49411765, b: 0.13333334, a: 1}
   - m_Name: Alizarin
     m_Color: {r: 0.90588236, g: 0.29803923, b: 0.23529412, a: 1}
-  - m_Name: Pomagranate
+  - m_Name: Pomegranate
     m_Color: {r: 0.7529412, g: 0.22352941, b: 0.16862746, a: 1}
   - m_Name: Clouds
     m_Color: {r: 0.9254902, g: 0.9411765, b: 0.94509804, a: 1}
