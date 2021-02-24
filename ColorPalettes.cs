@@ -3,12 +3,22 @@ namespace Wrj
 {
     public class ColorHarmony
     {
+        /// <summary>
+        /// Get the color directly opposite the input on the color wheel
+        /// </summary>
+        /// <param name="color"></param>
+        /// <returns>Complementary Color</returns>
         public static Color Complementary(Color color)
         {
             Color.RGBToHSV(color, out float h, out float s, out float v);
             h = (h + .5f) % 1f;
             return Color.HSVToRGB(h, s, v);
         }
+        /// <summary>
+        /// Get the two colors on each side of the provided color's complement
+        /// </summary>
+        /// <param name="color"></param>
+        /// <returns><para>[0]=Color1</para><para>[1]=Original</para><para>[2]=Color2</para></returns>
         public static Color[] SplitComplementary(Color color)
         {
             Color.RGBToHSV(color, out float h, out float s, out float v);
@@ -18,6 +28,11 @@ namespace Wrj
             results[2] = Color.HSVToRGB((h + .4166667f) % 1f, s, v);
             return results;
         }
+        /// <summary>
+        /// Get 2 colors equally spaced from each other on the color wheel 
+        /// </summary>
+        /// <param name="color"></param>
+        /// <returns><para>[0]=Color1</para><para>[1]=Original</para><para>[2]=Color2</para></returns>
         public static Color[] Triadic(Color color)
         {
             Color.RGBToHSV(color, out float h, out float s, out float v);
@@ -27,6 +42,11 @@ namespace Wrj
             results[2] = Color.HSVToRGB((h + .666f) % 1f, s, v);
             return results;
         }
+        /// <summary>
+        /// Get a combination of four colors on the wheel that are two sets of complements, based on input color
+        /// </summary>
+        /// <param name="color"></param>
+        /// <returns><para>[0]=Original</para><para>[1]=Mod one step above original</para><para>[2]=Original's compliment</para><para>[2]=Mod's compliment</para></returns>
         public static Color[] Tetradic(Color color)
         {
             Color.RGBToHSV(color, out float h, out float s, out float v);
@@ -39,18 +59,31 @@ namespace Wrj
             results[3] = Color.HSVToRGB((hC + .097f) % 1f, sC, vC);
             return results;
         }
-        public static Color Monochromatic(Color color)
+        /// <summary>
+        /// Get a lighter and darker shade of the same color
+        /// </summary>
+        /// <param name="color"></param>
+        /// <returns><para>[0]=Lighter</para><para>[1]=Original</para><para>[2]=Darker</para></returns>
+        public static Color[] Monochromatic(Color color)
         {
             Color.RGBToHSV(color, out float h, out float s, out float v);
-            v = Mathf.Clamp01(v - .2f); 
-            s = Mathf.Clamp01(v - .1f);
-            return Color.HSVToRGB(h, s, v);
+            Color[] results = new Color[3];
+            results[0] = Color.HSVToRGB(h, Mathf.Clamp01(s - .1f), Mathf.Clamp01(v - .2f));
+            results[1] = color;
+            results[3] = Color.HSVToRGB(h, Mathf.Clamp01(s + .1f), Mathf.Clamp01(v + .2f));
+            return results;
         }
+        /// <summary>
+        /// Get two colors adjacent to the input on the color wheel.
+        /// </summary>
+        /// <param name="color"></param>
+        /// <returns><para>[0]=Left hue</para><para>[1]=Original</para><para>[2]=Right hue</para></returns>
         public static Color[] Analogous(Color color)
         {
             Color.RGBToHSV(color, out float h, out float s, out float v);
             Color[] results = new Color[3];
             results[0] = Color.HSVToRGB((h + .08f) % 1f, s, v);
+            results[1] = color;
             results[2] = Color.HSVToRGB((h - .08f) % 1f, s, v);
             return results;
         }
