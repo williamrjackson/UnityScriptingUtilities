@@ -313,6 +313,11 @@ public static class ExtensionMethods
         return char.ToUpper(word[0]) + word.Substring(1);
     }
 
+    public static string Capitalize(this string word)
+    {
+        return char.ToUpper(word[0]) + word.Substring(1);
+    }
+
     /// <summary>
     /// <para>Appends "s" or "es" based on common rules. Uses dictionary of common outliers.</para>
     /// "Puma" -> "Pumas"; "Fox" -> "Foxes"; "Index" -> "Indices"
