@@ -8,6 +8,8 @@ namespace Wrj
     public class WordList : MonoBehaviour
     {
         private HashSet<string> wordSet; 
+        public enum WordSource { Full, Common6000, Common3000, Common1000 }
+        public WordSource wordSource = WordSource.Full;
 
         private static WordList _instance;
         public static WordList Instance
@@ -28,19 +30,31 @@ namespace Wrj
             if (_instance == null)
             {
                 _instance = this;
-                Init();
-            }
-            foreach (string result in GetPossibleWords("Powerplant"))
-            {
-                Debug.Log(result);
+                Init(wordSource);
             }
         }
 
-        private void Init()
+        public void Init(WordSource wordSource)
         {
-            TextAsset wordListTextAsset = Resources.Load("WordList", typeof(TextAsset)) as TextAsset;
+            string strWordResourceName = "WordList";
+            switch (wordSource)
+            {
+                case WordSource.Common6000:
+                    strWordResourceName = "WordListTop6000";
+                    break;
+                case WordSource.Common3000:
+                    strWordResourceName = "WordListTop3000";
+                    break;
+                case WordSource.Common1000:
+                    strWordResourceName = "WordListTop1000";
+                    break;
+                default:
+                    strWordResourceName = "WordList";
+                    break;
+            }
+            TextAsset wordListTextAsset = Resources.Load(strWordResourceName, typeof(TextAsset)) as TextAsset;
             wordSet = new HashSet<string>(wordListTextAsset.text.Split("\n"[0]));
-            Debug.Log($"Word list loaded: \n\tDictionary of {wordSet.Count} words.");
+            Debug.Log($"Word list loaded: \n\tDictionary of {string.Format("{0:n0}", wordSet.Count)} words.");
         }
 
         public static bool CheckWord(string word)
