@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+﻿#if UNITY_STANDALONE_WIN
 using System.IO.Ports;
+#endif
+using UnityEngine;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System;
@@ -9,7 +11,7 @@ namespace Wrj
 {
     public class ArduinoSerialCommunication : MonoBehaviour
     {
-
+#if UNITY_STANDALONE_WIN
         [SerializeField]
         private BaudRates BaudRate = BaudRates._9600;
         [SerializeField]
@@ -198,4 +200,5 @@ namespace Wrj
             return null;
         }
     }
+#endif
 }
