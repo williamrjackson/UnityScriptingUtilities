@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Wrj
@@ -66,7 +67,7 @@ namespace Wrj
         {
             chars = chars.ToLower();
             List<string> combinations = CharCombinations(chars.ToLower());
-            List<string> results = new List<string>();
+	        HashSet<string> results = new HashSet<string>();
             foreach (string item in combinations)
             {
                 if (item.Length >= minLength && CheckWord(item))
@@ -74,7 +75,7 @@ namespace Wrj
                     results.Add(item.ToUpper());
                 }
             }
-            return results;
+	        return results.ToList();
         }
 
         /// http://stackoverflow.com/questions/7802822/all-possible-combinations-of-a-list-of-values
