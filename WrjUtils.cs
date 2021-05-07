@@ -246,11 +246,12 @@ namespace Wrj
             public static MapToCurve EaseOut = new MapToCurve(AnimationCurve.EaseInOut(-1, -1, 1, 1));
 
             public class Manipulation
-            {
+	        {
                 public Coroutine coroutine;
                 public Transform transform;
                 public int iterationCount = 0;
                 private string type;
+		        public bool IsRunning => coroutine != null;
 
                 public Manipulation(string _type, Transform _transform)
                 {
@@ -1088,7 +1089,7 @@ namespace Wrj
             // Called when a coroutine is completed. Executes the OnDone method if necessary, and resets default values.
             private void CoroutineComplete(Manipulation mcp, OnDone OnDoneMethod)
             {
-                mcp.coroutine = null;
+	            mcp.coroutine = null;
                 wrjInstance.CleanCoroList();
                 if (OnDoneMethod != null)
                 {

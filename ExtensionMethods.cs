@@ -1,4 +1,4 @@
-// https://unity3d.com/learn/tutorials/topics/scripting/extension-methods
+﻿// https://unity3d.com/learn/tutorials/topics/scripting/extension-methods
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -223,26 +223,28 @@ public static class ExtensionMethods
     /// </summary>
     public static string Printable<T>(this List<T> list)
     {
+	    if (list.Count == 0) return "Empty List";
         string str = "";
         for (int i = 0; i < list.Count; i++)
         {
-            str += i + ":{" + list[i].ToString() + "}";
-            if (i != list.Count - 1) str += ", ";
+	        str += i + ":{" + list[i].ToString() + "}";
+	        if (i != list.Count - 1) str += ", \n";
         }
-        return str;
+	    return str + "\n";
     }
     /// <summary>
     /// Returns a log of items in an array.
     /// </summary>
     public static string Printable<T>(this T[] array)
-    {
+	{
+		if (array.Length == 0) return "Empty Array";
         string str = "";
         for (int i = 0; i < array.Length; i++)
         {
             str += i + ":{" + array[i].ToString() + "}";
-            if (i != array.Length - 1) str += ", ";
+	        if (i != array.Length - 1) str += ", \n";
         }
-        return str;
+        return str + "\n";
     }
     /// <summary>
     /// Returns conversion to Unity Units/Meters from Feet
@@ -370,178 +372,178 @@ public static class ExtensionMethods
     /// Strongly recommended that the target transform shares the parent of this transform.
     /// </summary>
 
-    public static void SnapToSibling(this Transform tForm, Transform to, float duration)
+	public static Wrj.Utils.MapToCurve.Manipulation[] SnapToSibling(this Transform tForm, Transform to, float duration)
     {
-        Wrj.Utils.MapToCurve.Linear.MatchSibling(tForm, to, duration, false, 0, 0, 0, false, null);
+	    return Wrj.Utils.MapToCurve.Linear.MatchSibling(tForm, to, duration, false, 0, 0, 0, false, null);
     }
     /// <summary>
     /// <para>Move, rotate and scale the transform to the position of another over time.</para>
     /// 
     /// Strongly recommended that the target transform shares the parent of this transform.
     /// </summary>
-    public static void SnapToSibling(this GameObject go, Transform to, float duration)
+	public static Wrj.Utils.MapToCurve.Manipulation[] SnapToSibling(this GameObject go, Transform to, float duration)
     {
-        go.transform.SnapToSibling(to, duration);
+        return go.transform.SnapToSibling(to, duration);
     }
     /// <summary>
     /// <para>Move, rotate and scale the transform to the position of another over time.</para>
     ///
     /// Strongly recommended that the target transform shares the parent of this transform.
     /// </summary>
-    public static void EaseSnapToSibling(this Transform tForm, Transform to, float duration)
+	public static Wrj.Utils.MapToCurve.Manipulation[] EaseSnapToSibling(this Transform tForm, Transform to, float duration)
     {
-        Wrj.Utils.MapToCurve.Ease.MatchSibling(tForm, to, duration, false, 0, 0, 0, false, null);
+        return Wrj.Utils.MapToCurve.Ease.MatchSibling(tForm, to, duration, false, 0, 0, 0, false, null);
     }
     /// <summary>
     /// <para>Move, rotate and scale the transform to the position of another over time.</para>
     ///
     /// Strongly recommended that the target transform shares the parent of this transform.
     /// </summary>
-    public static void EaseSnapToSibling(this GameObject go, Transform to, float duration)
+	public static Wrj.Utils.MapToCurve.Manipulation[] EaseSnapToSibling(this GameObject go, Transform to, float duration)
     {
-        go.transform.EaseSnapToSibling(to, duration);
+        return go.transform.EaseSnapToSibling(to, duration);
     }
     /// <summary>
     /// Move transform in local space over time
     /// </summary>
-    public static void Move(this Transform tForm, Vector3 to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation Move(this Transform tForm, Vector3 to, float duration)
     {
-        Wrj.Utils.MapToCurve.Linear.MoveWorld(tForm, to, duration, false, 0, 0, 0, false, false, null);
+	    return Wrj.Utils.MapToCurve.Linear.MoveWorld(tForm, to, duration, false, 0, 0, 0, false, false, null);
     }
     /// <summary>
     /// Move transform in local space over time
     /// </summary>
-    public static void Move(this GameObject go, Vector3 to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation Move(this GameObject go, Vector3 to, float duration)
     {
-        go.transform.Move(to, duration);
+	    return go.transform.Move(to, duration);
     }
     /// <summary>
     /// Move transform in local space over time
     /// </summary>
-    public static void EaseMove(this Transform tForm, Vector3 to, float duration)
+	public static Wrj.Utils.MapToCurve.Manipulation EaseMove(this Transform tForm, Vector3 to, float duration)
     {
-        Wrj.Utils.MapToCurve.Ease.MoveWorld(tForm, to, duration, false, 0, 0, 0, false, false, null);
+	    return Wrj.Utils.MapToCurve.Ease.MoveWorld(tForm, to, duration, false, 0, 0, 0, false, false, null);
     }
     /// <summary>
     /// Move transform in local space over time
     /// </summary>
-    public static void EaseMove(this GameObject go, Vector3 to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation EaseMove(this GameObject go, Vector3 to, float duration)
     {
-        go.transform.EaseMove(to, duration);
+        return go.transform.EaseMove(to, duration);
     }
     /// <summary>
     /// Rotate transform over time
     /// </summary>
-    public static void LinearRotate(this Transform tForm, Vector3 to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation LinearRotate(this Transform tForm, Vector3 to, float duration)
     {
-        Wrj.Utils.MapToCurve.Linear.Rotate(tForm, to, duration, false, 0, 0, 0, false, true, false, null);
+        return Wrj.Utils.MapToCurve.Linear.Rotate(tForm, to, duration, false, 0, 0, 0, false, true, false, null);
     }
     /// <summary>
     /// Rotate transform over time
     /// </summary>
-    public static void Rotate(this GameObject go, Vector3 to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation Rotate(this GameObject go, Vector3 to, float duration)
     {
-        go.transform.LinearRotate(to, duration);
+        return go.transform.LinearRotate(to, duration);
     }
     /// <summary>
     /// Rotate transform over time
     /// </summary>
-    public static void EaseRotate(this Transform tForm, Vector3 to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation EaseRotate(this Transform tForm, Vector3 to, float duration)
     {
-        Wrj.Utils.MapToCurve.Ease.Rotate(tForm, to, duration, false, 0, 0, 0, false, true, false, null);
+        return Wrj.Utils.MapToCurve.Ease.Rotate(tForm, to, duration, false, 0, 0, 0, false, true, false, null);
     }
     /// <summary>
     /// Rotate transform over time
     /// </summary>
-    public static void EaseRotate(this GameObject go, Vector3 to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation EaseRotate(this GameObject go, Vector3 to, float duration)
     {
-        go.transform.EaseRotate(to, duration);
+        return go.transform.EaseRotate(to, duration);
     }
 
     /// <summary>
     /// Change transforms scale over time
     /// </summary>
-    public static void Scale(this Transform tForm, Vector3 to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation Scale(this Transform tForm, Vector3 to, float duration)
     {
-        Wrj.Utils.MapToCurve.Linear.Scale(tForm, to, duration, false, 0, 0, 0, false, null);
+        return Wrj.Utils.MapToCurve.Linear.Scale(tForm, to, duration, false, 0, 0, 0, false, null);
     }
     /// <summary>
     /// Change transforms scale over time using a multiplier
     /// </summary>
-    public static void Scale(this Transform tForm, float to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation Scale(this Transform tForm, float to, float duration)
     {
-        Wrj.Utils.MapToCurve.Linear.Scale(tForm, tForm.localScale * to, duration, false, 0, 0, 0, false, null);
+        return Wrj.Utils.MapToCurve.Linear.Scale(tForm, tForm.localScale * to, duration, false, 0, 0, 0, false, null);
     }
     /// <summary>
     /// Change transforms scale over time
     /// </summary>
-    public static void Scale(this GameObject go, Vector3 to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation Scale(this GameObject go, Vector3 to, float duration)
     {
-        go.transform.Scale(to, duration);
+        return go.transform.Scale(to, duration);
     }
     /// <summary>
     /// Change transforms scale over time using a multiplier
     /// </summary>
-    public static void Scale(this GameObject go, float to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation Scale(this GameObject go, float to, float duration)
     {
-        go.transform.Scale(to, duration);
+        return go.transform.Scale(to, duration);
     }
     /// <summary>
     /// Change transforms scale over time
     /// </summary>
-    public static void EaseScale(this Transform tForm, Vector3 to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation EaseScale(this Transform tForm, Vector3 to, float duration)
     {
-        Wrj.Utils.MapToCurve.Ease.Scale(tForm, to, duration, false, 0, 0, 0, false, null);
+        return Wrj.Utils.MapToCurve.Ease.Scale(tForm, to, duration, false, 0, 0, 0, false, null);
     }
     /// <summary>
     /// Change transforms scale over time using a multiplier
     /// </summary>
-    public static void EaseScale(this Transform tForm, float to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation EaseScale(this Transform tForm, float to, float duration)
     {
-        Wrj.Utils.MapToCurve.Ease.Scale(tForm, tForm.localScale * to, duration, false, 0, 0, 0, false, null);
+        return Wrj.Utils.MapToCurve.Ease.Scale(tForm, tForm.localScale * to, duration, false, 0, 0, 0, false, null);
     }
     /// <summary>
     /// Change transforms scale over time
     /// </summary>
-    public static void EaseScale(this GameObject go, Vector3 to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation EaseScale(this GameObject go, Vector3 to, float duration)
     {
-        go.transform.EaseScale(to, duration);
+        return go.transform.EaseScale(to, duration);
     }
     /// <summary>
     /// Change transforms scale over time using a multiplier
     /// </summary>
-    public static void EaseScale(this GameObject go, float to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation EaseScale(this GameObject go, float to, float duration)
     {
-        go.transform.EaseScale(to, duration);
+        return go.transform.EaseScale(to, duration);
     }
 
     /// <summary>
     /// Change Color Over Time
     /// </summary>
-    public static void Color(this Transform tForm, Color to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation Color(this Transform tForm, Color to, float duration)
     {
-        Wrj.Utils.MapToCurve.Linear.ChangeColor(tForm, to, duration, false, 0, 0, 0, false, null);
+        return Wrj.Utils.MapToCurve.Linear.ChangeColor(tForm, to, duration, false, 0, 0, 0, false, null);
     }
     /// <summary>
     /// Change Color Over Time
     /// </summary>
-    public static void Color(this GameObject go, Color to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation Color(this GameObject go, Color to, float duration)
     {
-        go.transform.Color(to, duration);
+        return go.transform.Color(to, duration);
     }
     /// <summary>
     /// Change transparency over time
     /// </summary>
-    public static void Alpha(this Transform tForm, float to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation Alpha(this Transform tForm, float to, float duration)
     {
-        Wrj.Utils.MapToCurve.Linear.FadeAlpha(tForm, to, duration, false, 0, 0, 0, false, null);
+        return Wrj.Utils.MapToCurve.Linear.FadeAlpha(tForm, to, duration, false, 0, 0, 0, false, null);
     }
     /// <summary>
     /// Change transparency over time
     /// </summary>
-    public static void Alpha(this GameObject go, float to, float duration)
+    public static Wrj.Utils.MapToCurve.Manipulation Alpha(this GameObject go, float to, float duration)
     {
-        go.transform.Alpha(to, duration);
+        return go.transform.Alpha(to, duration);
     }
 
     /// <summary>
