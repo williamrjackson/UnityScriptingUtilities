@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 namespace Wrj
 {
@@ -17,12 +18,24 @@ namespace Wrj
 		private bool _cachedDepthCentering = true;
 		public float depthSpacing;
 		private float _cachedDepthSpacing;
-		private Transform[] _children;
+		private List<Transform> _children;
 
 		void Update () 
 		{
-			// If the children have changed, force an update on everything
-			Transform[] children = GetComponentsInChildren<Transform>();
+			if (Application.isPlaying) return;
+			Refresh();
+		}
+		
+		public void Refresh()
+		{
+			List<Transform> children = new  List<Transform>();
+			foreach (Transform child in transform)
+			{
+				if (child.gameObject.activeInHierarchy)
+				{
+					children.Add(child);
+				}
+			}
 			if (_children != children)
 			{
 				_children = children;
@@ -35,9 +48,9 @@ namespace Wrj
 			{
 				_cachedHorizontalSpacing = horizontalSpacing;
 				_cachedHorizontalCentering = horizontalCentering;
-				Vector3 leftmostPos = (horizontalCentering) ? transform.localPosition.With(x: -(horizontalSpacing * (transform.childCount - 1)) * .5f) : Vector3.zero;
+				Vector3 leftmostPos = (horizontalCentering) ? transform.localPosition.With(x: -(horizontalSpacing * (children.Count - 1)) * .5f) : Vector3.zero;
 				float appliedSpacing = 0f;
-				foreach (Transform element in transform)
+				foreach (Transform element in children)
 				{
 					element.localPosition = element.localPosition.With(x: leftmostPos.x + appliedSpacing);
 					appliedSpacing += horizontalSpacing;
@@ -48,9 +61,9 @@ namespace Wrj
 			{
 				_cachedVerticalSpacing = verticalSpacing;
 				_cachedVerticalCentering = verticalCentering;
-				Vector3 topmostPos = (verticalCentering) ? transform.localPosition.With(y: -(verticalSpacing * (transform.childCount - 1)) * .5f) : Vector3.zero;
+				Vector3 topmostPos = (verticalCentering) ? transform.localPosition.With(y: -(verticalSpacing * (children.Count - 1)) * .5f) : Vector3.zero;
 				float appliedSpacing = 0f;
-				foreach (Transform element in transform)
+				foreach (Transform element in children)
 				{
 					element.localPosition = element.localPosition.With(y: topmostPos.y + appliedSpacing);
 					appliedSpacing += verticalSpacing;
@@ -61,9 +74,9 @@ namespace Wrj
 			{
 				_cachedDepthSpacing = depthSpacing;
 				_cachedDepthCentering = depthCentering;
-				Vector3 farmostPos = (depthCentering) ? transform.localPosition.With(z: -(depthSpacing * (transform.childCount - 1)) * .5f) : Vector3.zero;
+				Vector3 farmostPos = (depthCentering) ? transform.localPosition.With(z: -(depthSpacing * (children.Count - 1)) * .5f) : Vector3.zero;
 				float appliedSpacing = 0f;
-				foreach (Transform element in transform)
+				foreach (Transform element in children)
 				{
 					element.localPosition = element.localPosition.With(z: farmostPos.z + appliedSpacing);
 					appliedSpacing += depthSpacing;
