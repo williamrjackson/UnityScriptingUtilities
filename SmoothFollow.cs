@@ -15,6 +15,8 @@ namespace Wrj
 		private Vector3 offset;
 		private Vector3 velocity = Vector3.zero;
 
+		public Transform Target => followTarget;
+		
 		void Start()
 		{
 			offset = transform.position - followTarget.position;

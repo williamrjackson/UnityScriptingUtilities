@@ -678,15 +678,19 @@ namespace Wrj
                     CoroutineComplete(mcp, onDone);
                 }
             }
-            public delegate void FloatReceiver(float f);
-            public Manipulation ManipulateFloat(FloatReceiver receiver, float init, float target, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
+            
+            /// <summary>
+            /// Modify a referenced float.
+            /// Example: ManipulateFloat(receiver: x => floatToChange = x)
+            /// </summary>
+            public Manipulation ManipulateFloat(System.Action<float> receiver, float init, float target, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
                 Manipulation mcp = new Manipulation("Float", UtilObject().transform);
                 mcp.coroutine = UtilObject().StartCoroutine(FloatManip(mcp, receiver, init, target, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
             }
-            private IEnumerator FloatManip(Manipulation mcp, FloatReceiver receiver, float init, float target, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            private IEnumerator FloatManip(Manipulation mcp, System.Action<float> receiver, float init, float target, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
             {
                 float elapsedTime = 0;
                 mcp.iterationCount++;
