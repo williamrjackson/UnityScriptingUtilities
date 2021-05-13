@@ -250,10 +250,11 @@ namespace Wrj
                 public Coroutine coroutine;
                 public Transform transform;
                 public int iterationCount = 0;
-                private string type;
+                public enum ManipulationType {Scale, Move, Rotate, Audio, Color, Alpha, NotApplicable}
+                private ManipulationType type;
 		        public bool IsRunning => coroutine != null;
 
-                public Manipulation(string _type, Transform _transform)
+                public Manipulation(ManipulationType _type, Transform _transform)
                 {
                     type = _type;
                     transform = _transform;
@@ -261,7 +262,7 @@ namespace Wrj
                         return;
                     foreach(Manipulation mcp in wrjInstance.m_ManipulationList)
                     {
-                        if (mcp.transform == transform && mcp.type == type && type != "")
+                        if (mcp.transform == transform && mcp.type == type && type != ManipulationType.NotApplicable)
                         {
                             mcp.Stop();
                         }
@@ -349,7 +350,7 @@ namespace Wrj
             // Period-based Manipulation Coroutines...
             public Manipulation Scale(Transform tform, Vector3 to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Scale", tform);
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Scale, tform);
                 mcp.coroutine = UtilObject().StartCoroutine(ScaleLocal(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
@@ -400,7 +401,7 @@ namespace Wrj
 
             public Manipulation Move(Transform tform, Vector3 to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool pendulum = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Move", tform);
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Move, tform);
                 mcp.coroutine = UtilObject().StartCoroutine(MoveLocal(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, pendulum, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
@@ -456,7 +457,7 @@ namespace Wrj
 
             public Manipulation MoveWorld(Transform tform, Vector3 to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool pendulum = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Move", tform);
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Move, tform);
                 mcp.coroutine = UtilObject().StartCoroutine(MoveWorldspace(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, pendulum, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
@@ -513,7 +514,7 @@ namespace Wrj
 
             public Manipulation MoveAlongPath(Transform tform, BezierPath path, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool inverse = false, bool align = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Move", tform);
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Move, tform);
                 mcp.coroutine = UtilObject().StartCoroutine(MovePath(mcp, tform, path.Curve, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, inverse, align, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
@@ -521,7 +522,7 @@ namespace Wrj
 
             public Manipulation MoveAlongPath(Transform tform, Vector3[] path, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool inverse = false, bool align = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Move", tform);
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Move, tform);
                 mcp.coroutine = UtilObject().StartCoroutine(MovePath(mcp, tform, path, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, inverse, align, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
@@ -571,7 +572,7 @@ namespace Wrj
             }
             public Manipulation Rotate(Transform tform, Vector3 eulerTo, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, bool shortestPath = true, bool pendulum = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Rotate", tform);
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Rotate, tform);
                 if (shortestPath)
                 {
                     mcp.coroutine = UtilObject().StartCoroutine(RotateLocalQuaternionLerp(mcp, tform, tform.rotation, Quaternion.Euler(eulerTo.x, eulerTo.y, eulerTo.z), duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, pendulum, onDone));
@@ -685,7 +686,7 @@ namespace Wrj
             /// </summary>
             public Manipulation ManipulateFloat(System.Action<float> receiver, float init, float target, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Float", UtilObject().transform);
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.NotApplicable, UtilObject().transform);
                 mcp.coroutine = UtilObject().StartCoroutine(FloatManip(mcp, receiver, init, target, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
@@ -731,7 +732,7 @@ namespace Wrj
 
             public Manipulation FadeAudio(AudioSource audioSource, float targetVol, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Fade", audioSource.transform);
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Audio, audioSource.transform);
                 mcp.coroutine = UtilObject().StartCoroutine(Fade(mcp, audioSource, targetVol, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
@@ -781,7 +782,7 @@ namespace Wrj
 
             public Manipulation CrossFadeAudio(AudioSource from, AudioSource to, float targetVol, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Fade", from.transform);
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Audio, from.transform);
                 mcp.coroutine = UtilObject().StartCoroutine(CrossFade(mcp, from, to, targetVol, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
@@ -836,7 +837,7 @@ namespace Wrj
 
             public Manipulation FadeAlpha(Transform tform, float to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Alpha", tform);
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Alpha, tform);
                 if (tform.GetComponent<UnityEngine.UI.Image>())
                 {
                     mcp.coroutine = UtilObject().StartCoroutine(LerpImageAlpha(mcp, tform.GetComponent<UnityEngine.UI.Image>(), to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
@@ -959,7 +960,7 @@ namespace Wrj
 
             public Manipulation ChangeColor(Transform tform, Color to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation("Color", tform);
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Color, tform);
                 if (tform.GetComponent<UnityEngine.UI.Image>())
                 {
                     mcp.coroutine = UtilObject().StartCoroutine(LerpImageColor(mcp, tform.GetComponent<UnityEngine.UI.Image>(), to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));

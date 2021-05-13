@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Wrj
 {
@@ -11,8 +11,11 @@ namespace Wrj
         [SerializeField] private ScreenBorder ceiling;
 
         void Start()
-        {
-            Wrj.ScreenSizeNotifier.Instance.OnScreenChange += SetBorders;
+	    {
+		    if (Application.isPlaying)
+		    {
+			    Wrj.ScreenSizeNotifier.Instance.OnScreenChange += SetBorders;
+		    }
         }
 #if UNITY_EDITOR
         void Update()
