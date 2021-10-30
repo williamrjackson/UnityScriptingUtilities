@@ -890,17 +890,17 @@ namespace Wrj
                 mat.SetColor(matColorReference, finalColor);
                 if (pingPong != 0)
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(LerpAlpha(mcp, tform, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpAlpha(mcp, tform, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, matColorReference, onDone));
                 }
                 else if (mirrorPingPong != 0)
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(LerpAlpha(mcp, tform, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpAlpha(mcp, tform, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, matColorReference, onDone));
                 }
                 else if (loop != 0)
                 {
                     finalColor.a = from;
                     mat.SetColor(matColorReference, finalColor);
-                    mcp.coroutine = UtilObject().StartCoroutine(LerpAlpha(mcp, tform, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpAlpha(mcp, tform, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, matColorReference, onDone));
                 }
                 else
                 {
@@ -1006,16 +1006,16 @@ namespace Wrj
                 mat.SetColor(matColorReference, finalColor);
                 if (pingPong != 0)
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, matColorReference, onDone));
                 }
                 else if (mirrorPingPong != 0)
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, from, duration, !mirrorCurve, 0, 0, --mirrorPingPong, useTimeScale, matColorReference, onDone));
                 }
                 else if (loop != 0)
                 {
                     mat.SetColor(matColorReference, from);
-                    mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, matColorReference, onDone));
                 }
                 else
                 {
