@@ -835,7 +835,7 @@ namespace Wrj
                 }
             }
 
-            public Manipulation FadeAlpha(Transform tform, float to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
+            public Manipulation FadeAlpha(Transform tform, float to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, string matColorReference = "_Color", OnDone onDone = null)
             {
                 Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Alpha, tform);
                 if (tform.GetComponent<UnityEngine.UI.Image>())
@@ -844,19 +844,19 @@ namespace Wrj
                 }
                 else
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(LerpAlpha(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpAlpha(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, matColorReference, onDone));
                 }
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
             }
 
-            private IEnumerator LerpAlpha(Manipulation mcp, Transform tform, float to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            private IEnumerator LerpAlpha(Manipulation mcp, Transform tform, float to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, string matColorReference, OnDone onDone)
             {
                 float elapsedTime = 0;
                 mcp.iterationCount++;
                 Material mat = tform.GetComponent<Renderer>().material;
 
-                float from = mat.GetColor("_Color").a;
+                float from = mat.GetColor(matColorReference).a;
                 mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
                 mat.SetInt("_ZWrite", 0);
                 mat.DisableKeyword("_ALPHATEST_ON");
@@ -872,7 +872,7 @@ namespace Wrj
                         StopAllOnTransform(tform);
                         yield break;
                     }
-                    Color color = mat.GetColor("_Color");
+                    Color color = mat.GetColor(matColorReference);
                     elapsedTime += GetDesiredDelta(useTimeScale);
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
@@ -883,11 +883,11 @@ namespace Wrj
                     {
                         color.a = Lerp(from, to, scrubPos);
                     }
-                    mat.SetColor("_Color", color);
+                    mat.SetColor(matColorReference, color);
                 }
-                Color finalColor = mat.GetColor("_Color");
+                Color finalColor = mat.GetColor(matColorReference);
                 finalColor.a = Lerp(from, to, 1f);
-                mat.SetColor("_Color", finalColor);
+                mat.SetColor(matColorReference, finalColor);
                 if (pingPong != 0)
                 {
                     mcp.coroutine = UtilObject().StartCoroutine(LerpAlpha(mcp, tform, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone));
@@ -899,7 +899,7 @@ namespace Wrj
                 else if (loop != 0)
                 {
                     finalColor.a = from;
-                    mat.SetColor("_Color", finalColor);
+                    mat.SetColor(matColorReference, finalColor);
                     mcp.coroutine = UtilObject().StartCoroutine(LerpAlpha(mcp, tform, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone));
                 }
                 else
@@ -958,7 +958,7 @@ namespace Wrj
                 }
             }
 
-            public Manipulation ChangeColor(Transform tform, Color to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, OnDone onDone = null)
+            public Manipulation ChangeColor(Transform tform, Color to, float duration, bool mirrorCurve = false, int loop = 0, int pingPong = 0, int mirrorPingPong = 0, bool useTimeScale = false, string matColorReference = "_Color", OnDone onDone = null)
             {
                 Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Color, tform);
                 if (tform.GetComponent<UnityEngine.UI.Image>())
@@ -967,19 +967,19 @@ namespace Wrj
                 }
                 else
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, onDone));
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, to, duration, mirrorCurve, loop, pingPong, mirrorPingPong, useTimeScale, matColorReference, onDone));
                 }
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
             }
 
             // Being careful not to impact alpha, so this can be used simultaneously with ChangAlpha()
-            private IEnumerator LerpColor(Manipulation mcp, Transform tform, Color to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, OnDone onDone)
+            private IEnumerator LerpColor(Manipulation mcp, Transform tform, Color to, float duration, bool mirrorCurve, int loop, int pingPong, int mirrorPingPong, bool useTimeScale, string matColorReference, OnDone onDone)
             {
                 float elapsedTime = 0;
                 mcp.iterationCount++;
                 Material mat = tform.GetComponent<Renderer>().material;
-                Color from = mat.GetColor("_Color");
+                Color from = mat.GetColor(matColorReference);
                 while (elapsedTime < duration)
                 {
                     yield return new WaitForEndOfFrame();
@@ -988,7 +988,7 @@ namespace Wrj
                         StopAllOnTransform(tform);
                         yield break;
                     }
-                    Color color = mat.GetColor("_Color");
+                    Color color = mat.GetColor(matColorReference);
                     elapsedTime += GetDesiredDelta(useTimeScale);
                     float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
@@ -999,11 +999,11 @@ namespace Wrj
                     {
                         color = Lerp(from, to, scrubPos);
                     }
-                    mat.SetColor("_Color", new Color(color.r, color.g, color.b, mat.GetColor("_Color").a));
+                    mat.SetColor(matColorReference, new Color(color.r, color.g, color.b, mat.GetColor(matColorReference).a));
                 }
                 Color finalColor = Lerp(from, to, 1f);
-                finalColor.a = mat.GetColor("_Color").a;
-                mat.SetColor("_Color", finalColor);
+                finalColor.a = mat.GetColor(matColorReference).a;
+                mat.SetColor(matColorReference, finalColor);
                 if (pingPong != 0)
                 {
                     mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, from, duration, mirrorCurve, 0, --pingPong, 0, useTimeScale, onDone));
@@ -1014,7 +1014,7 @@ namespace Wrj
                 }
                 else if (loop != 0)
                 {
-                    mat.SetColor("_Color", from);
+                    mat.SetColor(matColorReference, from);
                     mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, to, duration, mirrorCurve, --loop, 0, 0, useTimeScale, onDone));
                 }
                 else
