@@ -2,11 +2,8 @@
 ![PathTrail](Smile.gif)    
 Stuff I use a lot, and a simple AnimationCurve-based tweening interface.   
 
-Add to projects using:  
-`$ git submodule add https://github.com/williamrjackson/UnityScriptingUtilities.git Assets/ScriptingUtils`
-
-Or import the [Unity Package](https://github.com/williamrjackson/UnityScriptingUtilities/raw/master/UnityScriptingUtilities.unitypackage).
-
+Add to projects using PackageManager git url:  
+`https://github.com/williamrjackson/UnityScriptingUtilities.git`
 
 ## MapToCurve
 Provides values as plotted on an Animation Curve. Used a lot like Mathf.Lerp, except not linear. 
@@ -34,20 +31,21 @@ MatchSibling
 ```
 #### Arguments & Common Modifiers
 ```
-tForm          - Transform to affect
-to             - Target destination/rotation/volume/etc.
-duration       - Length of time in seconds for the manipulation to complete. 
-                 Applies to a single loop/pingPong iteration
-mirrorCurve    - Swap the in/out curve shapes. 
-                 Get EaseOut by combining the EaseIn curve  with this flag
-loop           - Repeat the manipulation this many times
-pingPong       - Repeat the manipulation forward, then backward, this many times
-mirrorPingPong - pingPong, but inverts the curve when performing backward manipulations
-useTimeScale   - Set this to false to ignore global time scaling
-shortestPath   - In the case of manipulations that include rotation, this will cause minimal
-                 possible rotation to get to the target. Without this, a rotation difference > 360 
-                 will result in a full positive rotation before reaching the target.
-onDone         - Specify a function to call when the operation completes
+tForm             - Transform to affect
+to                - Target destination/rotation/volume/etc.
+duration          - Length of time in seconds for the manipulation to complete. 
+                    Applies to a single loop/pingPong iteration.
+mirrorCurve       - Swap the in/out curve shapes. 
+                    Get EaseOut by combining the EaseIn curve  with this flag.
+repeatStyle       - Loop the manipulation.
+                  - PingPong: repeat the manipulation forward, then backward.
+                  - MirrorPingPong: pingPong, but inverts the curve when performing backward manipulations.
+repeatIterations  - Repeat this many times. Use -1 for infinite.
+useTimeScale      - Set this to false to ignore global time scaling
+shortestPath      - In the case of manipulations that include rotation, this will cause minimal
+                    possible rotation to get to the target. Without this, a rotation difference > 360 
+                    will result in a full positive rotation before reaching the target.
+onDone            - Specify a function to call when the operation completes
 ```
 There are simplified GameObject and Transform Extension Methods for linear and ease manipulations:
 ```
