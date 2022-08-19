@@ -374,7 +374,7 @@ public static class ExtensionMethods
 
 	public static Wrj.Utils.MapToCurve.Manipulation[] SnapToSibling(this Transform tForm, Transform to, float duration)
     {
-	    return Wrj.Utils.MapToCurve.Linear.MatchSibling(tForm, to, duration, false, 0, 0, 0, false, null);
+	    return Wrj.Utils.MapToCurve.Linear.MatchSibling(tForm, to, duration);
     }
     /// <summary>
     /// <para>Move, rotate and scale the transform to the position of another over time.</para>
@@ -392,7 +392,7 @@ public static class ExtensionMethods
     /// </summary>
 	public static Wrj.Utils.MapToCurve.Manipulation[] EaseSnapToSibling(this Transform tForm, Transform to, float duration)
     {
-        return Wrj.Utils.MapToCurve.Ease.MatchSibling(tForm, to, duration, false, 0, 0, 0, false, null);
+        return Wrj.Utils.MapToCurve.Ease.MatchSibling(tForm, to, duration);
     }
     /// <summary>
     /// <para>Move, rotate and scale the transform to the position of another over time.</para>
@@ -408,7 +408,7 @@ public static class ExtensionMethods
     /// </summary>
     public static Wrj.Utils.MapToCurve.Manipulation Move(this Transform tForm, Vector3 to, float duration)
     {
-	    return Wrj.Utils.MapToCurve.Linear.MoveWorld(tForm, to, duration, false, 0, 0, 0, false, false, null);
+	    return Wrj.Utils.MapToCurve.Linear.MoveWorld(tForm, to, duration);
     }
     /// <summary>
     /// Move transform in local space over time
@@ -422,7 +422,7 @@ public static class ExtensionMethods
     /// </summary>
 	public static Wrj.Utils.MapToCurve.Manipulation EaseMove(this Transform tForm, Vector3 to, float duration)
     {
-	    return Wrj.Utils.MapToCurve.Ease.MoveWorld(tForm, to, duration, false, 0, 0, 0, false, false, null);
+	    return Wrj.Utils.MapToCurve.Ease.MoveWorld(tForm, to, duration, false);
     }
     /// <summary>
     /// Move transform in local space over time
@@ -436,7 +436,7 @@ public static class ExtensionMethods
     /// </summary>
     public static Wrj.Utils.MapToCurve.Manipulation LinearRotate(this Transform tForm, Vector3 to, float duration)
     {
-        return Wrj.Utils.MapToCurve.Linear.Rotate(tForm, to, duration, false, 0, 0, 0, false, true, false, null);
+        return Wrj.Utils.MapToCurve.Linear.Rotate(tForm, to, duration);
     }
     /// <summary>
     /// Rotate transform over time
@@ -450,7 +450,7 @@ public static class ExtensionMethods
     /// </summary>
     public static Wrj.Utils.MapToCurve.Manipulation EaseRotate(this Transform tForm, Vector3 to, float duration)
     {
-        return Wrj.Utils.MapToCurve.Ease.Rotate(tForm, to, duration, false, 0, 0, 0, false, true, false, null);
+        return Wrj.Utils.MapToCurve.Ease.Rotate(tForm, to, duration);
     }
     /// <summary>
     /// Rotate transform over time
@@ -465,14 +465,14 @@ public static class ExtensionMethods
     /// </summary>
     public static Wrj.Utils.MapToCurve.Manipulation Scale(this Transform tForm, Vector3 to, float duration)
     {
-        return Wrj.Utils.MapToCurve.Linear.Scale(tForm, to, duration, false, 0, 0, 0, false, null);
+        return Wrj.Utils.MapToCurve.Linear.Scale(tForm, to, duration);
     }
     /// <summary>
     /// Change transforms scale over time using a multiplier
     /// </summary>
     public static Wrj.Utils.MapToCurve.Manipulation Scale(this Transform tForm, float to, float duration)
     {
-        return Wrj.Utils.MapToCurve.Linear.Scale(tForm, tForm.localScale * to, duration, false, 0, 0, 0, false, null);
+        return Wrj.Utils.MapToCurve.Linear.Scale(tForm, tForm.localScale * to, duration);
     }
     /// <summary>
     /// Change transforms scale over time
@@ -493,14 +493,14 @@ public static class ExtensionMethods
     /// </summary>
     public static Wrj.Utils.MapToCurve.Manipulation EaseScale(this Transform tForm, Vector3 to, float duration)
     {
-        return Wrj.Utils.MapToCurve.Ease.Scale(tForm, to, duration, false, 0, 0, 0, false, null);
+        return Wrj.Utils.MapToCurve.Ease.Scale(tForm, to, duration);
     }
     /// <summary>
     /// Change transforms scale over time using a multiplier
     /// </summary>
     public static Wrj.Utils.MapToCurve.Manipulation EaseScale(this Transform tForm, float to, float duration)
     {
-        return Wrj.Utils.MapToCurve.Ease.Scale(tForm, tForm.localScale * to, duration, false, 0, 0, 0, false, null);
+        return Wrj.Utils.MapToCurve.Ease.Scale(tForm, tForm.localScale * to, duration);
     }
     /// <summary>
     /// Change transforms scale over time
@@ -522,7 +522,7 @@ public static class ExtensionMethods
     /// </summary>
     public static Wrj.Utils.MapToCurve.Manipulation Color(this Transform tForm, Color to, float duration)
     {
-        return Wrj.Utils.MapToCurve.Linear.ChangeColor(tForm, to, duration, false, 0, 0, 0, false, null);
+        return Wrj.Utils.MapToCurve.Linear.ChangeColor(tForm, to, duration);
     }
     /// <summary>
     /// Change Color Over Time
@@ -536,7 +536,7 @@ public static class ExtensionMethods
     /// </summary>
     public static Wrj.Utils.MapToCurve.Manipulation Alpha(this Transform tForm, float to, float duration)
     {
-        return Wrj.Utils.MapToCurve.Linear.FadeAlpha(tForm, to, duration, false, 0, 0, 0, false, null);
+        return Wrj.Utils.MapToCurve.Linear.FadeAlpha(tForm, to, duration);
     }
     /// <summary>
     /// Change transparency over time

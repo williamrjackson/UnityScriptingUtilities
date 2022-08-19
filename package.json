@@ -1,6 +1,6 @@
 {
     "name": "com.wrj.utils",
-    "version": "1.3.4",
+    "version": "1.4.0",
     "displayName": "WRJ Utilities",
     "description": "Stuff I use a lot, and a simple AnimationCurve-based tweening interface.",
     "unity": "2019.4",
@@ -8,7 +8,19 @@
     "documentationUrl": "https://github.com/williamrjackson/UnityScriptingUtilities/blob/master/README.md",
     "changelogUrl": "https://github.com/williamrjackson/UnityScriptingUtilities/releases",
     "licensesUrl": "https://github.com/williamrjackson/UnityScriptingUtilities/blob/master/LICENSE",
-   "keywords": [
+    "samples": [
+      {
+          "displayName": "Color and Curve Presets",
+          "description": "Contains color and curve preset libraries",
+          "path": "Samples~/Presets"
+      },
+      {
+          "displayName": "Example Scenes",
+          "description": "Contains example scenes demonstrating useage",
+          "path": "Samples~/Example Scenes"
+      }
+    ],
+    "keywords": [
       "tween",
       "easing",
       "utilities",

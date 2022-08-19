@@ -9,8 +9,9 @@ namespace Wrj
     public class WordList : MonoBehaviour
     {
         private HashSet<string> wordSet; 
+        private HashSet<string> fullWordSet; 
         public enum WordSource { Full, Common6000, Common3000, Common1000 }
-        public WordSource wordSource = WordSource.Full;
+        private WordSource wordSource = WordSource.Full;
 
         private static WordList _instance;
         public static WordList Instance
@@ -26,6 +27,17 @@ namespace Wrj
                 return _instance;
             }
         }
+        public HashSet<string> WordSet
+        {
+            get
+            {
+                if (wordSource == WordSource.Full)
+                {
+                    return fullWordSet;
+                }
+                return wordSet;
+            }
+        }
         private void Awake()
         {
             if (_instance == null)
@@ -35,6 +47,17 @@ namespace Wrj
             }
         }
 
+        public void Init(TextAsset wordListTextAsset)
+        {
+            wordSet = new HashSet<string>(wordListTextAsset.text.Split("\n"[0]));
+            TextAsset fullDictionaryTextAsset = Resources.Load("WordList", typeof(TextAsset)) as TextAsset;
+            fullWordSet = new HashSet<string>(fullDictionaryTextAsset.text.Split("\n"[0]));
+        }
+        public void Init(TextAsset wordListTextAsset, TextAsset fullDictionaryTextAsset)
+        {
+            wordSet = new HashSet<string>(wordListTextAsset.text.Split("\n"[0]));
+            fullWordSet = new HashSet<string>(fullDictionaryTextAsset.text.Split("\n"[0]));
+        }
         public void Init(WordSource wordSource)
         {
             string strWordResourceName = "WordList";
@@ -53,29 +76,67 @@ namespace Wrj
                     strWordResourceName = "WordList";
                     break;
             }
-            TextAsset wordListTextAsset = Resources.Load(strWordResourceName, typeof(TextAsset)) as TextAsset;
-            wordSet = new HashSet<string>(wordListTextAsset.text.Split("\n"[0]));
-            Debug.Log($"Word list loaded: \n\tDictionary of {string.Format("{0:n0}", wordSet.Count)} words.");
+            TextAsset fullDictionaryTextAsset = Resources.Load("WordList", typeof(TextAsset)) as TextAsset;
+            fullWordSet = new HashSet<string>(fullDictionaryTextAsset.text.Split("\n"[0]));
+            if (wordSource != WordSource.Full)
+            {
+                TextAsset wordListTextAsset = Resources.Load(strWordResourceName, typeof(TextAsset)) as TextAsset;
+                wordSet = new HashSet<string>(wordListTextAsset.text.Split("\n"[0]));
+            }
         }
 
-        public static bool CheckWord(string word)
+        public static bool CheckWord(string word, bool fullDict = true)
         {
-            return Instance.wordSet.Contains(word.ToLower());
+            if (fullDict)
+            {
+                return Instance.fullWordSet.Contains(word.ToLower());
+            }
+            return Instance.WordSet.Contains(word.ToLower());
         }
-
-        public static List<string> GetPossibleWords(string chars, int minLength = 3)
+        public static List<string> GetPossibleWords(string chars, int minLength = 3, int maxLength = 7, bool fullDict = false)
         {
             chars = chars.ToLower();
             List<string> combinations = CharCombinations(chars.ToLower());
 	        HashSet<string> results = new HashSet<string>();
             foreach (string item in combinations)
             {
-                if (item.Length >= minLength && CheckWord(item))
+                if (item.Length >= minLength && item.Length <= maxLength && CheckWord(item, fullDict))
                 {
                     results.Add(item.ToUpper());
                 }
             }
 	        return results.ToList();
+        }
+        public static string RandomWord(bool fullDict = false)
+        {
+            List<string> commonList = (fullDict) ? Instance.fullWordSet.ToList() : Instance.WordSet.ToList();
+            return commonList.GetRandom();
+        }
+        public static List<string> GetRandomWords(int count, int minLength = 3, int maxLength = 7, bool fullDict = false)
+        {
+            List<string> wordSetList = (fullDict) ? Instance.fullWordSet.ToList() : Instance.WordSet.ToList();
+            List<string> results = new List<string>();
+
+            for (int i = 0; i < count; i++)
+            {
+                string word = "";
+                while (word.Length > maxLength || word.Length < minLength || results.Contains(word))
+                {
+                    word = wordSetList.GetRandom();
+                }
+                results.Add(word);
+            }
+            return results;
+        }
+        public static string WordOfTheDay(bool fullDict = false)
+        {
+            List<string> words = (fullDict) ? Instance.fullWordSet.ToList() : Instance.WordSet.ToList();
+            DateTime today = DateTime.UtcNow.Date;
+            Int64 todayInt = today.ToBinary();
+            Int64 wordIndex = todayInt % (Int64)words.Count;
+            int nWordIndex = Mathf.Abs((int)wordIndex);
+            string wordOtD = words[(int)nWordIndex];
+            return wordOtD;
         }
 
         /// http://stackoverflow.com/questions/7802822/all-possible-combinations-of-a-list-of-values

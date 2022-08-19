@@ -1,8 +1,12 @@
 {
-    "name": "wrj.utils",
+    "name": "wrj.utils.editor",
     "rootNamespace": "Wrj",
-    "references": [],
-    "includePlatforms": [],
+    "references": [
+        "wrj.utils"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
