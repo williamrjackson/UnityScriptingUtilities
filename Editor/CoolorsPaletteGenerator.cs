@@ -123,7 +123,7 @@ class CoolorsSwatchEditorWindow : EditorWindow
                 {
                     var nameColor = colorSetArray[i].Split(':');
                     colors[i] = new CoolorsPaletteObject(nameColor[0].Trim());
-                    if (!ColorUtility.TryParseHtmlString("#" + nameColor[1].Trim().Substring(0, 5), out colors[i].color))
+                    if (!ColorUtility.TryParseHtmlString("#" + nameColor[1].Trim().Substring(0, 6), out colors[i].color))
                     {
                         ClearColors();
                         return;
