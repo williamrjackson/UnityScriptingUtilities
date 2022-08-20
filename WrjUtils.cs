@@ -31,7 +31,7 @@ namespace Wrj
         {
             // Do nothing, but trick the compiler into thinking otherwise.
         }
-        
+
         /// Call a function for a game object and all of its children.
         public delegate void GameObjectAffector(GameObject gObject);
         public static void AffectGORecursively(GameObject go, GameObjectAffector goa, bool skipParent = false)
@@ -49,7 +49,7 @@ namespace Wrj
                 AffectGORecursively(t.gameObject, goa, false);
             }
         }
-	    
+
         /// Ensure an angle in degrees is within 0 - 360.
         public static float GetPositiveAngle(float angle)
         {
@@ -174,22 +174,22 @@ namespace Wrj
             }
             return Mathf.Abs(f);
         }
-		
-	    /// <summary>
-	    ///  Get difference between two values
-	    /// </summary>
-	    public static float Difference(float val1, float val2)
-	    {
-	    	return Mathf.Abs(val1 - val2);	
-	    }
-	    public static int Difference(int val1, int val2)
-	    {
-	    	return Mathf.Abs(val1 - val2);	
-	    }
-	    
+
+        /// <summary>
+        ///  Get difference between two values
+        /// </summary>
+        public static float Difference(float val1, float val2)
+        {
+            return Mathf.Abs(val1 - val2);
+        }
+        public static int Difference(int val1, int val2)
+        {
+            return Mathf.Abs(val1 - val2);
+        }
+
         public static bool CoinFlip
         {
-            get { return (Random.Range(-1f, 1f) > 0) ? true : false; }
+            get { return (Random.value > .5f); }
         }
 
         // Coroutine list management stuff...
@@ -258,24 +258,15 @@ namespace Wrj
 
             public static ParticleSystem.MinMaxCurve DefaultMinMaxCurve
             {
-                get
-                {
-                    return new ParticleSystem.MinMaxCurve(1f, EaseInCurve, EaseOutCurve);
-                }
+                get => new ParticleSystem.MinMaxCurve(1f, EaseInCurve, EaseOutCurve);
             }
             public static AnimationCurve LinearCurve
             {
-                get
-                {
-                    return AnimationCurve.Linear(0f, 0f, 1f, 1f);
-                }
+                get => AnimationCurve.Linear(0f, 0f, 1f, 1f);
             }
             public static AnimationCurve EaseCurve
             {
-                get
-                {
-                    return AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
-                }
+                get => AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
             }
             public static AnimationCurve EaseInCurve
             {
@@ -354,15 +345,15 @@ namespace Wrj
             }
 
             public class Manipulation
-	        {
+            {
                 public Coroutine coroutine;
                 public Transform transform;
-                public enum ManipulationType {Scale, Move, Rotate, Audio, Color, Alpha, NotApplicable}
+                public enum ManipulationType { Scale, Move, Rotate, Audio, Color, Alpha, NotApplicable }
                 private ManipulationType type;
                 private int _iterationCount = 0;
                 public int iterations { get => _iterationCount; }
                 public void IncrementIterations() { _iterationCount++; }
-		        public bool IsRunning => coroutine != null;
+                public bool IsRunning => coroutine != null;
 
                 public Manipulation(ManipulationType _type, Transform _transform)
                 {
@@ -370,7 +361,7 @@ namespace Wrj
                     transform = _transform;
                     if (wrjInstance == null)
                         return;
-                    foreach(Manipulation mcp in wrjInstance.m_ManipulationList)
+                    foreach (Manipulation mcp in wrjInstance.m_ManipulationList)
                     {
                         if (mcp.transform == transform && mcp.type == type && type != ManipulationType.NotApplicable)
                         {
@@ -770,7 +761,7 @@ namespace Wrj
                     from = to - from;
                 }
 
-                if (repeatStyle == RepeatStyle.PingPong) 
+                if (repeatStyle == RepeatStyle.PingPong)
                 {
                     mcp.coroutine = UtilObject().StartCoroutine(RotateLocal(mcp, tform, to, from, duration, mirrorCurve, repeatStyle, --iterations, useTimeScale, pendulum, onDone));
                 }
@@ -788,7 +779,7 @@ namespace Wrj
                     CoroutineComplete(mcp, onDone);
                 }
             }
-            
+
             /// <summary>
             /// Modify a referenced float.
             /// Example: ManipulateFloat(receiver: x => floatToChange = x)
@@ -1217,7 +1208,7 @@ namespace Wrj
             // Called when a coroutine is completed. Executes the OnDone method if necessary, and resets default values.
             private void CoroutineComplete(Manipulation mcp, OnDone OnDoneMethod)
             {
-	            mcp.coroutine = null;
+                mcp.coroutine = null;
                 wrjInstance.CleanCoroList();
                 if (OnDoneMethod != null)
                 {
