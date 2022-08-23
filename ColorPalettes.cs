@@ -8,11 +8,14 @@ namespace Wrj
         /// </summary>
         /// <param name="color"></param>
         /// <returns>Complementary Color</returns>
-        public static Color Complementary(Color color)
+        public static Color[] Complementary(Color color)
         {
             Color.RGBToHSV(color, out float h, out float s, out float v);
             h = (h + .5f) % 1f;
-            return Color.HSVToRGB(h, s, v);
+            Color[] results = new Color[2];
+            results[0] = color;
+            results[1] = Color.HSVToRGB(h, s, v);
+            return results;
         }
         /// <summary>
         /// Get the two colors on each side of the provided color's complement
@@ -50,7 +53,7 @@ namespace Wrj
         public static Color[] Tetradic(Color color)
         {
             Color.RGBToHSV(color, out float h, out float s, out float v);
-            Color comp = Complementary(color);
+            Color comp = Complementary(color)[1];
             Color.RGBToHSV(comp, out float hC, out float sC, out float vC);
             Color[] results = new Color[4];
             results[0] = color;
@@ -70,7 +73,7 @@ namespace Wrj
             Color[] results = new Color[3];
             results[0] = Color.HSVToRGB(h, Mathf.Clamp01(s - .1f), Mathf.Clamp01(v - .2f));
             results[1] = color;
-            results[3] = Color.HSVToRGB(h, Mathf.Clamp01(s + .1f), Mathf.Clamp01(v + .2f));
+            results[2] = Color.HSVToRGB(h, Mathf.Clamp01(s + .1f), Mathf.Clamp01(v + .2f));
             return results;
         }
         /// <summary>
