@@ -69,7 +69,7 @@ class CoolorsSwatchEditorWindow : EditorWindow
         {
             if (gradientCapable)
             {
-                float height = (paletteStyle == PaletteStyle.CoolorsCode) ? 60f : 120f;
+                float height = (paletteStyle == PaletteStyle.CoolorsCode) ? 60f : 100f;
                 EditorGUILayout.PropertyField(colorsProperty, false);
                 EditorGUILayout.GradientField(gradient,GUILayout.Height(height));
             }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 namespace Wrj
 {
@@ -89,6 +90,129 @@ namespace Wrj
             results[1] = color;
             results[2] = Color.HSVToRGB((h - .08f) % 1f, s, v);
             return results;
+        }
+    }
+    [System.Serializable]
+    public class ExtendedGradient
+    {
+        private List<Gradient> _gradients;
+        private GradientColorKey[] _colorKeys = new GradientColorKey[2];
+        private GradientAlphaKey[] _alphaKeys = new GradientAlphaKey[2];
+        private GradientMode _gradientMode = GradientMode.Blend;
+
+        public ExtendedGradient()
+        {
+            _colorKeys = new GradientColorKey[2];
+            _alphaKeys = new GradientAlphaKey[2];
+            Distribute();
+        }
+        public ExtendedGradient(GradientColorKey[] colorKeys, GradientAlphaKey[] alphaKeys)
+        {
+            _colorKeys = colorKeys;
+            _alphaKeys = alphaKeys;
+            Distribute();
+        }
+        public ExtendedGradient(GradientColorKey[] colorKeys)
+        {
+            _colorKeys = colorKeys;
+            _alphaKeys = new GradientAlphaKey[2];
+            Distribute();
+        }
+        public void SetKeys(GradientColorKey[] colorKeys, GradientAlphaKey[] alphaKeys)
+        {
+            _colorKeys = colorKeys;
+            _alphaKeys = alphaKeys;
+            Distribute();
+        }
+        public void SetKeys(GradientColorKey[] colorKeys)
+        {
+            _colorKeys = colorKeys;
+            _alphaKeys = new GradientAlphaKey[2];
+            Distribute();
+        }
+        public GradientColorKey[] ColorKeys
+        {
+            set
+            {
+                _colorKeys = value;
+                Distribute();
+            }
+            get => _colorKeys;
+        }
+        public GradientAlphaKey[] AlphaKeys
+        {
+            set
+            {
+                _alphaKeys = value;
+                Distribute();
+            }
+            get => _alphaKeys;
+        }
+        public GradientMode mode
+        {
+            set
+            {
+                _gradientMode = value;
+                foreach (var gradient in _gradients)
+                {
+                    gradient.mode = _gradientMode;
+                }
+            }
+        }
+        private void Distribute()
+        {
+            _gradients = new List<Gradient>();
+            if (_colorKeys.Length == 0 || _alphaKeys.Length == 0) return;
+            int totalKeys = System.Math.Max(_colorKeys.Length, _alphaKeys.Length);
+            int gradientsRequired = (totalKeys / 6) + 1;
+            List<GradientColorKey>[] listOfColorKeys = new List<GradientColorKey>[gradientsRequired];
+            for (int i = 0; i < gradientsRequired; i++)
+            {
+                Gradient newGradient = new Gradient();
+                newGradient.mode = _gradientMode;
+                _gradients.Add(newGradient);
+                listOfColorKeys[i] = new List<GradientColorKey>();
+            }
+            int lastGradientIndex = 0;
+            float lastKeyTime = 0f;
+            for (int i = 0; i < _colorKeys.Length; i++)
+            {
+                float time = _colorKeys[i].time * gradientsRequired;
+                int gradientIndex = System.Math.Min(Mathf.FloorToInt(time), gradientsRequired - 1);
+                if (lastGradientIndex != gradientIndex)
+                {
+                    Color transition = Color.Lerp(_colorKeys[i - 1].color, _colorKeys[i].color, Mathf.InverseLerp(lastKeyTime, time, Mathf.Floor(time)));
+                    listOfColorKeys[lastGradientIndex].Add(new GradientColorKey(transition, 1f));
+                    listOfColorKeys[gradientIndex].Add(new GradientColorKey(transition, 0f));
+                    lastGradientIndex = gradientIndex;
+                }
+                lastKeyTime = time;
+                _colorKeys[i].time = time - gradientIndex;
+                listOfColorKeys[gradientIndex].Add(_colorKeys[i]);
+            }
+            for (int i = 0; i < _gradients.Count; i++)
+            {
+                _gradients[i].SetKeys(listOfColorKeys[i].ToArray(), _alphaKeys);
+            }
+        }
+
+        public Color Evaluate(float time)
+        {
+            if (_gradients.Count == 0) return Color.black;
+            float extendedTime = time * _gradients.Count;
+            int gradientIndex = System.Math.Min(Mathf.FloorToInt(extendedTime), _gradients.Count - 1);
+            return _gradients[gradientIndex].Evaluate(extendedTime - gradientIndex);
+        }
+        public Texture2D CreateTexture(int width)
+        {
+            Texture2D texture = new Texture2D(width, 1);
+            for (int i = 0; i < width; i++)
+            {
+                Color color = Evaluate(Mathf.InverseLerp(0f, width, i));
+                texture.SetPixel(i, 0, color);
+            }
+            texture.Apply();
+            return texture;
         }
     }
     public class FlatUIPalette
