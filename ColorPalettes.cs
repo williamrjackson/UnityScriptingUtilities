@@ -214,7 +214,25 @@ namespace Wrj
             texture.Apply();
             return texture;
         }
+        public static ExtendedGradient Merge(Gradient[] gradients)
+        {
+            List<GradientColorKey> colorKeys = new List<GradientColorKey>();
+            List<GradientAlphaKey> alphaKeys = new List<GradientAlphaKey>();
+            foreach (var item in gradients)
+            {
+                foreach (var colorKey in item.colorKeys)
+                {
+                    colorKeys.Add(colorKey);
+                }
+                foreach (var alphaKey in item.alphaKeys)
+                {
+                    alphaKeys.Add(alphaKey);
+                }
+            }
+            return new ExtendedGradient(colorKeys.ToArray(), alphaKeys.ToArray());
+        }
     }
+
     public class FlatUIPalette
     {
         public static Color Turquoise => new Color(0.101960786f, 0.7372549f, 0.6117647f);
