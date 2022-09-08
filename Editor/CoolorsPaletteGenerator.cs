@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 class CoolorsSwatchEditorWindow : EditorWindow
 {
-    [MenuItem("Window/Coolor Swatch Generator")]
+    [MenuItem("Window/Swatch Generator")]
     static void Init()
     {
         window.Show();

@@ -214,7 +214,7 @@ namespace Wrj
             texture.Apply();
             return texture;
         }
-        public static ExtendedGradient Merge(Gradient[] gradients)
+        public static ExtendedGradient Merge(Gradient[] gradients, bool ignoreAlpha = false)
         {
             List<GradientColorKey> colorKeys = new List<GradientColorKey>();
             List<GradientAlphaKey> alphaKeys = new List<GradientAlphaKey>();
@@ -228,6 +228,41 @@ namespace Wrj
                 {
                     alphaKeys.Add(alphaKey);
                 }
+            }
+
+            if (ignoreAlpha)
+            {
+                return new ExtendedGradient(colorKeys.ToArray());
+            }
+            return new ExtendedGradient(colorKeys.ToArray(), alphaKeys.ToArray());
+        }
+        public static ExtendedGradient Abutt(Gradient[] gradients, bool ignoreAlpha = false)
+        {
+            List<GradientColorKey> colorKeys = new List<GradientColorKey>();
+            List<GradientAlphaKey> alphaKeys = new List<GradientAlphaKey>();
+            float newRange = (1f / gradients.Length);
+            for (int i = 0; i < gradients.Length; i++)
+            {
+                Gradient item = gradients[i];
+                float thisRangeLower = newRange * i;
+                float thisRangeUpper = thisRangeLower + newRange;
+                foreach (var colorKey in item.colorKeys)
+                {
+                    float shiftedTime = colorKey.time.Remap(0f, 1f, thisRangeLower, thisRangeUpper);
+                    var cKey = new GradientColorKey(colorKey.color, shiftedTime);
+                    colorKeys.Add(cKey);
+                }
+                foreach (var alphaKey in item.alphaKeys)
+                {
+                    float shiftedAlphaTime = alphaKey.time.Remap(0f, 1f, thisRangeLower, thisRangeUpper);
+                    var aKey = new GradientAlphaKey(alphaKey.alpha, shiftedAlphaTime);
+                    alphaKeys.Add(alphaKey);
+                }
+            }
+
+            if (ignoreAlpha)
+            {
+                return new ExtendedGradient(colorKeys.ToArray());
             }
             return new ExtendedGradient(colorKeys.ToArray(), alphaKeys.ToArray());
         }
@@ -291,7 +326,6 @@ namespace Wrj
                     return Color.white;
             }
         }
-
         private static Color BlueHigh = new Color(0.22352943f, 0.8352942f, 1f);
         private static Color BlueLow = new Color(0.0627451f, 0.15294118f, 0.43921572f);
         private static Color GreenHigh = new Color(0.5568628f, 1f, 0.7568628f);
@@ -336,6 +370,19 @@ namespace Wrj
         public static Color CyanDark => new Color(0.24705884f, 0.3254902f, 0.3647059f);
         public static Color Purple => new Color(0.62352943f, 0.3254902f, 0.48627454f);
         public static Color PurpleDark => new Color(0.3372549f, 0.19215688f, 0.32156864f);
-
+    }
+    public class ColorModernized
+    {
+        public static Color black => ModernPalette.BlackPurple;
+        public static Color blue => FlatUIPalette.BelizeHole;
+        public static Color clear => Color.clear;
+        public static Color cyan => ModernPalette.Cyan;
+        public static Color gray => FlatUIPalette.Concrete;
+        public static Color green => FlatUIPalette.Nephritis;
+        public static Color grey => FlatUIPalette.Concrete;
+        public static Color magenta => FlatUIPalette.StrongPink;
+        public static Color red => FlatUIPalette.Pomegranate;
+        public static Color white => FlatUIPalette.Clouds;
+        public static Color yellow => FlatUIPalette.SunFlower;
     }
 }
