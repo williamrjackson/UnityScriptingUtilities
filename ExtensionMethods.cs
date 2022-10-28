@@ -106,6 +106,23 @@ public static class ExtensionMethods
         return new Vector2(v3.x, v3.y);
     }
 
+    public static Vector2 GetNormalizedPointInRect(this RectTransform rect, Vector2 point)
+    {
+        Vector3[] worldCorners = new Vector3[4];
+        rect.GetWorldCorners(worldCorners);
+
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, point, null, out Vector2 inResult) ||
+            !RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, worldCorners[0], null, out Vector2 left) ||
+            !RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, worldCorners[2], null, out Vector2 right))
+        {
+            return default;
+        }
+        Vector2 resultPoint = new Vector2();
+        resultPoint.x = Mathf.InverseLerp(left.x, right.x, inResult.x);
+        resultPoint.y = Mathf.InverseLerp(right.y, left.y, inResult.y);
+        return resultPoint;
+    }
+
     /// <summary>
     /// Returns the angle represtented by a 2D direction
     /// </summary>
