@@ -1,6 +1,6 @@
 {
     "name": "com.wrj.utils",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "displayName": "WRJ Utilities",
     "description": "Stuff I use a lot, and a simple AnimationCurve-based tweening interface.",
     "unity": "2019.4",
