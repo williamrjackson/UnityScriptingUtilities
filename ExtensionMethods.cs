@@ -60,6 +60,20 @@ public static class ExtensionMethods
         return new Vector3(x ?? orig.x, y ?? orig.y, z ?? orig.z);
     }
     /// <summary>
+    /// Returns a Vector2 with an axis forced as specified
+    /// </summary>
+    public static Vector2 With(this Vector2 orig, float? x = null, float? y = null)
+    {
+        return new Vector2(x ?? orig.x, y ?? orig.y);
+    }
+    /// <summary>
+    /// Returns a Color with an channel forced as specified
+    /// </summary>
+    public static Color With(this Color orig, float? r = null, float? g = null, float? b = null, float? a = null)
+    {
+        return new Color(r ?? orig.r, g ?? orig.g, b ?? orig.b, a ?? orig.a);
+    }
+    /// <summary>
     /// Returns the transforms position as moved in a direction relative to itself
     /// </summary>
     public static Vector3 PosInDir(this Transform tform, float forward = 0f, float right = 0f, float up = 0f)

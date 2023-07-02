@@ -2,38 +2,22 @@
 using UnityEngine.Events;
 
 namespace Wrj
-{		
-	public class Keybindings : MonoBehaviour 
-	{	
-		public ActionKeyCommand[] actionKeys;
+{
+	public class Keybindings : MonoBehaviour
+	{
 		public ButtonKeyCommand[] buttonKeys;
 		public ToggleKeyCommand[] toggleKeys;
+		public ActionKeyCommand[] actionKeys;
 		public HierarchyToggles[] objectEnableKeys;
 
-		void Update() {
-			// If no keys are down, don't check for keys.
-			// If there are any actionKeys enabled, we could be awaiting a KeyUp. 
-			// So check anyway.
-			if (!Input.anyKeyDown && actionKeys.Length == 0)
-			{
-				return;
-			}
-
-			if (Input.GetKeyDown(KeyCode.Escape)) {
-				Application.Quit();
-			}
-			if (Input.GetKeyDown(KeyCode.F11)) {
-				Screen.fullScreen = !Screen.fullScreen;
-			}
-			
+		void Update() 
+		{
 			foreach (ButtonKeyCommand buttonKey in buttonKeys)
 			{
 				if (Input.GetKeyDown(buttonKey.key))
 				{
-					if (buttonKey.button != null && buttonKey.button.interactable)
-					{
-						buttonKey.button.onClick.Invoke();
-					}		
+					if (!buttonKey.ModifierQualified()) continue;
+					buttonKey.Invoke();
 				}
 			}
 
@@ -41,10 +25,8 @@ namespace Wrj
 			{
 				if (Input.GetKeyDown(toggleKey.key))
 				{
-					if (toggleKey.toggle != null && toggleKey.toggle.interactable)
-					{
-						toggleKey.toggle.isOn = !toggleKey.toggle.isOn;
-					}
+					if (!toggleKey.ModifierQualified()) continue;
+					toggleKey.Invoke();
 				}
 			}
 
@@ -52,11 +34,8 @@ namespace Wrj
 			{
 				if (Input.GetKeyDown(actionKey.key))
 				{
-					actionKey.keyDownAction.Invoke();
-				}
-				else if (Input.GetKeyUp(actionKey.key))
-				{
-					actionKey.keyUpAction.Invoke();
+					if (!actionKey.ModifierQualified()) continue;
+					actionKey.Invoke();
 				}
 			}
 
@@ -64,36 +43,91 @@ namespace Wrj
 			{
 				if (Input.GetKeyDown(hierarchyKey.key))
 				{
-					hierarchyKey.go.ToggleActive();
+					if (!hierarchyKey.ModifierQualified()) continue;
+					hierarchyKey.Invoke();
 				}
 			}
-		
 		}
+
+
 		[System.Serializable]
-		public class ButtonKeyCommand
-		{
+		public class KeyCommand
+        {
 			public KeyCode key;
+			[Header("Modifier Keys")]
+			public bool ctrl;
+			public bool shift;
+			public bool alt;
+			public bool win;
+
+			public bool ModifierQualified()
+			{
+                // If no modifiers are required, ignore all modifier states
+                if (!ctrl && !shift && !alt && !win) return true;
+
+				bool shiftState = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
+				bool ctrlState = (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl));
+				bool altState = (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt));
+				bool winState = (Input.GetKey(KeyCode.LeftWindows) || Input.GetKey(KeyCode.RightWindows));
+				
+                // Return true if all states match requirements
+				return (shiftState == shift &&
+                        ctrlState == ctrl &&
+                        altState == alt &&
+                        winState == win);
+			}
+
+			public virtual void Invoke() { }
+
+		}
+
+		[System.Serializable]
+		public class ButtonKeyCommand : KeyCommand
+		{
+			[Header("Action")]
 			public UnityEngine.UI.Button button;
-		}
+            public override void Invoke()
+            {
+				if (button != null && button.interactable)
+				{
+					button.onClick.Invoke();
+				}
+			}
+        }
 		[System.Serializable]
-		public class ToggleKeyCommand
+		public class ToggleKeyCommand : KeyCommand
 		{
-			public KeyCode key;
+			[Header("Action")]
 			public UnityEngine.UI.Toggle toggle;
+            public override void Invoke()
+            {
+				if (toggle != null && toggle.interactable)
+				{
+					toggle.isOn = !toggle.isOn;
+				}
+
+			}
 		}
 		[System.Serializable]
-		public class ActionKeyCommand
+		public class ActionKeyCommand : KeyCommand
 		{
-			public KeyCode key;
-			public UnityEvent keyDownAction;
-			public UnityEvent keyUpAction;
+			[Header("Action")]
+			public UnityEvent action;
+            public override void Invoke()
+            {
+				action.Invoke();
+			}
 		}
 		[System.Serializable]
-		public class HierarchyToggles
+
+		public class HierarchyToggles : KeyCommand
 		{
-			public KeyCode key;
-			public GameObject go;
+			[Header("Action")]
+			public GameObject gameObject;
+            public override void Invoke()
+            {
+				gameObject.ToggleActive();
+			}
 		}
-		
-	}
+    }
 }

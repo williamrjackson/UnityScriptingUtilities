@@ -5,8 +5,9 @@ using System.IO;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
-class CoolorsSwatchEditorWindow : EditorWindow
+class SwatchEditorWindow : EditorWindow
 {
     [MenuItem("Window/Swatch Generator")]
     static void Init()
@@ -14,14 +15,14 @@ class CoolorsSwatchEditorWindow : EditorWindow
         window.Show();
     }
     
-    static CoolorsSwatchEditorWindow _window;
-    static CoolorsSwatchEditorWindow window
+    static SwatchEditorWindow _window;
+    static SwatchEditorWindow window
     {
         get
         {
             if (_window == null)
             {
-                _window = (CoolorsSwatchEditorWindow)GetWindow(typeof(CoolorsSwatchEditorWindow), true, "Coolors Swatch Generator", true);
+                _window = (SwatchEditorWindow)GetWindow(typeof(SwatchEditorWindow), true, "Swatch Generator", true);
             }
             return _window;
         }
@@ -39,6 +40,7 @@ class CoolorsSwatchEditorWindow : EditorWindow
 
     private Vector2 scrollView;
     private bool isUrl = false;
+    private bool isGradient = false;
     private ScriptableObject target;
     void OnGUI()
     {
@@ -53,7 +55,7 @@ class CoolorsSwatchEditorWindow : EditorWindow
             {
                 LaunchCoolors();
             }
-            EditorGUILayout.LabelField("Paste Coolor Export Text or Palette URL:");
+            EditorGUILayout.LabelField("Paste Coolor Export Text or URL:");
             scrollView = EditorGUILayout.BeginScrollView(scrollView);
             CoolorsExportText = EditorGUILayout.TextArea(CoolorsExportText, GUILayout.ExpandHeight(true));
             EditorGUILayout.EndScrollView();
@@ -71,7 +73,7 @@ class CoolorsSwatchEditorWindow : EditorWindow
             {
                 float height = (paletteStyle == PaletteStyle.CoolorsCode) ? 60f : 100f;
                 EditorGUILayout.PropertyField(colorsProperty, false);
-                EditorGUILayout.GradientField(gradient,GUILayout.Height(height));
+                EditorGUILayout.GradientField(gradient, GUILayout.Height(height));
             }
             else
             {
@@ -79,19 +81,22 @@ class CoolorsSwatchEditorWindow : EditorWindow
             }
         }
 
-        PaletteName = EditorGUILayout.TextField("Swatch Name", PaletteName);
+        string exportType = (isGradient) ? "Gradient" : "Swatch";
 
-        if (isUrl)
+        PaletteName = EditorGUILayout.TextField($"{exportType} Name", PaletteName);
+
+        if (isUrl && !isGradient)
         {
             EditorGUILayout.HelpBox("Url Pasted. Use Code Export to include color names.", MessageType.Info);
         }
-        if (GUILayout.Button("Export Swatch"))
+        if (GUILayout.Button($"Export {exportType}"))
         {
             ExportUnitySwatch();
             if (gradientCapable)
             {
                 ExportUnityGradient();
             }
+            AssetDatabase.Refresh();
         }
     }
     private Color _baseColor = Color.clear;
@@ -274,9 +279,10 @@ class CoolorsSwatchEditorWindow : EditorWindow
             return;
         }
         // Check for url
-        //https://coolors.co/palette/264653-2a9d8f-e9c46a-f4a261-e76f51
-        //https://colorhunt.co/palette/10072031087bfa2fb5ffc23c/
+        // https://coolors.co/palette/264653-2a9d8f-e9c46a-f4a261-e76f51
+        // https://coolors.co/gradient/1cdce8-bb77ed-f34a62
         isUrl = CoolorsExportText.Trim().StartsWith(@"http");
+        isGradient = CoolorsExportText.Contains(@"gradient");
         bool status;
         if (isUrl)
         {
@@ -329,28 +335,59 @@ class CoolorsSwatchEditorWindow : EditorWindow
 
     private bool ProcessCode(string code)
     {
-        var coolorsCode = code.Split(new string[] { "/*" }, StringSplitOptions.None);
-        foreach (var item in coolorsCode)
+        if (isGradient)
         {
-            if (item.StartsWith(" Object"))
+            foreach(string line in code.Split("\n", StringSplitOptions.None))
             {
-                string block = item;
-                block = block.Replace(" Object */", "");
-                block = block.Replace("{", "");
-                block = block.Replace("}", "");
-                block = block.Replace("\"", "");
-                var colorSetArray = block.Split(new string[] { "," }, StringSplitOptions.None);
-                colors = new CoolorsPaletteObject[colorSetArray.Length];
-                for (int i = 0; i < colorSetArray.Length; i++)
+                if (line.StartsWith(@"background: linear-gradient("))
                 {
-                    var nameColor = colorSetArray[i].Split(':');
-                    colors[i] = new CoolorsPaletteObject(nameColor[0].Trim());
-                    if (!ColorUtility.TryParseHtmlString("#" + nameColor[1].Trim().Substring(0, 6), out colors[i].color))
+                    string pattern = @"hsla\((\d+), (\d+)%, (\d+)%, (\d)\) (\d+)%";
+                    Regex rg = new Regex(pattern);
+                    MatchCollection matches = rg.Matches(line);
+                    colors = new CoolorsPaletteObject[matches.Count];
+                    for (int i = 0; i < matches.Count; i++)
                     {
-                        return false;
+                        float h = Mathf.InverseLerp(0, 360, int.Parse(matches[i].Groups[1].Value));
+                        float s = int.Parse(matches[i].Groups[2].Value) * .01f;
+                        float v = int.Parse(matches[i].Groups[3].Value) * .01f;
+                        float a = float.Parse(matches[i].Groups[4].Value);
+                        float stop = float.Parse(matches[i].Groups[5].Value) * .01f;
+                        //Debug.Log($"{i} -- H:{h}, S:{s}, V:{v}, A:{a}, @{stop}");
+                        colors[i] = new CoolorsPaletteObject($"Gradient Stop {i+1}");
+                        colors[i].color = Color.HSVToRGB(h, s, v);
+                        colors[i].color.a = a;
+                        colors[i].stop = stop;
                     }
+                    return true;
                 }
-                return true;
+            }
+            return false;
+        }
+        else
+        {
+            var coolorsCode = code.Split(new string[] { "/*" }, StringSplitOptions.None);
+            foreach (var item in coolorsCode)
+            {
+                if (item.StartsWith(" Object"))
+                {
+                    string block = item;
+                    block = block.Replace(" Object */", "");
+                    block = block.Replace("{", "");
+                    block = block.Replace("}", "");
+                    block = block.Replace("\"", "");
+                    var colorSetArray = block.Split(new string[] { "," }, StringSplitOptions.None);
+                    colors = new CoolorsPaletteObject[colorSetArray.Length];
+                    for (int i = 0; i < colorSetArray.Length; i++)
+                    {
+                        var nameColor = colorSetArray[i].Split(':');
+                        colors[i] = new CoolorsPaletteObject(nameColor[0].Trim());
+                        if (!ColorUtility.TryParseHtmlString("#" + nameColor[1].Trim().Substring(0, 6), out colors[i].color))
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
             }
         }
         return false;
@@ -362,11 +399,23 @@ class CoolorsSwatchEditorWindow : EditorWindow
         GradientAlphaKey[] alphaKeys = new GradientAlphaKey[2];
         alphaKeys[0] = new GradientAlphaKey(1f, 0f);
         alphaKeys[1] = new GradientAlphaKey(1f, 1f);
-        for (int i = 0; i < colorKeys.Length; i++)
+        if (isGradient)
         {
-            colorKeys[i] = new GradientColorKey(colors[i].color, (i + 1).Remap(0, colorKeys.Length, 0f, 1f));
+            gradient.mode = GradientMode.Blend;
+            for (int i = 0; i < colorKeys.Length; i++)
+            {
+                float stop = colors[i].stop >= 0f ? colors[i].stop : i.Remap(0, colorKeys.Length - 1, 0f, 1f);
+                colorKeys[i] = new GradientColorKey(colors[i].color, stop);
+            }
         }
-        gradient.mode = GradientMode.Fixed;
+        else
+        {
+            gradient.mode = GradientMode.Fixed;
+            for (int i = 0; i < colorKeys.Length; i++)
+            {
+                colorKeys[i] = new GradientColorKey(colors[i].color, (i + 1).Remap(0, colorKeys.Length, 0f, 1f));
+            }
+        }
         gradient.SetKeys(colorKeys, alphaKeys);
     }
     private void LaunchCoolors()
@@ -410,8 +459,8 @@ class CoolorsSwatchEditorWindow : EditorWindow
             existing = input.Split("  - m_Name:").ToList();
             // Remove header template
             existing.RemoveAt(0);
-            // Remove existing gradient if named the same
-            existing = existing.Where(x => x.TrimStart().Substring(0, x.IndexOf(Environment.NewLine) - 1) != $"{PaletteName}").ToList();
+            // Remove entries with the same name
+            existing = existing.Where(x => x.Substring(0, x.IndexOf(@"m_Gradient")).Trim() != $"{PaletteName}").ToList();
         }
         string newGradient = gradientElementTemplate.Replace("#NAME#", PaletteName).Trim();
         newGradient = newGradient.Replace($"#COLORCOUNT#", Math.Min(colors.Length, 8).ToString());
@@ -419,11 +468,20 @@ class CoolorsSwatchEditorWindow : EditorWindow
         {
             if (i < colors.Length)
             {
+                string stop = "0"; 
+                if (colors[i].stop >= 0f)
+                {
+                    stop = Mathf.RoundToInt(colors[i].stop.Remap(0f, 1f, 0f, maxTime)).ToString();
+                }
+                else
+                {
+                    stop = Mathf.RoundToInt(i.Remap(0, colors.Length - 1, 0, maxTime)).ToString();
+                }
                 newGradient = newGradient.Replace($"#RVAL{i}#", colors[i].color.r.ToString());
                 newGradient = newGradient.Replace($"#GVAL{i}#", colors[i].color.g.ToString());
                 newGradient = newGradient.Replace($"#BVAL{i}#", colors[i].color.b.ToString());
-                newGradient = newGradient.Replace($"#AVAL{i}#", "1");
-                newGradient = newGradient.Replace($"#CTIME{i}#", Mathf.RoundToInt(i.Remap(0, colors.Length - 1, 0, maxTime)).ToString());
+                newGradient = newGradient.Replace($"#AVAL{i}#", colors[i].color.a.ToString());
+                newGradient = newGradient.Replace($"#CTIME{i}#", stop);
             }
             else
             {
@@ -521,8 +579,10 @@ MonoBehaviour:
     {
         public Color color;
         public string name;
+        public float stop;
         public CoolorsPaletteObject(string name)
         {
+            this.stop = -1f;
             this.color = Color.white;
             this.name = name;
         }

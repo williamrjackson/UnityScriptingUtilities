@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System;
 using System.Threading;
-
+using System.Collections;
 namespace Wrj
 {
     public class ArduinoSerialCommunication : MonoBehaviour
@@ -17,8 +17,10 @@ namespace Wrj
         [SerializeField]
         private string deviceName = "Arduino";
 
-        private string rawData;
-        public string RawData { get { return rawData; } }
+        private string _rawData = string.Empty;
+        private uint _dataIndex = 0;
+        public string RawData { get { return _rawData; } }
+        public uint DataIndex { get { return _dataIndex; } }
         public delegate void SerialEvent(string data);
         public SerialEvent OnSerialEvent;
 
@@ -27,14 +29,13 @@ namespace Wrj
 
         SerialPort port;
         Thread serialPortListenerThread;
+        private readonly Queue<Action> _delegateQueue = new Queue<Action>();
 
         public enum BaudRates
         {
             _300 = 300, _600 = 600, _1200 = 1200, _2400 = 2400, _4800 = 4800, _9600 = 9600,
             _14400 = 14400, _19200 = 19200, _28800 = 28800, _38400 = 38400, _57600 = 57600, _115200 = 115200
         }
-
-        readonly object lockObject = new object();
 
         /// Static Singleton behavior
         protected static ArduinoSerialCommunication _instance;
@@ -131,10 +132,12 @@ namespace Wrj
                 String str = port.ReadLine();
                 if (!string.IsNullOrWhiteSpace(str))
                 {
-                    rawData = str;
+                    _rawData = str;
+                    _dataIndex++;
                     if (OnSerialEvent != null)
                     {
-                        OnSerialEvent(str);
+                        // Notify on main thread...
+                        Enqueue(ActionWrapper(() => OnSerialEvent(str)));
                     }
                 }
             }
@@ -154,6 +157,17 @@ namespace Wrj
             {
                 port.WriteLine(str);
             });
+        }
+
+        void Update()
+        {
+            lock (_delegateQueue)
+            {
+                while (_delegateQueue.Count > 0)
+                {
+                    _delegateQueue.Dequeue().Invoke();
+                }
+            }
         }
 
         private void PopulatePortList()
@@ -199,6 +213,21 @@ namespace Wrj
             }
             return null;
         }
-#endif
+        void Enqueue(IEnumerator action)
+        {
+            lock (_delegateQueue)
+            {
+                _delegateQueue.Enqueue(() =>
+                {
+                    StartCoroutine(action);
+                });
+            }
+        }
+        IEnumerator ActionWrapper(Action action)
+        {
+            action();
+            yield return null;
+        }
     }
+#endif
 }
