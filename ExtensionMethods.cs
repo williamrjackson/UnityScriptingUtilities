@@ -174,6 +174,24 @@ public static class ExtensionMethods
         }
         return default(T);
     }
+    public static IList<T> Shuffle<T>(this IList<T> list, int size)
+{
+    System.Random rnd = new System.Random();
+    var res = new T[size];
+
+    res[0] = list[0];
+    for (int i = 1; i < size; i++)
+    {
+        int j = rnd.Next(i);
+        res[i] = res[j];
+        res[j] = list[i];
+    }
+    return res;
+}
+
+public static IList<T> Shuffle<T>(this IList<T> list)
+{ return list.Shuffle(list.Count); }
+
     /// <summary>
     /// <para>Converts to a multichannel clip with content only on the target channel</para>
     /// <para>Clip channel count is based on current Audio Speaker Mode</para>

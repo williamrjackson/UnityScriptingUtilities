@@ -228,6 +228,6 @@ namespace Wrj
             action();
             yield return null;
         }
-    }
 #endif
+    }
 }
