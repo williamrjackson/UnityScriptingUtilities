@@ -59,13 +59,14 @@ public static class ExtensionMethods
     {
         return new Vector3(x ?? orig.x, y ?? orig.y, z ?? orig.z);
     }
-    /// <summary>
+	/// <summary>
     /// Returns a Vector2 with an axis forced as specified
     /// </summary>
     public static Vector2 With(this Vector2 orig, float? x = null, float? y = null)
     {
         return new Vector2(x ?? orig.x, y ?? orig.y);
     }
+
     /// <summary>
     /// Returns a Color with an channel forced as specified
     /// </summary>
@@ -73,12 +74,37 @@ public static class ExtensionMethods
     {
         return new Color(r ?? orig.r, g ?? orig.g, b ?? orig.b, a ?? orig.a);
     }
+    public static void LocalEulerWith(this Transform tform, float? x = null, float? y = null, float? z = null)
+    {
+        tform.localEulerAngles = new Vector3(x ?? tform.localEulerAngles.x, y ?? tform.localEulerAngles.y, z ?? tform.localEulerAngles.z);
+    }
+    
+	public static void LocalPositionWith(this Transform tform, float? x = null, float? y = null, float? z = null)
+    {
+        tform.localPosition = new Vector3(x ?? tform.localPosition.x, y ?? tform.localPosition.y, z ?? tform.localPosition.z);
+    }
+	public static void LocalPositionWith(this Transform tform, float? x = null, float? y = null, float? z = null)
+    {
+        tform.localPosition = new Vector3(x ?? tform.localPosition.x, y ?? tform.localPosition.y, z ?? tform.localPosition.z);
+    }
+    public static void PositionWith(this Transform tform, float? x = null, float? y = null, float? z = null)
+    {
+        tform.position = new Vector3(x ?? tform.position.x, y ?? tform.position.y, z ?? tform.position.z);
+    }
+
     /// <summary>
     /// Returns the transforms position as moved in a direction relative to itself
     /// </summary>
     public static Vector3 PosInDir(this Transform tform, float forward = 0f, float right = 0f, float up = 0f)
     {
         return tform.position + tform.forward * forward + tform.right * right + tform.up * up;
+    }
+    /// <summary>
+    /// Sets the transforms position in a direction relative to itself
+    /// </summary>
+    public static void SetPosInDir(this Transform tform, float forward = 0f, float right = 0f, float up = 0f)
+    {
+        tform.position = tform.PosInDir(forward, right, up);
     }
 
     /// <summary>
@@ -88,6 +114,13 @@ public static class ExtensionMethods
     {
         return tform.position + Vector3.forward * forward + Vector3.right * right + Vector3.up * up;
     }
+    /// <summary>
+    /// Sets the transforms position in a direction relative to the world
+    /// </summary>
+    public static void SetPosInWorldDir(this Transform tform, float forward = 0f, float right = 0f, float up = 0f)
+    {
+        tform.position = tform.PosInWorldDir(forward, right, up);
+    }
 
     /// <summary>
     /// Returns the transforms local position as moved in a direction relative to itself
@@ -96,6 +129,13 @@ public static class ExtensionMethods
     {
         return tform.localPosition + tform.forward * forward + tform.right * right + tform.up * up;
     }
+    /// <summary>
+    /// Sets the transforms local position in a direction relative to itself
+    /// </summary>
+    public static void SetLocalPosInDir(this Transform tform, float forward = 0f, float right = 0f, float up = 0f)
+    {
+        tform.localPosition = tform.LocalPosInDir(forward, right, up);
+    }
 
     /// <summary>
     /// Returns the transforms local position as moved in a direction relative to the world
@@ -103,6 +143,13 @@ public static class ExtensionMethods
     public static Vector3 LocalPosInWorldDir(this Transform tform, float forward = 0f, float right = 0f, float up = 0f)
     {
         return tform.localPosition + Vector3.forward * forward + Vector3.right * right + Vector3.up * up;
+    }
+    /// <summary>
+    /// Sets the transforms local position in a direction relative to the world
+    /// </summary>
+    public static void SetLocalPosInWorldDir(this Transform tform, float forward = 0f, float right = 0f, float up = 0f)
+    {
+        tform.localPosition = tform.LocalPosInWorldDir(forward, right, up);
     }
 
     /// <summary>
