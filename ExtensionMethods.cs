@@ -78,11 +78,7 @@ public static class ExtensionMethods
     {
         tform.localEulerAngles = new Vector3(x ?? tform.localEulerAngles.x, y ?? tform.localEulerAngles.y, z ?? tform.localEulerAngles.z);
     }
-    
-	public static void LocalPositionWith(this Transform tform, float? x = null, float? y = null, float? z = null)
-    {
-        tform.localPosition = new Vector3(x ?? tform.localPosition.x, y ?? tform.localPosition.y, z ?? tform.localPosition.z);
-    }
+
 	public static void LocalPositionWith(this Transform tform, float? x = null, float? y = null, float? z = null)
     {
         tform.localPosition = new Vector3(x ?? tform.localPosition.x, y ?? tform.localPosition.y, z ?? tform.localPosition.z);
