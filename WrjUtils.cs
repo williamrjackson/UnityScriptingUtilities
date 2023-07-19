@@ -192,6 +192,19 @@ namespace Wrj
             get { return (Random.value > .5f); }
         }
 
+        public static string SplitCamelCase(string str)
+        {
+            return System.Text.RegularExpressions.Regex.Replace(
+                System.Text.RegularExpressions.Regex.Replace(
+                    str,
+                    @"(\P{Ll})(\P{Ll}\p{Ll})",
+                    "$1 $2"
+                ),
+                @"(\p{Ll})(\P{Ll})",
+                "$1 $2"
+            );
+        }
+
         // Coroutine list management stuff...
         public static Utils wrjInstance;
         private List<MapToCurve.Manipulation> m_ManipulationList;
@@ -1064,7 +1077,11 @@ namespace Wrj
             public Manipulation FadeAlpha(Transform tform, float to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.Loop, int iterations = 0, bool useTimeScale = false, string matColorReference = "_Color", OnDone onDone = null)
             {
                 Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Alpha, tform);
-                if (tform.GetComponent<UnityEngine.UI.Image>())
+                if (tform.GetComponent<UnityEngine.CanvasGroup>())
+                {
+                    mcp.coroutine = UtilObject().StartCoroutine(LerpCanvasAlpha(mcp, tform.GetComponent<UnityEngine.CanvasGroup>(), to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
+                }
+                else if (tform.GetComponent<UnityEngine.UI.Image>())
                 {
                     mcp.coroutine = UtilObject().StartCoroutine(LerpImageAlpha(mcp, tform.GetComponent<UnityEngine.UI.Image>(), to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
                 }
@@ -1190,6 +1207,57 @@ namespace Wrj
                         finalColor.a = from;
                         image.color = finalColor;
                         mcp.coroutine = UtilObject().StartCoroutine(LerpImageAlpha(mcp, image, to, duration, mirrorCurve, repeatStyle, --iterations, useTimeScale, onDone));
+                    }
+                }
+                else
+                {
+                    CoroutineComplete(mcp, onDone);
+                }
+            }
+
+            private IEnumerator LerpCanvasAlpha(Manipulation mcp, UnityEngine.CanvasGroup canvasGroup, float to, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, OnDone onDone)
+            {
+                float elapsedTime = 0;
+                iterations = mcp.IncrementIterations(iterations);
+                RefreshMinMaxLerpForIteration(repeatStyle, mcp.iterations);
+
+                Transform tform = canvasGroup.transform;
+                float from = canvasGroup.alpha;
+                while (elapsedTime < duration)
+                {
+                    yield return new WaitForEndOfFrame();
+                    if (tform == null)
+                    {
+                        StopAllOnTransform(tform);
+                        yield break;
+                    }
+                    elapsedTime += GetDesiredDelta(useTimeScale);
+                    float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
+                    if (mirrorCurve)
+                    {
+                        canvasGroup.alpha = MirrorLerp(from, to, scrubPos);
+                    }
+                    else
+                    {
+                        canvasGroup.alpha = Lerp(from, to, scrubPos);
+                    }
+                }
+                canvasGroup.alpha = Lerp(from, to, 1f);
+
+                if (iterations != 0)
+                {
+                    if (repeatStyle == RepeatStyle.PingPong)
+                    {
+                        mcp.coroutine = UtilObject().StartCoroutine(LerpCanvasAlpha(mcp, canvasGroup, from, duration, mirrorCurve, repeatStyle, --iterations, useTimeScale, onDone));
+                    }
+                    else if (repeatStyle == RepeatStyle.MirrorPingPong)
+                    {
+                        mcp.coroutine = UtilObject().StartCoroutine(LerpCanvasAlpha(mcp, canvasGroup, from, duration, !mirrorCurve, repeatStyle, --iterations, useTimeScale, onDone));
+                    }
+                    else if (repeatStyle == RepeatStyle.Loop)
+                    {
+                        canvasGroup.alpha = from;
+                        mcp.coroutine = UtilObject().StartCoroutine(LerpCanvasAlpha(mcp, canvasGroup, to, duration, mirrorCurve, repeatStyle, --iterations, useTimeScale, onDone));
                     }
                 }
                 else

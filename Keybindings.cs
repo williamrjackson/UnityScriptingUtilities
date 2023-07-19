@@ -12,6 +12,15 @@ namespace Wrj
 
 		void Update() 
 		{
+			if (Input.GetKeyDown(KeyCode.Escape))
+			{
+#if UNITY_EDITOR
+				UnityEditor.EditorApplication.isPlaying = false;
+#else
+				Application.Quit();
+#endif
+			}
+
 			foreach (ButtonKeyCommand buttonKey in buttonKeys)
 			{
 				if (Input.GetKeyDown(buttonKey.key))

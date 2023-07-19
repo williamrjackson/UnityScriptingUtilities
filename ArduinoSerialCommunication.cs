@@ -16,6 +16,9 @@ namespace Wrj
         private BaudRates BaudRate = BaudRates._9600;
         [SerializeField]
         private string deviceName = "Arduino";
+        [SerializeField]
+        [Range(-1, 256)]
+        private int portNumber = -1;
 
         private string _rawData = string.Empty;
         private uint _dataIndex = 0;
@@ -64,7 +67,12 @@ namespace Wrj
         void Start()
         {
             PopulatePortList();
-            if ((comPort = GetFirstPortMatchingName(deviceName)) != null)
+            if (portNumber >= 0 && PortExists(portNumber))
+            {
+                comPort = portNumber.ToString();
+                Connect();
+            }
+            else if ((comPort = GetFirstPortMatchingName(deviceName)) != null)
             {
                 Connect();
             }
@@ -107,7 +115,7 @@ namespace Wrj
 
         public void ClosePort()
         {
-            UnityEngine.Debug.Log("close port");
+            UnityEngine.Debug.Log("Close port");
             Utils.SafeTry(() => port.Close());
         }
 
@@ -212,6 +220,10 @@ namespace Wrj
                 }
             }
             return null;
+        }
+        private bool PortExists(int portNum)
+        {
+            return (portAssignments.ContainsValue(portNum.ToString()));
         }
         void Enqueue(IEnumerator action)
         {

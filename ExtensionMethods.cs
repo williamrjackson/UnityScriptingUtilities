@@ -652,4 +652,20 @@ public static IList<T> Shuffle<T>(this IList<T> list)
     {
         return Wrj.Utils.Remap(value, sourceMin, sourceMax, destMin, destMax);
     }
+
+    /// <summary>
+    /// Add an action to a selectable event
+    /// </summary>
+    /// <param name="selectable"></param>
+    /// <param name="eventTriggerType"></param>
+    /// <param name="onTriggerAction"></param>
+    public static void AddEventTrigger(this UnityEngine.UI.Selectable selectable, UnityEngine.EventSystems.EventTriggerType eventTriggerType, System.Action onTriggerAction)
+    {
+        UnityEngine.EventSystems.EventTrigger eventTrigger = selectable.gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>();
+
+        UnityEngine.EventSystems.EventTrigger.Entry pointerEvent = new UnityEngine.EventSystems.EventTrigger.Entry();
+        pointerEvent.eventID = eventTriggerType;
+        pointerEvent.callback.AddListener((x) => onTriggerAction());
+        eventTrigger.triggers.Add(pointerEvent);
+    }
 }
