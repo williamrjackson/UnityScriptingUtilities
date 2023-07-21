@@ -5,6 +5,8 @@ namespace Wrj
 {
 	public class Keybindings : MonoBehaviour
 	{
+		// [SerializeField]
+		// private bool quitOnEsc = true;
 		public ButtonKeyCommand[] buttonKeys;
 		public ToggleKeyCommand[] toggleKeys;
 		public ActionKeyCommand[] actionKeys;
@@ -12,15 +14,10 @@ namespace Wrj
 
 		void Update() 
 		{
-			if (Input.GetKeyDown(KeyCode.Escape))
-			{
-#if UNITY_EDITOR
-				UnityEditor.EditorApplication.isPlaying = false;
-#else
-				Application.Quit();
-#endif
-			}
-
+			// TODO: If no keys are down return early.
+			// If quitOnEsc is enabled and esc is down
+			// quit application. If in editor, just exit
+			// play mode.
 			foreach (ButtonKeyCommand buttonKey in buttonKeys)
 			{
 				if (Input.GetKeyDown(buttonKey.key))
