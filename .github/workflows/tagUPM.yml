@@ -39,6 +39,18 @@ jobs:
         with: 
           path: package.json
           increment: patch
+      - name: UpdateReadmeA 
+        if: ${{ steps.check-tag.outputs.exists }}
+        uses: williamrjackson/upm_readme_tag_link_action@v1.0.0
+        with:
+          path: README.md
+          version-number: ${{ steps.increment.outputs.version }}
+      - name: UpdateReadmeB
+        if: ${{ !steps.check-tag.outputs.exists }}
+        uses: williamrjackson/upm_readme_tag_link_action@v1.0.0
+        with:
+          path: README.md
+          version-number: ${{ steps.version.outputs.version }}
       - name: commit changes
         if: ${{ steps.check-tag.outputs.exists }}
         run: |
