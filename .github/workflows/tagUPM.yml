@@ -1,0 +1,54 @@
+on: [push]
+env:
+  GITHUB_TOKEN: ${{ github.token }}
+permissions: write-all
+
+jobs:
+  version_tag:
+    runs-on: ubuntu-latest
+    name: Test Job
+    steps:
+      - name: Check out files
+        uses: actions/checkout@v3
+        with:
+          sparse-checkout: |
+            README.md
+            package.json
+
+      - name: Get version
+        id: version
+        uses: williamrjackson/upm_version_increment_action@v1.0.0
+        with: 
+          path: package.json
+          increment: none
+      - name: tag-exists-action
+        id: check-tag
+        uses: mukunku/tag-exists-action@v1.2.0
+        with: 
+          tag: 'v${{steps.version.outputs.version}}'
+      - name: Get result
+        run: echo "Tag ${{steps.check-tag.outputs.exists}}"
+      - name: gitconfig
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+      - name: Set version
+        if: ${{ steps.check-tag.outputs.exists }}
+        id: increment
+        uses: williamrjackson/upm_version_increment_action@v1.0.0
+        with: 
+          path: package.json
+          increment: patch
+      - name: commit changes
+        if: ${{ steps.check-tag.outputs.exists }}
+        run: |
+          git add .
+          git commit -m "[skip ci] automated version increment"
+      - name: tagA
+        if: ${{ steps.check-tag.outputs.exists }}
+        run: git tag -a -m "Tag with version" v${{ steps.increment.outputs.version }}
+      - name: tagB
+        if: ${{ !steps.check-tag.outputs.exists }}
+        run: git tag -a -m "Tag with version" v${{ steps.version.outputs.version }}
+      - name: push
+        run: git push --follow-tags
