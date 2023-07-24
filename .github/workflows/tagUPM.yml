@@ -14,10 +14,9 @@ jobs:
           sparse-checkout: |
             README.md
             package.json
-
       - name: Get version
         id: version
-        uses: williamrjackson/upm_version_increment_action@v1.0.0
+        uses: williamrjackson/upm_version_increment_action@v1.0.1
         with: 
           path: package.json
           increment: none
@@ -35,22 +34,26 @@ jobs:
       - name: Set version
         if: ${{ steps.check-tag.outputs.exists }}
         id: increment
-        uses: williamrjackson/upm_version_increment_action@v1.0.0
+        uses: williamrjackson/upm_version_increment_action@v1.0.1
         with: 
           path: package.json
           increment: patch
       - name: UpdateReadmeA 
         if: ${{ steps.check-tag.outputs.exists }}
-        uses: williamrjackson/upm_readme_tag_link_action@v1.0.0
+        uses: williamrjackson/upm_readme_tag_link_action@v1.0.1
         with:
           path: README.md
-          version-number: ${{ steps.increment.outputs.version }}
+          major: ${{ steps.increment.outputs.major }}
+          minor: ${{ steps.increment.outputs.minor }}
+          patch: ${{ steps.increment.outputs.patch }}
       - name: UpdateReadmeB
         if: ${{ !steps.check-tag.outputs.exists }}
-        uses: williamrjackson/upm_readme_tag_link_action@v1.0.0
+        uses: williamrjackson/upm_readme_tag_link_action@v1.0.1
         with:
           path: README.md
-          version-number: ${{ steps.version.outputs.version }}
+          major: ${{ steps.version.outputs.major }}
+          minor: ${{ steps.version.outputs.minor }}
+          patch: ${{ steps.version.outputs.patch }}
       - name: commit changes
         if: ${{ steps.check-tag.outputs.exists }}
         run: |
@@ -58,9 +61,13 @@ jobs:
           git commit -m "[skip ci] automated version increment"
       - name: tagA
         if: ${{ steps.check-tag.outputs.exists }}
-        run: git tag -a -m "Tag with version" v${{ steps.increment.outputs.version }}
+        run: |
+          git tag -f v${{ steps.increment.outputs.major }}.${{ steps.increment.outputs.minor }}
+          git tag -f v${{ steps.increment.outputs.major }}.${{ steps.increment.outputs.minor }}.${{ steps.increment.outputs.patch }}
       - name: tagB
         if: ${{ !steps.check-tag.outputs.exists }}
-        run: git tag -a -m "Tag with version" v${{ steps.version.outputs.version }}
+        run: |
+          git tag -f v${{ steps.version.outputs.major }}.${{ steps.version.outputs.minor }}
+          git tag -f v${{ steps.version.outputs.major }}.${{ steps.version.outputs.minor }}.${{ steps.version.outputs.patch }}
       - name: push
-        run: git push --follow-tags
+        run: git push -f --tags
