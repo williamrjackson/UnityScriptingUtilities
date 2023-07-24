@@ -14,6 +14,7 @@ jobs:
           sparse-checkout: |
             README.md
             package.json
+
       - name: Get version
         id: version
         uses: williamrjackson/upm_version_increment_action@v1.0.1
@@ -59,6 +60,8 @@ jobs:
         run: |
           git add .
           git commit -m "[skip ci] automated version increment"
+      - name: push
+        run: git push
       - name: tagA
         if: ${{ steps.check-tag.outputs.exists }}
         run: |
@@ -69,5 +72,5 @@ jobs:
         run: |
           git tag -f v${{ steps.version.outputs.major }}.${{ steps.version.outputs.minor }}
           git tag -f v${{ steps.version.outputs.major }}.${{ steps.version.outputs.minor }}.${{ steps.version.outputs.patch }}
-      - name: push
+      - name: push tags
         run: git push -f --tags
