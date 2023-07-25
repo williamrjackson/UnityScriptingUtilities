@@ -1,4 +1,8 @@
-on: [push]
+on:
+  push:
+    branches:
+      - 'main'
+      - 'master'
 env:
   GITHUB_TOKEN: ${{ github.token }}
 permissions: write-all
@@ -56,10 +60,9 @@ jobs:
           minor: ${{ steps.version.outputs.minor }}
           patch: ${{ steps.version.outputs.patch }}
       - name: commit changes
-        if: ${{ steps.check-tag.outputs.exists }}
         run: |
           git add .
-          git commit -m "[skip ci] automated version increment"
+          git commit -m "automated version tagging Readme Update [skip ci]"
       - name: push
         run: git push
       - name: tagA
