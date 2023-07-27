@@ -8,41 +8,22 @@ namespace Wrj
         [SerializeField]
         string _customScriptPath = string.Empty;
 
-        [SerializeField]
-        string _defaultNamespace = string.Empty;
-
-        public static string CustomScriptPath
+        internal static WrjSettings GetOrCreateSettings()
         {
-            get
+            var settings = AssetDatabase.LoadAssetAtPath<WrjSettings>(WrjSettingsProvider.k_WrjSettingsPath);
+            if (settings == null)
             {
-                return EditorPrefs.GetString("_customScriptPath", string.Empty);
+                settings = ScriptableObject.CreateInstance<WrjSettings>();
+                settings._customScriptPath = "";
+                AssetDatabase.CreateAsset(settings, WrjSettingsProvider.k_WrjSettingsPath);
+                AssetDatabase.SaveAssets();
             }
-            private set
-            {
-                EditorPrefs.SetString("_customScriptPath", value);
-            }
+            return settings;
         }
-        public static string DefaultNamespace
+ 
+        internal static SerializedObject GetSerializedSettings()
         {
-            get
-            {
-                return EditorPrefs.GetString("_defaultNamespace", Application.productName);
-            }
-            private set
-            {
-                EditorPrefs.SetString("_defaultNamespace", value);
-            }
-        }
-
-        private void OnEnable()
-        {
-            Refresh(this);
-        }
-
-        public static void Refresh(WrjSettings instance)
-        {
-            CustomScriptPath = instance._customScriptPath;
-            DefaultNamespace = instance._defaultNamespace;
+            return new SerializedObject(GetOrCreateSettings());
         }
     }
 }
