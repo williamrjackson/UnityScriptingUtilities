@@ -14,10 +14,23 @@ namespace Wrj
 
 		void Update() 
 		{
-			// TODO: If no keys are down return early.
-			// If quitOnEsc is enabled and esc is down
-			// quit application. If in editor, just exit
-			// play mode.
+			// If no keys are down, don't check for keys.
+			// If there are any actionKeys enabled, we could be awaiting a KeyUp. 
+			// So check anyway.
+			if (!Input.anyKeyDown && actionKeys.Length == 0)
+			{
+				return;
+			}
+
+			if (Input.GetKeyDown(KeyCode.Escape))
+			{
+				Application.Quit();
+			}
+			if (Input.GetKeyDown(KeyCode.F11))
+			{
+				Screen.fullScreen = !Screen.fullScreen;
+			}
+
 			foreach (ButtonKeyCommand buttonKey in buttonKeys)
 			{
 				if (Input.GetKeyDown(buttonKey.key))
@@ -42,6 +55,11 @@ namespace Wrj
 				{
 					if (!actionKey.ModifierQualified()) continue;
 					actionKey.Invoke();
+				}
+				else if (Input.GetKeyUp(actionKey.key))
+				{
+					if (!actionKey.ModifierQualified()) continue;
+					actionKey.InvokeKeyUp();
 				}
 			}
 
@@ -118,11 +136,17 @@ namespace Wrj
 		public class ActionKeyCommand : KeyCommand
 		{
 			[Header("Action")]
-			public UnityEvent action;
-            public override void Invoke()
+			public UnityEvent keyDownAction;
+			public UnityEvent keyUpAction;
+
+			public override void Invoke()
             {
-				action.Invoke();
+				keyDownAction.Invoke();
 			}
+			public void InvokeKeyUp()
+            {
+				keyUpAction.Invoke();
+            }
 		}
 		[System.Serializable]
 
