@@ -10,10 +10,10 @@ namespace Wrj
         private static void OnScriptsReloaded()
         {
             var settings = WrjSettings.GetSerializedSettings();
-            Debug.Log($"Settings: {settings.ToString()}");
+            //Debug.Log($"Settings: {settings.ToString()}");
             SerializedProperty customPathProp = settings.FindProperty("_customScriptPath");
             string customPath = customPathProp.stringValue;
-            Debug.Log($"Custom Script Path: {customPath}");
+            //Debug.Log($"Custom Script Path: {customPath}");
             if (string.IsNullOrWhiteSpace(customPath)) return;
 
             // Check for the saved path string
@@ -28,13 +28,13 @@ namespace Wrj
 
         void OnPreprocessAsset()
         {
-            Debug.Log($"New Script: {assetImporter.assetPath}");
+            //Debug.Log($"New Script: {assetImporter.assetPath}");
             // Bail if it's not in the Assets root dir.
             if (assetImporter.assetPath.Split('/').Length > 2)
                 return;
             if (Path.GetExtension(assetImporter.assetPath).ToLower() == ".cs")
             {
-                Debug.Log("Saving");
+                //Debug.Log("Saving");
                 EditorPrefs.SetString("temp_scriptPath", assetImporter.assetPath);
             }
         }
@@ -43,7 +43,7 @@ namespace Wrj
         {
             string filename = Path.GetFileName(assetPath);
             string filePath = Path.Combine("Assets", subDir, filename).ToString();
-            Debug.Log($"New path: {filePath}");
+            //Debug.Log($"New path: {filePath}");
             // Create the folder if necessary
             (new FileInfo(filePath)).Directory.Create();
 
