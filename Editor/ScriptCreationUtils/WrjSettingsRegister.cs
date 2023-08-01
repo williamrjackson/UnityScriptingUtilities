@@ -9,7 +9,7 @@ namespace Wrj
 {
     class WrjSettingsProvider : SettingsProvider
     {
-        public const string k_WrjSettingsPath = "Assets/Editor/Wrj.Settings.asset";
+        public const string k_WrjSettingsPath = "Assets/Editor/Script Creation/Wrj.Settings.asset";
         private SerializedObject m_WrjSettings;
 
         public static GUIContent CustomScriptPath = new GUIContent("Custom Script Path");

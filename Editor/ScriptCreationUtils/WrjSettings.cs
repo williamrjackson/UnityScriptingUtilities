@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using System.IO;
 
 namespace Wrj
 {
@@ -13,6 +14,7 @@ namespace Wrj
             var settings = AssetDatabase.LoadAssetAtPath<WrjSettings>(WrjSettingsProvider.k_WrjSettingsPath);
             if (settings == null)
             {
+                (new FileInfo(WrjSettingsProvider.k_WrjSettingsPath)).Directory.Create();
                 settings = ScriptableObject.CreateInstance<WrjSettings>();
                 settings._customScriptPath = "";
                 AssetDatabase.CreateAsset(settings, WrjSettingsProvider.k_WrjSettingsPath);
@@ -20,7 +22,7 @@ namespace Wrj
             }
             return settings;
         }
- 
+
         internal static SerializedObject GetSerializedSettings()
         {
             return new SerializedObject(GetOrCreateSettings());
