@@ -5,8 +5,10 @@ namespace Wrj
 {
 	public class Keybindings : MonoBehaviour
 	{
-		// [SerializeField]
-		// private bool quitOnEsc = true;
+        [SerializeField]
+        private bool quitOnEsc = true;
+        [SerializeField]
+        private bool fullScreenOnF11 = true;
 		public ButtonKeyCommand[] buttonKeys;
 		public ToggleKeyCommand[] toggleKeys;
 		public ActionKeyCommand[] actionKeys;
@@ -14,23 +16,40 @@ namespace Wrj
 
 		void Update() 
 		{
-			// If no keys are down, don't check for keys.
-			// If there are any actionKeys enabled, we could be awaiting a KeyUp. 
-			// So check anyway.
-			if (!Input.anyKeyDown && actionKeys.Length == 0)
+			if (!Input.anyKey) return;
+
+			foreach (ActionKeyCommand actionKey in actionKeys)
 			{
-				return;
+				if (actionKey.onKeyUp && Input.GetKeyUp(actionKey.key))
+				{
+					if (!actionKey.ModifierQualified()) continue;
+					actionKey.Invoke();
+				}
 			}
 
-			if (Input.GetKeyDown(KeyCode.Escape))
+			if (!Input.anyKeyDown) return;
+
+			if (quitOnEsc && Input.GetKeyDown(KeyCode.Escape))
 			{
-				Application.Quit();
-			}
-			if (Input.GetKeyDown(KeyCode.F11))
-			{
+#if UNITY_EDITOR
+			    UnityEditor.EditorApplication.isPlaying = false;
+#endif
+                Application.Quit();
+            }
+
+			if (fullScreenOnF11 && Input.GetKeyDown(KeyCode.F11))
+            {
 				Screen.fullScreen = !Screen.fullScreen;
 			}
 
+			foreach (ActionKeyCommand actionKey in actionKeys)
+			{
+				if (Input.GetKeyDown(actionKey.key))
+				{
+					if (!actionKey.ModifierQualified()) continue;
+					actionKey.Invoke();
+				}
+			}
 			foreach (ButtonKeyCommand buttonKey in buttonKeys)
 			{
 				if (Input.GetKeyDown(buttonKey.key))
@@ -46,20 +65,6 @@ namespace Wrj
 				{
 					if (!toggleKey.ModifierQualified()) continue;
 					toggleKey.Invoke();
-				}
-			}
-
-			foreach (ActionKeyCommand actionKey in actionKeys)
-			{
-				if (Input.GetKeyDown(actionKey.key))
-				{
-					if (!actionKey.ModifierQualified()) continue;
-					actionKey.Invoke();
-				}
-				else if (Input.GetKeyUp(actionKey.key))
-				{
-					if (!actionKey.ModifierQualified()) continue;
-					actionKey.InvokeKeyUp();
 				}
 			}
 
@@ -135,18 +140,13 @@ namespace Wrj
 		[System.Serializable]
 		public class ActionKeyCommand : KeyCommand
 		{
+			public bool onKeyUp = false;
 			[Header("Action")]
-			public UnityEvent keyDownAction;
-			public UnityEvent keyUpAction;
-
-			public override void Invoke()
+			public UnityEvent action;
+            public override void Invoke()
             {
-				keyDownAction.Invoke();
+				action.Invoke();
 			}
-			public void InvokeKeyUp()
-            {
-				keyUpAction.Invoke();
-            }
 		}
 		[System.Serializable]
 
