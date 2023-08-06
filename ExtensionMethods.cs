@@ -637,7 +637,20 @@ public static IList<T> Shuffle<T>(this IList<T> list)
     {
         return go.transform.Alpha(to, duration);
     }
-
+	/// <summary>
+	/// Change image fillAmount over time
+	/// </summary>
+	public static Wrj.Utils.MapToCurve.Manipulation Fill(this Image img, float to, float duration)
+	{
+		return Wrj.Utils.MapToCurve.Linear.ChangeFill(img, to, duration);
+	}
+	/// <summary>
+	/// Change image fillAmount over time
+	/// </summary>
+	public static Wrj.Utils.MapToCurve.Manipulation EaseFill(this Image img, float to, float duration)
+	{
+		return Wrj.Utils.MapToCurve.Ease.ChangeFill(img, to, duration);
+	}
     /// <summary>
     /// Remap Float value from one range to another.
     /// </summary>

@@ -16,8 +16,6 @@ namespace Wrj
 
 		void Update() 
 		{
-			if (!Input.anyKey) return;
-
 			foreach (ActionKeyCommand actionKey in actionKeys)
 			{
 				if (actionKey.onKeyUp && Input.GetKeyUp(actionKey.key))

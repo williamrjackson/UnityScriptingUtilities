@@ -559,7 +559,7 @@ namespace Wrj
                         yield break;
                     }
                     elapsedTime += GetDesiredDelta(useTimeScale);
-                    float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
+	                float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
                     if (mirrorCurve)
                     {
                         tform.localPosition = MirrorLerp(from, to, scrubPos);
@@ -1393,6 +1393,86 @@ namespace Wrj
                     CoroutineComplete(mcp, onDone);
                 }
             }
+	        public Manipulation ChangeFill(Transform tform, float to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.Loop, int iterations = 0, bool useTimeScale = false, string matColorReference = "_Color", OnDone onDone = null)
+	        {
+		        Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Color, tform);
+		        if (tform.GetComponent<UnityEngine.UI.Image>())
+		        {
+			        mcp.coroutine = UtilObject().StartCoroutine(LerpImageFill(mcp, tform.GetComponent<UnityEngine.UI.Image>(), to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
+		        }
+		        else
+		        {
+		        	return null;
+		        }
+		        UtilObject().AddToCoroList(mcp);
+		        return mcp;
+	        }
+	        public Manipulation ChangeFill(UnityEngine.UI.Image img, float to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.Loop, int iterations = 0, bool useTimeScale = false, string matColorReference = "_Color", OnDone onDone = null)
+	        {
+		        Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Color, img.transform);
+
+		        mcp.coroutine = UtilObject().StartCoroutine(LerpImageFill(mcp, img, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
+
+		        UtilObject().AddToCoroList(mcp);
+		        return mcp;
+	        }
+	        
+	        private IEnumerator LerpImageFill(Manipulation mcp, UnityEngine.UI.Image image, float to, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, OnDone onDone)
+	        {
+		        float elapsedTime = 0;
+		        iterations = mcp.IncrementIterations(iterations);
+		        RefreshMinMaxLerpForIteration(repeatStyle, mcp.iterations);
+
+		        Transform tform = image.transform;
+		        float from = image.fillAmount;
+		        while (elapsedTime < duration)
+		        {
+			        yield return new WaitForEndOfFrame();
+			        if (tform == null)
+			        {
+				        StopAllOnTransform(tform);
+				        yield break;
+			        }
+			        float fill = image.fillAmount;
+			        elapsedTime += GetDesiredDelta(useTimeScale);
+			        float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
+			        if (mirrorCurve)
+			        {
+				        fill = MirrorLerp(from, to, scrubPos);
+			        }
+			        else
+			        {
+				        fill = Lerp(from, to, scrubPos);
+			        }
+			        image.fillAmount = fill;
+		        }
+		        float finalFill = image.fillAmount;
+		        finalFill = Lerp(from, to, 1f);
+		        image.fillAmount = finalFill;
+
+
+		        if (iterations != 0)
+		        {
+			        if (repeatStyle == RepeatStyle.PingPong)
+			        {
+				        mcp.coroutine = UtilObject().StartCoroutine(LerpImageFill(mcp, image, from, duration, mirrorCurve, repeatStyle, --iterations, useTimeScale, onDone));
+			        }
+			        else if (repeatStyle == RepeatStyle.MirrorPingPong)
+			        {
+				        mcp.coroutine = UtilObject().StartCoroutine(LerpImageFill(mcp, image, from, duration, !mirrorCurve, repeatStyle, --iterations, useTimeScale, onDone));
+			        }
+			        else if (repeatStyle == RepeatStyle.Loop)
+			        {
+				        image.fillAmount = from;
+				        mcp.coroutine = UtilObject().StartCoroutine(LerpImageFill(mcp, image, to, duration, mirrorCurve, repeatStyle, --iterations, useTimeScale, onDone));
+			        }
+		        }
+		        else
+		        {
+			        CoroutineComplete(mcp, onDone);
+		        }
+	        }
+            
             private float GetDesiredDelta(bool useTimeScale)
             {
                 return useTimeScale ? Time.deltaTime : Time.unscaledDeltaTime;
