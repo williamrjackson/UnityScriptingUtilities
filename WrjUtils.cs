@@ -357,8 +357,15 @@ namespace Wrj
                 }
             }
 
-            public class Manipulation
+            public class Manipulation : CustomYieldInstruction
             {
+                public override bool keepWaiting
+                {
+                    get
+                    {
+                        return coroutine != null;
+                    }
+                }
                 public Coroutine coroutine;
                 public Transform transform;
                 public enum ManipulationType { Scale, Move, Rotate, Audio, Color, Alpha, Camera, NotApplicable }
