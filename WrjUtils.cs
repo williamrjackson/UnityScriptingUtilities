@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
+using UnityEngine.Playables;
+using Color = UnityEngine.Color;
 
 namespace Wrj
 {
@@ -11,11 +14,11 @@ namespace Wrj
         /// Returns a component of Type T by finding the existing one, or by instantiating one if not found.
         public static T EnsureComponent<T>(GameObject go) where T : Component
         {
-            if (!go.GetComponent<T>())
+            if (go.TryGetComponent<T>(out T component))
             {
-                go.AddComponent<T>();
+                return component;
             }
-            return go.GetComponent<T>();
+            return go.AddComponent<T>();
         }
 
         /// Swap items
@@ -31,7 +34,26 @@ namespace Wrj
         {
             // Do nothing, but trick the compiler into thinking otherwise.
         }
-
+        public static Material InstanceMaterial(GameObject go)
+        {
+            if (go.TryGetComponent<Renderer>(out var renderer)) 
+            {
+                renderer.material = new Material(renderer.material);
+                return renderer.material;
+            }
+            if (go.TryGetComponent<UnityEngine.UI.Image>(out var image)) 
+            {
+                image.material = new Material(image.material);
+                return image.material;
+            }
+            if (go.TryGetComponent<UnityEngine.UI.RawImage>(out var rawImage)) 
+            {
+                rawImage.material = new Material(rawImage.material);
+                return rawImage.material;
+            }
+            return null;
+        }
+        
         /// Call a function for a game object and all of its children.
         public delegate void GameObjectAffector(GameObject gObject);
         public static void AffectGORecursively(GameObject go, GameObjectAffector goa, bool skipParent = false)
@@ -108,7 +130,7 @@ namespace Wrj
             result[0] = origin;
             for (int i = 1; i < pointCount - 1; i++)
             {
-                float t = (1f / pointCount) * i;
+                float t = 1f / pointCount * i;
                 Vector3 point1 = Vector3.Lerp(origin, influenceA, t);
                 Vector3 point2 = Vector3.Lerp(influenceA, influenceB, t);
                 Vector3 point3 = Vector3.Lerp(influenceB, destination, t);
@@ -203,6 +225,40 @@ namespace Wrj
                 @"(\p{Ll})(\P{Ll})",
                 "$1 $2"
             );
+        }
+               /// <summary>
+        /// Determine if a command line argument is used by name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static bool GetArg(string name)
+        {
+            var args = System.Environment.GetCommandLineArgs();
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == name)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        /// <summary>
+        /// Get a command line argument's value
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static string GetArgVal(string name)
+        {
+            var args = System.Environment.GetCommandLineArgs();
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == name)
+                {
+                    return args[i + 1];
+                }
+            }
+            return null;
         }
 
         // Coroutine list management stuff...
@@ -1083,19 +1139,44 @@ namespace Wrj
 
             public Manipulation FadeAlpha(Transform tform, float to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.Loop, int iterations = 0, bool useTimeScale = false, string matColorReference = "_Color", OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Alpha, tform);
-                if (tform.GetComponent<UnityEngine.CanvasGroup>())
+                if (tform.TryGetComponent<CanvasGroup>(out var canvasGroup))
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(LerpCanvasAlpha(mcp, tform.GetComponent<UnityEngine.CanvasGroup>(), to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
+                    return FadeAlpha(canvasGroup, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone);
+                    // mcp.coroutine = UtilObject().StartCoroutine(LerpCanvasAlpha(mcp, canvasGroup, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
                 }
-                else if (tform.GetComponent<UnityEngine.UI.Image>())
+                else if (tform.TryGetComponent<UnityEngine.UI.Image>(out var image))
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(LerpImageAlpha(mcp, tform.GetComponent<UnityEngine.UI.Image>(), to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
+                    return FadeAlpha(image, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone);
+                    // mcp.coroutine = UtilObject().StartCoroutine(LerpImageAlpha(mcp, image, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
                 }
-                else
+                else if (tform.TryGetComponent<UnityEngine.UI.RawImage>(out var rawImage))
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(LerpAlpha(mcp, tform, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, matColorReference, onDone));
+                    return FadeAlpha(rawImage, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone);
+                    // mcp.coroutine = UtilObject().StartCoroutine(LerpRawImageAlpha(mcp, rawImage, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
                 }
+
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Alpha, tform);    
+                mcp.coroutine = UtilObject().StartCoroutine(LerpAlpha(mcp, tform, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, matColorReference, onDone));
+                return mcp;
+            }
+            public Manipulation FadeAlpha(CanvasGroup canvasGroup, float to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.Loop, int iterations = 0, bool useTimeScale = false, OnDone onDone = null)
+            {
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Alpha, canvasGroup.transform);
+                mcp.coroutine = UtilObject().StartCoroutine(LerpCanvasAlpha(mcp, canvasGroup, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
+                UtilObject().AddToCoroList(mcp);
+                return mcp;
+            }
+            public Manipulation FadeAlpha(UnityEngine.UI.Image image, float to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.Loop, int iterations = 0, bool useTimeScale = false, OnDone onDone = null)
+            {
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Alpha, image.transform);
+                mcp.coroutine = UtilObject().StartCoroutine(LerpImageAlpha(mcp, image, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
+                UtilObject().AddToCoroList(mcp);
+                return mcp;
+            }
+            public Manipulation FadeAlpha(UnityEngine.UI.RawImage rawImage, float to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.Loop, int iterations = 0, bool useTimeScale = false, OnDone onDone = null)
+            {
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Alpha, rawImage.transform);
+                mcp.coroutine = UtilObject().StartCoroutine(LerpRawImageAlpha(mcp, rawImage, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
             }
@@ -1221,6 +1302,62 @@ namespace Wrj
                     CoroutineComplete(mcp, onDone);
                 }
             }
+            private IEnumerator LerpRawImageAlpha(Manipulation mcp, UnityEngine.UI.RawImage image, float to, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, OnDone onDone)
+            {
+                float elapsedTime = 0;
+                iterations = mcp.IncrementIterations(iterations);
+                RefreshMinMaxLerpForIteration(repeatStyle, mcp.iterations);
+
+                Transform tform = image.transform;
+                float from = image.color.a;
+                while (elapsedTime < duration)
+                {
+                    yield return new WaitForEndOfFrame();
+                    if (tform == null)
+                    {
+                        StopAllOnTransform(tform);
+                        yield break;
+                    }
+                    Color color = image.color;
+                    elapsedTime += GetDesiredDelta(useTimeScale);
+                    float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
+                    if (mirrorCurve)
+                    {
+                        color.a = MirrorLerp(from, to, scrubPos);
+                    }
+                    else
+                    {
+                        color.a = Lerp(from, to, scrubPos);
+                    }
+                    image.color = color;
+                }
+                Color finalColor = image.color;
+                finalColor.a = Lerp(from, to, 1f);
+                image.color = finalColor;
+
+
+                if (iterations != 0)
+                {
+                    if (repeatStyle == RepeatStyle.PingPong)
+                    {
+                        mcp.coroutine = UtilObject().StartCoroutine(LerpRawImageAlpha(mcp, image, from, duration, mirrorCurve, repeatStyle, --iterations, useTimeScale, onDone));
+                    }
+                    else if (repeatStyle == RepeatStyle.MirrorPingPong)
+                    {
+                        mcp.coroutine = UtilObject().StartCoroutine(LerpRawImageAlpha(mcp, image, from, duration, !mirrorCurve, repeatStyle, --iterations, useTimeScale, onDone));
+                    }
+                    else if (repeatStyle == RepeatStyle.Loop)
+                    {
+                        finalColor.a = from;
+                        image.color = finalColor;
+                        mcp.coroutine = UtilObject().StartCoroutine(LerpRawImageAlpha(mcp, image, to, duration, mirrorCurve, repeatStyle, --iterations, useTimeScale, onDone));
+                    }
+                }
+                else
+                {
+                    CoroutineComplete(mcp, onDone);
+                }
+            }
 
             private IEnumerator LerpCanvasAlpha(Manipulation mcp, UnityEngine.CanvasGroup canvasGroup, float to, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, OnDone onDone)
             {
@@ -1273,36 +1410,59 @@ namespace Wrj
                 }
             }
 
-            public Manipulation ChangeColor(Transform tform, Color to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.Loop, int iterations = 0, bool useTimeScale = false, string matColorReference = "_Color", OnDone onDone = null)
+            public Manipulation ChangeColor(Transform tform, UnityEngine.Color to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.Loop, int iterations = 0, bool useTimeScale = false, string matColorReference = "_Color", OnDone onDone = null)
             {
-                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Color, tform);
-                if (tform.GetComponent<UnityEngine.UI.Image>())
+                if (tform.TryGetComponent<UnityEngine.UI.Image>(out var image))
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(LerpImageColor(mcp, tform.GetComponent<UnityEngine.UI.Image>(), to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
+                    return ChangeColor(image, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone);
                 }
-                else
+                if (tform.TryGetComponent<UnityEngine.UI.RawImage>(out var rawImage))
                 {
-                    mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, matColorReference, onDone));
+                    return ChangeColor(rawImage, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone);
                 }
+                else if (tform.TryGetComponent<Renderer>(out var renderer))
+                {
+                    return ChangeColor(renderer, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, matColorReference, onDone);
+                }
+                return null;
+            }
+            public Manipulation ChangeColor(Renderer renderer, Color to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.Loop, int iterations = 0, bool useTimeScale = false, string matColorReference = "_Color", OnDone onDone = null)
+            {
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Color, renderer.transform);
+                mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, renderer, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, matColorReference, onDone));
+                UtilObject().AddToCoroList(mcp);
+                return mcp;
+            }
+            public Manipulation ChangeColor(UnityEngine.UI.Image image, Color to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.Loop, int iterations = 0, bool useTimeScale = false, OnDone onDone = null)
+            {
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Color, image.transform);
+                mcp.coroutine = UtilObject().StartCoroutine(LerpImageColor(mcp, image, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
+                UtilObject().AddToCoroList(mcp);
+                return mcp;
+            }
+            public Manipulation ChangeColor(UnityEngine.UI.RawImage rawImage, Color to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.Loop, int iterations = 0, bool useTimeScale = false, OnDone onDone = null)
+            {
+                Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Color, rawImage.transform);
+                mcp.coroutine = UtilObject().StartCoroutine(LerpRawImageColor(mcp, rawImage, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
                 UtilObject().AddToCoroList(mcp);
                 return mcp;
             }
 
             // Being careful not to impact alpha, so this can be used simultaneously with ChangAlpha()
-            private IEnumerator LerpColor(Manipulation mcp, Transform tform, Color to, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, string matColorReference, OnDone onDone)
+            private IEnumerator LerpColor(Manipulation mcp, Renderer renderer, UnityEngine.Color to, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, string matColorReference, OnDone onDone)
             {
                 float elapsedTime = 0;
                 iterations = mcp.IncrementIterations(iterations);
                 RefreshMinMaxLerpForIteration(repeatStyle, mcp.iterations);
 
-                Material mat = tform.GetComponent<Renderer>().material;
+                Material mat = renderer.material;
                 Color from = mat.GetColor(matColorReference);
                 while (elapsedTime < duration)
                 {
                     yield return new WaitForEndOfFrame();
-                    if (tform == null)
+                    if (renderer.transform == null)
                     {
-                        StopAllOnTransform(tform);
+                        StopAllOnTransform(renderer.transform);
                         yield break;
                     }
                     Color color = mat.GetColor(matColorReference);
@@ -1316,9 +1476,9 @@ namespace Wrj
                     {
                         color = Lerp(from, to, scrubPos);
                     }
-                    mat.SetColor(matColorReference, new Color(color.r, color.g, color.b, mat.GetColor(matColorReference).a));
+                    mat.SetColor(matColorReference, new UnityEngine.Color(color.r, color.g, color.b, mat.GetColor(matColorReference).a));
                 }
-                Color finalColor = Lerp(from, to, 1f);
+                UnityEngine.Color finalColor = Lerp(from, to, 1f);
                 finalColor.a = mat.GetColor(matColorReference).a;
                 mat.SetColor(matColorReference, finalColor);
 
@@ -1327,16 +1487,16 @@ namespace Wrj
                 {
                     if (repeatStyle == RepeatStyle.PingPong)
                     {
-                        mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, from, duration, mirrorCurve, repeatStyle, --iterations, useTimeScale, matColorReference, onDone));
+                        mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, renderer, from, duration, mirrorCurve, repeatStyle, --iterations, useTimeScale, matColorReference, onDone));
                     }
                     else if (repeatStyle == RepeatStyle.MirrorPingPong)
                     {
-                        mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, from, duration, !mirrorCurve, repeatStyle, --iterations, useTimeScale, matColorReference, onDone));
+                        mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, renderer, from, duration, !mirrorCurve, repeatStyle, --iterations, useTimeScale, matColorReference, onDone));
                     }
                     else if (repeatStyle == RepeatStyle.Loop)
                     {
                         mat.SetColor(matColorReference, from);
-                        mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, tform, to, duration, mirrorCurve, repeatStyle, --iterations, useTimeScale, matColorReference, onDone));
+                        mcp.coroutine = UtilObject().StartCoroutine(LerpColor(mcp, renderer, to, duration, mirrorCurve, repeatStyle, --iterations, useTimeScale, matColorReference, onDone));
                     }
                 }
                 else
@@ -1400,21 +1560,74 @@ namespace Wrj
                     CoroutineComplete(mcp, onDone);
                 }
             }
-	        public Manipulation ChangeFill(Transform tform, float to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.Loop, int iterations = 0, bool useTimeScale = false, string matColorReference = "_Color", OnDone onDone = null)
+            private IEnumerator LerpRawImageColor(Manipulation mcp, UnityEngine.UI.RawImage rawImage, Color to, float duration, bool mirrorCurve, RepeatStyle repeatStyle, int iterations, bool useTimeScale, OnDone onDone)
+            {
+                float elapsedTime = 0;
+                iterations = mcp.IncrementIterations(iterations);
+                RefreshMinMaxLerpForIteration(repeatStyle, mcp.iterations);
+
+                Transform tform = rawImage.transform;
+                Color from = rawImage.color;
+                while (elapsedTime < duration)
+                {
+                    yield return new WaitForEndOfFrame();
+                    if (tform == null)
+                    {
+                        StopAllOnTransform(tform);
+                        yield break;
+                    }
+                    Color color = rawImage.color;
+                    elapsedTime += GetDesiredDelta(useTimeScale);
+                    float scrubPos = Remap(elapsedTime, 0, duration, 0, 1);
+                    if (mirrorCurve)
+                    {
+                        color = MirrorLerp(from, to, scrubPos);
+                    }
+                    else
+                    {
+                        color = Lerp(from, to, scrubPos);
+                    }
+                    rawImage.color = color;
+                }
+                Color finalColor = rawImage.color;
+                finalColor = Lerp(from, to, 1f);
+                rawImage.color = finalColor;
+
+
+                if (iterations != 0)
+                {
+                    if (repeatStyle == RepeatStyle.PingPong)
+                    {
+                        mcp.coroutine = UtilObject().StartCoroutine(LerpRawImageColor(mcp, rawImage, from, duration, mirrorCurve, repeatStyle, --iterations, useTimeScale, onDone));
+                    }
+                    else if (repeatStyle == RepeatStyle.MirrorPingPong)
+                    {
+                        mcp.coroutine = UtilObject().StartCoroutine(LerpRawImageColor(mcp, rawImage, from, duration, !mirrorCurve, repeatStyle, --iterations, useTimeScale, onDone));
+                    }
+                    else if (repeatStyle == RepeatStyle.Loop)
+                    {
+                        rawImage.color = from;
+                        mcp.coroutine = UtilObject().StartCoroutine(LerpRawImageColor(mcp, rawImage, to, duration, mirrorCurve, repeatStyle, --iterations, useTimeScale, onDone));
+                    }
+                }
+                else
+                {
+                    CoroutineComplete(mcp, onDone);
+                }
+            }
+	        public Manipulation ChangeFill(Transform tform, float to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.Loop, int iterations = 0, bool useTimeScale = false, OnDone onDone = null)
 	        {
 		        Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Color, tform);
-		        if (tform.GetComponent<UnityEngine.UI.Image>())
+		        if (tform.TryGetComponent<UnityEngine.UI.Image>(out var image))
 		        {
-			        mcp.coroutine = UtilObject().StartCoroutine(LerpImageFill(mcp, tform.GetComponent<UnityEngine.UI.Image>(), to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
+			        return ChangeFill(image, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone);
 		        }
 		        else
 		        {
 		        	return null;
 		        }
-		        UtilObject().AddToCoroList(mcp);
-		        return mcp;
 	        }
-	        public Manipulation ChangeFill(UnityEngine.UI.Image img, float to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.Loop, int iterations = 0, bool useTimeScale = false, string matColorReference = "_Color", OnDone onDone = null)
+	        public Manipulation ChangeFill(UnityEngine.UI.Image img, float to, float duration, bool mirrorCurve = false, RepeatStyle repeatStyle = RepeatStyle.Loop, int iterations = 0, bool useTimeScale = false, OnDone onDone = null)
 	        {
 		        Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Color, img.transform);
 
@@ -1453,8 +1666,7 @@ namespace Wrj
 			        }
 			        image.fillAmount = fill;
 		        }
-		        float finalFill = image.fillAmount;
-		        finalFill = Lerp(from, to, 1f);
+		        float finalFill = Lerp(from, to, 1f);
 		        image.fillAmount = finalFill;
 
 
