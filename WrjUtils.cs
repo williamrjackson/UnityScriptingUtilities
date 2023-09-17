@@ -1,8 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
-using UnityEngine.Playables;
 using Color = UnityEngine.Color;
 
 namespace Wrj
@@ -226,7 +224,8 @@ namespace Wrj
                 "$1 $2"
             );
         }
-               /// <summary>
+
+        /// <summary>
         /// Determine if a command line argument is used by name
         /// </summary>
         /// <param name="name"></param>

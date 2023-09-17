@@ -8,10 +8,14 @@ public class MultiRename : ScriptableWizard
 
     [MenuItem("Edit/Multi Rename")]
     [MenuItem("GameObject/Multi Rename", false, 0)]
-    public static void CreateWizard()
+    public static void CreateWindow()
     {
-        var wizardWindow = ScriptableWizard.DisplayWizard("Multi Rename", typeof(MultiRename), "Okay", "Apply");
-        wizardWindow.minSize = new Vector2(300f, 150f);
+        FocusWindowIfItsOpen(typeof(MultiRename));
+        if (focusedWindow is not MultiRename)
+        {
+            var wizard = DisplayWizard("Multi Rename", typeof(MultiRename), "Okay", "Apply");
+            wizard.minSize = new Vector2(300f, 150f);
+        }
     }
 
     [MenuItem("Edit/Multi Rename", true)]

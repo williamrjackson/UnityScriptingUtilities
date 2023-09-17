@@ -1,29 +1,33 @@
 ﻿using UnityEngine;
-using UnityEngine.Events;
 
 namespace Wrj
 {
     public class ScreenSizeNotifier : MonoBehaviour
     {
-        public delegate void ScreenChangeDelegate(Vector3 dimensions);
+        public delegate void ScreenChangeWorldDelegate(Vector3 worldDimensions);
+        public delegate void ScreenChangeDelegate(Vector2 screenDimensions);
+        public delegate void ChangeDelegate();
+        public ScreenChangeWorldDelegate OnScreenChangeWorld;
         public ScreenChangeDelegate OnScreenChange;
+        public ChangeDelegate OnChange;
 
-        private Vector2 initialVectorTopRight;
-        private Vector2 initialVectorBottomLeft;
-        private Vector2 updatedVectorTopRight;
-        private Vector2 updatedVectorBottomLeft;
+        private int initialWidth;
+        private int initialHeight;
+        private int updatedWidth;
+        private int updatedHeight;
 	    private Camera mainCamera;
-	    public static Vector3 Dimensions 
+	    public static Vector3 ScreenDimensions => new Vector2(Screen.width, Screen.height);
+	    public static Vector3 WorldDimensions 
         {
             get 
             {
 	            if (!Application.isPlaying)
                 {
-                    return Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height,0));
+                    return Camera.main.ScreenToWorldPoint(ScreenDimensions);
                 }
                 else
                 {
-                    return Instance.mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height,0));
+                    return Instance.mainCamera.ScreenToWorldPoint(ScreenDimensions);
                 }
             }
         }
@@ -41,6 +45,7 @@ namespace Wrj
         {
             if (_instance == null)
             {
+                mainCamera = Camera.main;
                 _instance = this;
                 DontDestroyOnLoad(gameObject);
             }
@@ -52,25 +57,36 @@ namespace Wrj
 
         void Start()
         {
-            mainCamera = Camera.main;
-            updatedVectorBottomLeft = mainCamera.ScreenToWorldPoint(new Vector3(0, 0, 30));
-            updatedVectorTopRight = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 30));
+            updatedHeight = Screen.height;
+            updatedWidth = Screen.width;
         }
 
-        // Update is called once per frame
         void Update()
         {
-            updatedVectorBottomLeft = mainCamera.ScreenToWorldPoint(new Vector3(0, 0, 30));
-            updatedVectorTopRight = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 30));
+            updatedHeight = Screen.height;
+            updatedWidth = Screen.width;
 
-            if ((initialVectorBottomLeft != updatedVectorBottomLeft) || (initialVectorTopRight != updatedVectorTopRight))
+            if ((initialHeight != updatedHeight) || (initialWidth != updatedWidth))
             {
-                initialVectorBottomLeft = updatedVectorBottomLeft;
-                initialVectorTopRight = updatedVectorTopRight;
-                if (OnScreenChange != null)
-                {
-                    OnScreenChange(Dimensions);
-                }
+                initialHeight = updatedHeight;
+                initialWidth = updatedWidth;
+                Notify();
+            }
+        }
+        
+        void Notify()
+        {
+            if (OnScreenChangeWorld != null)
+            {
+                OnScreenChangeWorld(WorldDimensions);
+            }
+            if (OnScreenChange != null)
+            {
+                OnScreenChange(ScreenDimensions);
+            }
+            if (OnChange != null)
+            {
+                OnChange();
             }
         }
     }

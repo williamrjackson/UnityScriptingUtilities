@@ -14,13 +14,13 @@ namespace Wrj
 	    {
 		    if (Application.isPlaying)
 		    {
-			    Wrj.ScreenSizeNotifier.Instance.OnScreenChange += SetBorders;
+			    Wrj.ScreenSizeNotifier.Instance.OnScreenChangeWorld += SetBorders;
 		    }
         }
 #if UNITY_EDITOR
         void Update()
         {
-            SetBorders(ScreenSizeNotifier.Dimensions);
+            SetBorders(ScreenSizeNotifier.WorldDimensions);
         }
 #endif
         void SetBorders(Vector3 worldDimensions)
