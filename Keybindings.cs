@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Events;
 
 namespace Wrj
@@ -9,13 +11,49 @@ namespace Wrj
         private bool quitOnEsc = true;
         [SerializeField]
         private bool fullScreenOnF11 = true;
-		public ButtonKeyCommand[] buttonKeys;
-		public ToggleKeyCommand[] toggleKeys;
-		public ActionKeyCommand[] actionKeys;
-		public HierarchyToggles[] objectEnableKeys;
+        [SerializeField]
+        private ButtonKeyCommand[] buttonKeys;
+        [SerializeField]
+        private ToggleKeyCommand[] toggleKeys;
+        [SerializeField]
+        private ActionKeyCommand[] actionKeys;
+        [SerializeField]
+        private HierarchyToggles[] objectEnableKeys;
 
-		void Update() 
+		private List<KeyCommand> _keyCommands;
+
+        public void Add(KeyCommand keyCommand)
+        {
+            _keyCommands.Add(keyCommand);
+            _keyCommands.Sort();
+        }
+
+        private void Awake()
+        {
+			_keyCommands = new List<KeyCommand>();
+			foreach (var item in buttonKeys)
+			{
+				_keyCommands.Add(item);
+			}
+			foreach (var item in toggleKeys)
+			{
+				_keyCommands.Add(item);
+			}
+			foreach (var item in actionKeys)
+			{
+				_keyCommands.Add(item);
+			}
+			foreach (var item in objectEnableKeys)
+			{
+				_keyCommands.Add(item);
+			}
+			_keyCommands.Sort();
+        }
+
+        void Update() 
 		{
+			KeyCommand.NewFrame();
+
 			foreach (ActionKeyCommand actionKey in actionKeys)
 			{
 				if (actionKey.onKeyUp && Input.GetKeyUp(actionKey.key))
@@ -40,45 +78,19 @@ namespace Wrj
 				Screen.fullScreen = !Screen.fullScreen;
 			}
 
-			foreach (ActionKeyCommand actionKey in actionKeys)
+			foreach (KeyCommand keyCommand in _keyCommands)
 			{
-				if (Input.GetKeyDown(actionKey.key))
+				if (Input.GetKeyDown(keyCommand.key))
 				{
-					if (!actionKey.ModifierQualified()) continue;
-					actionKey.Invoke();
-				}
-			}
-			foreach (ButtonKeyCommand buttonKey in buttonKeys)
-			{
-				if (Input.GetKeyDown(buttonKey.key))
-				{
-					if (!buttonKey.ModifierQualified()) continue;
-					buttonKey.Invoke();
-				}
-			}
-
-			foreach (ToggleKeyCommand toggleKey in toggleKeys)
-			{
-				if (Input.GetKeyDown(toggleKey.key))
-				{
-					if (!toggleKey.ModifierQualified()) continue;
-					toggleKey.Invoke();
-				}
-			}
-
-			foreach (HierarchyToggles hierarchyKey in objectEnableKeys)
-			{
-				if (Input.GetKeyDown(hierarchyKey.key))
-				{
-					if (!hierarchyKey.ModifierQualified()) continue;
-					hierarchyKey.Invoke();
+					if (!keyCommand.ModifierQualified()) continue;
+                    keyCommand.Invoke();
 				}
 			}
 		}
 
 
-		[System.Serializable]
-		public class KeyCommand
+		[Serializable]
+		public class KeyCommand : IComparable<KeyCommand>
         {
 			public KeyCode key;
 			[Header("Modifier Keys")]
@@ -87,8 +99,10 @@ namespace Wrj
 			public bool alt;
 			public bool win;
 
+			private static List<KeyCode> rejections = new List<KeyCode>();
 			public bool ModifierQualified()
 			{
+				if (rejections.Contains(key)) return false;
                 // If no modifiers are required, ignore all modifier states
                 if (!ctrl && !shift && !alt && !win) return true;
 
@@ -98,36 +112,63 @@ namespace Wrj
 				bool winState = (Input.GetKey(KeyCode.LeftWindows) || Input.GetKey(KeyCode.RightWindows));
 				
                 // Return true if all states match requirements
+				
 				return (shiftState == shift &&
                         ctrlState == ctrl &&
                         altState == alt &&
                         winState == win);
 			}
+			public static void NewFrame()
+			{
+				if (rejections == null)
+				{
+					rejections = new List<KeyCode>();
+				}
+				rejections.Clear();
+			}
+			public virtual void Invoke()
+			{
+				rejections.Add(key);
+			}
+			public int ModifierCount()
+			{
+				int count = 0;
+				if (ctrl) count++;
+				if (shift) count++;
+				if (alt) count++;
+				if (win) count++;
+				return count;
+			}
 
-			public virtual void Invoke() { }
+            public int CompareTo(KeyCommand other)
+            {
+				if (ModifierCount() == other.ModifierCount()) return 0;
+				return (ModifierCount() > other.ModifierCount()) ? -1 : 1;
+            }
+        }
 
-		}
-
-		[System.Serializable]
+		[Serializable]
 		public class ButtonKeyCommand : KeyCommand
 		{
 			[Header("Action")]
 			public UnityEngine.UI.Button button;
             public override void Invoke()
             {
+				base.Invoke();
 				if (button != null && button.interactable)
 				{
 					button.onClick.Invoke();
 				}
 			}
         }
-		[System.Serializable]
+		[Serializable]
 		public class ToggleKeyCommand : KeyCommand
 		{
 			[Header("Action")]
 			public UnityEngine.UI.Toggle toggle;
             public override void Invoke()
             {
+				base.Invoke();
 				if (toggle != null && toggle.interactable)
 				{
 					toggle.isOn = !toggle.isOn;
@@ -135,7 +176,7 @@ namespace Wrj
 
 			}
 		}
-		[System.Serializable]
+		[Serializable]
 		public class ActionKeyCommand : KeyCommand
 		{
 			public bool onKeyUp = false;
@@ -143,17 +184,18 @@ namespace Wrj
 			public UnityEvent action;
             public override void Invoke()
             {
+				base.Invoke();
 				action.Invoke();
 			}
 		}
-		[System.Serializable]
-
+		[Serializable]
 		public class HierarchyToggles : KeyCommand
 		{
 			[Header("Action")]
 			public GameObject gameObject;
             public override void Invoke()
             {
+				base.Invoke();
 				gameObject.ToggleActive();
 			}
 		}
