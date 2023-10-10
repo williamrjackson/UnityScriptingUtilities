@@ -20,46 +20,74 @@ namespace Wrj
         [SerializeField]
         private HierarchyToggles[] objectEnableKeys;
 
+		public bool logKeys = false;
+
 		private List<KeyCommand> _keyCommands;
+        private List<ActionKeyCommand> _keyUps;
 
         public void Add(KeyCommand keyCommand)
         {
-            _keyCommands.Add(keyCommand);
-            _keyCommands.Sort();
+			if (keyCommand is ActionKeyCommand && ((ActionKeyCommand)keyCommand).onKeyUp)
+			{
+				_keyUps.Add((ActionKeyCommand)keyCommand);
+			}
+			else
+			{
+	            _keyCommands.Add(keyCommand);
+			}
+			Prioritize();
         }
 
         private void Awake()
         {
-			_keyCommands = new List<KeyCommand>();
-			foreach (var item in buttonKeys)
-			{
-				_keyCommands.Add(item);
-			}
-			foreach (var item in toggleKeys)
-			{
-				_keyCommands.Add(item);
-			}
-			foreach (var item in actionKeys)
-			{
-				_keyCommands.Add(item);
-			}
-			foreach (var item in objectEnableKeys)
-			{
-				_keyCommands.Add(item);
-			}
-			_keyCommands.Sort();
+            _keyCommands = new List<KeyCommand>();
+			_keyUps = new List<ActionKeyCommand>();
+            foreach (var item in buttonKeys)
+            {
+                _keyCommands.Add(item);
+            }
+            foreach (var item in toggleKeys)
+            {
+                _keyCommands.Add(item);
+            }
+            foreach (var item in actionKeys)
+            {
+				if (item.onKeyUp)
+				{
+					_keyUps.Add(item);
+				}
+				else
+				{
+	                _keyCommands.Add(item);
+				}
+            }
+            foreach (var item in objectEnableKeys)
+            {
+                _keyCommands.Add(item);
+            }
+			Prioritize();
+        }
+
+		private void Prioritize()
+		{
+            _keyCommands.Sort();
+			_keyUps.Sort();
         }
 
         void Update() 
 		{
 			KeyCommand.NewFrame();
 
-			foreach (ActionKeyCommand actionKey in actionKeys)
+			foreach (ActionKeyCommand keyUp in _keyUps)
 			{
-				if (actionKey.onKeyUp && Input.GetKeyUp(actionKey.key))
+				if (Input.GetKeyUp(keyUp.key))
 				{
-					if (!actionKey.ModifierQualified()) continue;
-					actionKey.Invoke();
+					if (!keyUp.ModifierQualified()) continue;
+					if (logKeys)
+					{
+						Debug.Log(keyUp.ToString());
+					}
+                    keyUp.Invoke();
 				}
 			}
 
@@ -83,13 +111,16 @@ namespace Wrj
 				if (Input.GetKeyDown(keyCommand.key))
 				{
 					if (!keyCommand.ModifierQualified()) continue;
+                    if (logKeys)
+                    {
+                        Debug.Log(keyCommand.ToString());
+                    }
                     keyCommand.Invoke();
 				}
 			}
 		}
 
-
-		[Serializable]
+        [Serializable]
 		public class KeyCommand : IComparable<KeyCommand>
         {
 			public KeyCode key;
@@ -106,17 +137,17 @@ namespace Wrj
                 // If no modifiers are required, ignore all modifier states
                 if (!ctrl && !shift && !alt && !win) return true;
 
-				bool shiftState = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
-				bool ctrlState = (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl));
-				bool altState = (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt));
-				bool winState = (Input.GetKey(KeyCode.LeftWindows) || Input.GetKey(KeyCode.RightWindows));
+				bool shiftState =	Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+				bool ctrlState =	Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+				bool altState =		Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
+				bool winState =		Input.GetKey(KeyCode.LeftWindows) || Input.GetKey(KeyCode.RightWindows)
+								 || Input.GetKey(KeyCode.LeftApple) || Input.GetKey(KeyCode.RightApple);
 				
                 // Return true if all states match requirements
-				
-				return (shiftState == shift &&
-                        ctrlState == ctrl &&
-                        altState == alt &&
-                        winState == win);
+				return shiftState == shift &&
+                       ctrlState == ctrl &&
+                       altState == alt &&
+                       winState == win;
 			}
 			public static void NewFrame()
 			{
@@ -145,6 +176,16 @@ namespace Wrj
 				if (ModifierCount() == other.ModifierCount()) return 0;
 				return (ModifierCount() > other.ModifierCount()) ? -1 : 1;
             }
+            public override string ToString()
+            {
+				string id = string.Empty;
+                if (ctrl) id += "CTRL+";
+                if (shift) id += "SHIFT+";
+                if (alt) id += "ALT+";
+                if (win) id += "WIN+";
+				id += Enum.GetName(typeof(KeyCode), key);
+                return id;
+            }
         }
 
 		[Serializable]
@@ -154,12 +195,17 @@ namespace Wrj
 			public UnityEngine.UI.Button button;
             public override void Invoke()
             {
-				base.Invoke();
+                if (button == null) return;
+                base.Invoke();
 				if (button != null && button.interactable)
 				{
 					button.onClick.Invoke();
 				}
 			}
+            public override string ToString()
+            {
+				return $"{base.ToString()}: [Button] {button.name}";
+            }
         }
 		[Serializable]
 		public class ToggleKeyCommand : KeyCommand
@@ -168,15 +214,19 @@ namespace Wrj
 			public UnityEngine.UI.Toggle toggle;
             public override void Invoke()
             {
-				base.Invoke();
+                if (toggle == null) return;
+                base.Invoke();
 				if (toggle != null && toggle.interactable)
 				{
 					toggle.isOn = !toggle.isOn;
 				}
-
 			}
-		}
-		[Serializable]
+            public override string ToString()
+            {
+                return $"{base.ToString()}: [Toggle] {toggle.name}";
+            }
+        }
+        [Serializable]
 		public class ActionKeyCommand : KeyCommand
 		{
 			public bool onKeyUp = false;
@@ -184,20 +234,42 @@ namespace Wrj
 			public UnityEvent action;
             public override void Invoke()
             {
+				if (action == null) return;
 				base.Invoke();
 				action.Invoke();
 			}
-		}
-		[Serializable]
+            public override string ToString()
+            {
+                string result = $"{base.ToString()}: [Events";
+				if (onKeyUp) result += " (On Key Up)";
+				result += "]";
+                int eventCount = action.GetPersistentEventCount();
+				if (eventCount < 1) return result;
+				result += $"\n";
+
+                for (int i = 0; i < eventCount; i++)
+				{
+					result += $"{action.GetPersistentTarget(i)}.{action.GetPersistentMethodName(i)}";
+					if (i < eventCount - 1) result += "\n";
+				}
+                return result;
+            }
+        }
+        [Serializable]
 		public class HierarchyToggles : KeyCommand
 		{
 			[Header("Action")]
 			public GameObject gameObject;
             public override void Invoke()
             {
-				base.Invoke();
+                if (gameObject == null) return;
+                base.Invoke();
 				gameObject.ToggleActive();
 			}
-		}
+            public override string ToString()
+            {
+                return $"{base.ToString()}: [ToggleActive] {gameObject.name}";
+            }
+        }
     }
 }
