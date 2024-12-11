@@ -365,34 +365,47 @@ class SwatchEditorWindow : EditorWindow
         }
         else
         {
-            var coolorsCode = code.Split(new string[] { "/*" }, StringSplitOptions.None);
-            foreach (var item in coolorsCode)
+            string[] paletteTagLines = ExtractTagLines("palette", code);
+            Debug.Log($"palette tag line count: {paletteTagLines.Length}");
+            if (paletteTagLines.Length == 0)
             {
-                if (item.StartsWith(" Object"))
+                return false;
+            }
+            colors = new CoolorsPaletteObject[paletteTagLines.Length];
+            for (int i = 0; i < paletteTagLines.Length; i++)
+            {
+                colors[i] = new CoolorsPaletteObject(ExtractValueByName(paletteTagLines[i], "name"));
+                if (!ColorUtility.TryParseHtmlString("#" + ExtractValueByName(paletteTagLines[i], "hex"), out colors[i].color))
                 {
-                    string block = item;
-                    block = block.Replace(" Object */", "");
-                    block = block.Replace("{", "");
-                    block = block.Replace("}", "");
-                    block = block.Replace("\"", "");
-                    var colorSetArray = block.Split(new string[] { "," }, StringSplitOptions.None);
-                    colors = new CoolorsPaletteObject[colorSetArray.Length];
-                    for (int i = 0; i < colorSetArray.Length; i++)
-                    {
-                        var nameColor = colorSetArray[i].Split(':');
-                        colors[i] = new CoolorsPaletteObject(nameColor[0].Trim());
-                        if (!ColorUtility.TryParseHtmlString("#" + nameColor[1].Trim().Substring(0, 6), out colors[i].color))
-                        {
-                            return false;
-                        }
-                    }
-                    return true;
+                    return false;
                 }
             }
+            return true;
         }
         return false;
     }
+    private string[] ExtractTagLines(string tag, string code)
+    {
+        var startTag = $"<{tag}>";
+        var endTag = $"</{tag}>";
+        var startIndex = code.IndexOf(startTag) + startTag.Length;
+        var endIndex = code.IndexOf(endTag);
 
+        if (startIndex < startTag.Length || endIndex == -1 || startIndex >= endIndex)
+        {
+            return new string[0];
+        }
+
+        var tagContent = code.Substring(startIndex, endIndex - startIndex).Trim();
+        var lines = tagContent.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+        return lines;
+    }
+    public string ExtractValueByName(string line, string attributeName)
+    {
+        var regex = new Regex($"{attributeName}=\"([^\"]*)\"");
+        var match = regex.Match(line);
+        return match.Success ? match.Groups[1].Value : null;
+    }
     private void ProduceGradient()
     {
         GradientColorKey[] colorKeys = new GradientColorKey[Math.Min(colors.Length, 8)];
