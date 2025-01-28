@@ -1,4 +1,4 @@
-﻿#if UNITY_STANDALONE_WIN
+#if UNITY_STANDALONE_WIN && NET_4_6
 using System.IO.Ports;
 #endif
 using UnityEngine;
@@ -11,7 +11,7 @@ namespace Wrj
 {
     public class ArduinoSerialCommunication : MonoBehaviour
     {
-#if UNITY_STANDALONE_WIN
+#if UNITY_STANDALONE_WIN && NET_4_6
         [SerializeField]
         private BaudRates BaudRate = BaudRates._9600;
         [SerializeField]
