@@ -3,7 +3,7 @@
 Stuff I use a lot, and a simple AnimationCurve-based tweening interface.   
 
 Add to projects using Package Manager git url:  
-`https://github.com/williamrjackson/UnityScriptingUtilities.git#v1.6.8`   
+`https://github.com/williamrjackson/UnityScriptingUtilities.git#v1.6.9`   
 OR   
 `https://github.com/williamrjackson/UnityScriptingUtilities.git#v1.6`
 
