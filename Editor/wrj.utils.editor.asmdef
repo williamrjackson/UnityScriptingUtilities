@@ -2,7 +2,8 @@
     "name": "wrj.utils.editor",
     "rootNamespace": "Wrj",
     "references": [
-        "wrj.utils"
+        "wrj.utils",
+        "Unity.Recorder.Editor"
     ],
     "includePlatforms": [
         "Editor"
@@ -13,6 +14,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.recorder",
+            "expression": "",
+            "define": "RECORDER_AVAILABLE"
+        }
+    ],
     "noEngineReferences": false
 }

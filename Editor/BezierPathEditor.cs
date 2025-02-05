@@ -19,7 +19,7 @@ namespace Wrj
 
         private static void UndoRedoPerformed()
         {
-            foreach ( BezierPath path in FindObjectsOfType<BezierPath>())
+            foreach ( BezierPath path in FindObjectsByType(typeof(BezierPath), FindObjectsSortMode.None))
             {
                 path.RefreshChildIndices();
             }

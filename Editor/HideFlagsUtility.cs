@@ -7,7 +7,7 @@ public static class HideFlagsUtility
     [MenuItem("Edit/Hide Flags/Show All In Hierarchy")]
     private static void ShowAll()
     {
-        var allGameObjects = Object.FindObjectsOfType<GameObject>();
+        var allGameObjects = Editor.FindObjectsByType(typeof(GameObject), FindObjectsSortMode.None);
         List<Object> newSelection = new List<Object>();
         int shown = 0;
         foreach (var go in allGameObjects)
@@ -39,7 +39,7 @@ public static class HideFlagsUtility
     [MenuItem("Edit/Hide Flags/Log Hidden Objects")]
     private static void LogHidden()
     {
-        var allGameObjects = Object.FindObjectsOfType<GameObject>();
+        var allGameObjects = Editor.FindObjectsByType(typeof(GameObject), FindObjectsSortMode.None);
         int hiddenFound = 0;
 
         foreach (var go in allGameObjects)

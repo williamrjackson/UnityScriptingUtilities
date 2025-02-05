@@ -382,7 +382,6 @@ class SwatchEditorWindow : EditorWindow
             }
             return true;
         }
-        return false;
     }
     private string[] ExtractTagLines(string tag, string code)
     {
