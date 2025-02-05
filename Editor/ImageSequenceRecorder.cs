@@ -52,6 +52,9 @@ namespace Wrj
             };
 
             // Setup Recording
+            recorderController.Settings.FrameRate = framerate;
+            recorderController.Settings.FrameRatePlayback = FrameRatePlayback.Constant;
+            recorderController.Settings.CapFrameRate = true;
             recorderController.Settings.AddRecorderSettings(imageRecorder);
             recorderController.Settings.SetRecordModeToManual();
             RecorderOptions.VerboseMode = false;
