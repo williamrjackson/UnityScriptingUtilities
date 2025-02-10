@@ -79,6 +79,8 @@ namespace Wrj
             if (m_RecorderController != null && m_RecorderController.IsRecording())
             {
                 m_RecorderController.StopRecording();
+                Destroy(m_RecorderController);
+                m_RecorderController = null;
             }
     #endif
         }
