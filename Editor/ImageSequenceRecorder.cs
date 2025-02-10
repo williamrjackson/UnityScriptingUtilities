@@ -29,12 +29,17 @@ namespace Wrj
         static public void StartRecording(string recordingName, int framerate = 30)
         {
     #if UNITY_EDITOR && RECORDER_AVAILABLE
-            StopRecording();
+            if (m_RecorderController != null && m_RecorderController.IsRecording())
+            {
+                Debug.Log($"Stopping {m_RecorderController.Settings.name}.");
+                StopRecording();
+            }
 
             var mediaOutputFolder = Path.Combine(Application.dataPath, "..", "Recordings");
+            mediaOutputFolder = Path.GetFullPath(Path.Combine(mediaOutputFolder, recordingName));
             // Image Sequence
             var imageRecorder = ScriptableObject.CreateInstance<ImageRecorderSettings>();
-            imageRecorder.name = "ImageSequenceRecorder";
+            imageRecorder.name = recordingName;
             imageRecorder.Enabled = true;
 
             imageRecorder.OutputFormat = ImageRecorderSettings.ImageRecorderOutputFormat.PNG;
@@ -52,13 +57,16 @@ namespace Wrj
             };
 
             // Setup Recording
+            recorderController.Settings.name = recordingName;
             recorderController.Settings.FrameRate = framerate;
             recorderController.Settings.FrameRatePlayback = FrameRatePlayback.Constant;
             recorderController.Settings.CapFrameRate = true;
             recorderController.Settings.AddRecorderSettings(imageRecorder);
             recorderController.Settings.SetRecordModeToManual();
             RecorderOptions.VerboseMode = false;
-                        
+            
+            Debug.Log($"Starting Recording: {mediaOutputFolder}");
+            
             try 
             {
                 recorderController.PrepareRecording();
@@ -79,7 +87,6 @@ namespace Wrj
             if (m_RecorderController != null && m_RecorderController.IsRecording())
             {
                 m_RecorderController.StopRecording();
-                Destroy(m_RecorderController);
                 m_RecorderController = null;
             }
     #endif
