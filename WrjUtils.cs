@@ -90,6 +90,29 @@ namespace Wrj
         {
             return Mathf.Lerp(destMin, destMax, Mathf.InverseLerp(sourceMin, sourceMax, value));
         }
+        
+        public static float LoopedNoise(float radius, float time, float offset = 0f)
+        {
+            time = Mathf.Repeat(time, 1f);
+            float noiseX = radius * Mathf.Cos(time * 2f * Mathf.PI);
+            float noiseY = radius * Mathf.Sin(time * 2f * Mathf.PI);
+            return Mathf.PerlinNoise(noiseX + offset, noiseY + offset);
+        }
+        public static Vector2 LoopedNoiseV2(float radius, float time)
+        {
+            time = Mathf.Repeat(time, 1f);
+            float x = LoopedNoise(radius, time, 0f);
+            float y = LoopedNoise(radius, time, radius * 2f);
+            return new Vector2(x, y);
+        }
+        public static Vector3 LoopedNoiseV3(float radius, float time)
+        {
+            time = Mathf.Repeat(time, 1f);
+            float x = LoopedNoise(radius, time, 0f);
+            float y = LoopedNoise(radius, time, radius * 2f);
+            float z = LoopedNoise(radius, time, radius * 4f);
+            return new Vector3(x, y, z);
+        }
 
         /// Get an array of points representing a quadratic bezier curve.
         /// https://upload.wikimedia.org/wikipedia/commons/3/3d/B%C3%A9zier_2_big.gif
