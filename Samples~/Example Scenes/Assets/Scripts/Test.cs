@@ -21,6 +21,8 @@ namespace Wrj
         public Transform weight5;
         public Transform weight3;
         public Transform weight1;
+        public AudioPool audioPool;
+        public AudioClip[] audioClips;
         private WeightedElements<Transform> randomBumpObjects = new WeightedElements<Transform>();
         void Start()
         {
