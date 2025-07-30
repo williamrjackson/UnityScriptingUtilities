@@ -97,7 +97,7 @@ public class MultiRename : ScriptableWizard
     {
         helpString = "Use \"{parent}\", \"{scene}\", \"{project}\", \"{tag}\", or \"{layer}\" in the new token to include those values.\n\n" +
                      "If old token is empty, it will rename all selected objects to the new token.\n\n" +
-                     "If old token is \"*\", it will replace the name of each selected object with the new token, keeping the original name intact.";
+                     "If old token is \"*\", it will add the new token to each selected object, keeping the original name intact.";
         // Only try to do this once or if selection has changed
         if (!_hasPrePopulated)
         {
