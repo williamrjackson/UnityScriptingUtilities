@@ -36,10 +36,57 @@ public class MultiRename : ScriptableWizard
         foreach (var selectedObject in Selection.gameObjects)
         {
             string objName = selectedObject.name;
-            if (objName.Contains(oldToken))
+            string replacement = newToken;
+            if (replacement.Contains("{parent}"))
+            {
+                // Replace {parent} with the parent name
+                string parentName = selectedObject.transform.parent ? selectedObject.transform.parent.name : "Root";
+                replacement = replacement.Replace("{parent}", parentName);
+            }
+            if (replacement.Contains("{scene}"))
+            {
+                // Replace {scene} with the scene name
+                string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+                replacement = replacement.Replace("{scene}", sceneName);
+            }
+            if (replacement.Contains("{project}"))
+            {
+                // Replace {project} with the project name
+                string projectName = Application.productName;
+                replacement = replacement.Replace("{project}", projectName);
+            }
+            if (replacement.Contains("{tag}"))
+            {
+                // Replace {tag} with the object's tag
+                string tagName = selectedObject.tag;
+                replacement = replacement.Replace("{tag}", tagName);
+            }
+            if (replacement.Contains("{layer}"))
+            {
+                // Replace {layer} with the object's layer
+                string layerName = LayerMask.LayerToName(selectedObject.layer);
+                replacement = replacement.Replace("{layer}", layerName);
+            }
+
+            if (string.IsNullOrEmpty(oldToken))
             {
                 Undo.RecordObject(selectedObject, "Multi Rename");
-                selectedObject.name = objName.Replace(oldToken, newToken);
+                selectedObject.name = replacement;
+            }
+            else if (objName.Contains(oldToken))
+            {
+                Undo.RecordObject(selectedObject, "Multi Rename");
+                selectedObject.name = objName.Replace(oldToken, replacement);
+            }
+            else if (oldToken == "*")
+            {
+                Undo.RecordObject(selectedObject, "Multi Rename");
+                if (!replacement.Contains("*"))
+                {
+                    replacement = "*" + replacement; // Ensure replacement contains '*'
+                }
+                replacement = replacement.Replace("*", selectedObject.name);
+                selectedObject.name = objName.Replace(selectedObject.name, replacement);
             }
         }
     }
@@ -48,8 +95,11 @@ public class MultiRename : ScriptableWizard
     bool _hasChangeListener = false;
     void OnWizardUpdate()
     {
+        helpString = "Use \"{parent}\", \"{scene}\", \"{project}\", \"{tag}\", or \"{layer}\" in the new token to include those values.\n\n" +
+                     "If old token is empty, it will rename all selected objects to the new token.\n\n" +
+                     "If old token is \"*\", it will replace the name of each selected object with the new token, keeping the original name intact.";
         // Only try to do this once or if selection has changed
-        if (!_hasPrePopulated) 
+        if (!_hasPrePopulated)
         {
             _hasPrePopulated = true;
             PrePopulateOld();
@@ -62,7 +112,7 @@ public class MultiRename : ScriptableWizard
                 PrePopulateOld();
             };
         }
-        if (string.IsNullOrEmpty(oldToken)) isValid = false;
+        if (string.IsNullOrEmpty(newToken) && string.IsNullOrEmpty(oldToken)) isValid = false;
         else isValid = true;
     }
 
