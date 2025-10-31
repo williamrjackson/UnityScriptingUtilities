@@ -4,7 +4,7 @@ Stuff I use a lot, and a simple AnimationCurve-based tweening interface.
 
 Add to projects using Package Manager git url:  
 ```
-https://github.com/williamrjackson/UnityScriptingUtilities.git#v1.6.19
+https://github.com/williamrjackson/UnityScriptingUtilities.git#v1.6.20
 ```
 OR   
 ```
