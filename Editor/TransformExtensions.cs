@@ -94,46 +94,74 @@ public static class TransformExtensions
     }
 
     // Preserve area while matching texture aspect: scales both X and Y so width/height == aspect and area stays constant in world space
-    [MenuItem("CONTEXT/Transform/Scale Both To Aspect (Preserve Area)")]
+    // If no texture, preserves volume by equalizing all axes (resets distorted spheres to original shape)
+    [MenuItem("CONTEXT/Transform/Scale All (Preserve Aspect Area or Volume)")]
     static void ScaleBothPreserveArea(MenuCommand command)
     {
         Transform tform = (Transform)command.context;
         var renderer = tform.GetComponent<Renderer>();
         if (renderer == null) return;
 
-        float aspect = GetAspect(renderer); // w/h
-        if (aspect <= 0f) return;
-
-        // Current world size from bounds
-        var size = renderer.bounds.size;
-        float worldW = Mathf.Max(1e-6f, size.x);
-        float worldH = Mathf.Max(1e-6f, size.y);
-        float area = worldW * worldH;
-
-        float desiredWorldW = Mathf.Sqrt(area * aspect);
-        float desiredWorldH = desiredWorldW / aspect;
-
-        // Convert world sizes back to local scales using parent factors
         Vector3 lossy = tform.lossyScale;
         Vector3 local = tform.localScale;
-        float parentScaleX = Mathf.Approximately(local.x, 0f) ? 1f : (lossy.x / local.x);
-        float parentScaleY = Mathf.Approximately(local.y, 0f) ? 1f : (lossy.y / local.y);
+        var size = renderer.bounds.size;
 
-        float newLocalX = desiredWorldW / parentScaleX;
-        float newLocalY = desiredWorldH / parentScaleY;
+        bool hasTexture = renderer.sharedMaterial != null && renderer.sharedMaterial.mainTexture != null;
+
+        float newLocalX, newLocalY, newLocalZ;
+
+        if (hasTexture)
+        {
+            // Texture mode: preserve X×Y area, match aspect, leave Z unchanged
+            float aspect = GetAspect(renderer); // w/h
+            if (aspect <= 0f) return;
+
+            float worldW = Mathf.Max(1e-6f, size.x);
+            float worldH = Mathf.Max(1e-6f, size.y);
+            float area = worldW * worldH;
+
+            float desiredWorldW = Mathf.Sqrt(area * aspect);
+            float desiredWorldH = desiredWorldW / aspect;
+
+            float parentScaleX = Mathf.Approximately(local.x, 0f) ? 1f : (lossy.x / local.x);
+            float parentScaleY = Mathf.Approximately(local.y, 0f) ? 1f : (lossy.y / local.y);
+
+            newLocalX = desiredWorldW / parentScaleX;
+            newLocalY = desiredWorldH / parentScaleY;
+            newLocalZ = local.z;
+        }
+        else
+        {
+            // No texture: preserve volume by distributing evenly across all axes (resets to cube/sphere shape)
+            float worldW = Mathf.Max(1e-6f, size.x);
+            float worldH = Mathf.Max(1e-6f, size.y);
+            float worldD = Mathf.Max(1e-6f, size.z);
+            float volume = worldW * worldH * worldD;
+
+            // Each axis gets the cube root of the volume (uniform scaling)
+            float desiredWorldDim = Mathf.Pow(volume, 1f/3f);
+
+            float parentScaleX = Mathf.Approximately(local.x, 0f) ? 1f : (lossy.x / local.x);
+            float parentScaleY = Mathf.Approximately(local.y, 0f) ? 1f : (lossy.y / local.y);
+            float parentScaleZ = Mathf.Approximately(local.z, 0f) ? 1f : (lossy.z / local.z);
+
+            newLocalX = desiredWorldDim / parentScaleX;
+            newLocalY = desiredWorldDim / parentScaleY;
+            newLocalZ = desiredWorldDim / parentScaleZ;
+        }
 
         Undo.RecordObject(tform, "Scale Both To Aspect (Preserve Area)");
-        tform.localScale = new Vector3(newLocalX, newLocalY, local.z);
+        tform.localScale = new Vector3(newLocalX, newLocalY, newLocalZ);
         EditorUtility.SetDirty(tform);
     }
 
     // Open an editor window to set a target world width/height (meters), maintaining texture aspect
-    [MenuItem("CONTEXT/Transform/Set World Width (m)...")]
+    [MenuItem("CONTEXT/Transform/Set World Width...")]
     static void SetWorldWidth(MenuCommand command)
     {
         WorldSizeSetter.Open((Transform)command.context, WorldSizeSetter.Mode.Width);
     }
-    [MenuItem("CONTEXT/Transform/Set World Height (m)...")]
+    [MenuItem("CONTEXT/Transform/Set World Height...")]
     static void SetWorldHeight(MenuCommand command)
     {
         WorldSizeSetter.Open((Transform)command.context, WorldSizeSetter.Mode.Height);
@@ -168,14 +196,6 @@ public class WorldSizeSetter : EditorWindow
             return;
         }
 
-        var renderer = target.GetComponent<Renderer>();
-        if (!renderer || renderer.sharedMaterial == null || renderer.sharedMaterial.mainTexture == null)
-        {
-            EditorGUILayout.HelpBox("Target requires a Renderer with a mainTexture.", MessageType.Error);
-            if (GUILayout.Button("Close")) Close();
-            return;
-        }
-
         EditorGUILayout.LabelField("Target", target.name);
         valueMeters = EditorGUILayout.FloatField(mode == Mode.Width ? "World Width (m)" : "World Height (m)", valueMeters);
         if (valueMeters <= 0f) valueMeters = 0.001f;
@@ -196,31 +216,33 @@ public class WorldSizeSetter : EditorWindow
 
     void Apply()
     {
-        var renderer = target.GetComponent<Renderer>();
-        float aspect = TransformExtensions.GetAspect(renderer);
-
         Vector3 lossy = target.lossyScale;
         Vector3 local = target.localScale;
-        float parentScaleX = Mathf.Approximately(local.x, 0f) ? 1f : (lossy.x / local.x);
-        float parentScaleY = Mathf.Approximately(local.y, 0f) ? 1f : (lossy.y / local.y);
 
-        float desiredWorldW, desiredWorldH;
+        // Compute uniform scale factor based on the dimension being changed
+        float scaleFactor;
         if (mode == Mode.Width)
         {
-            desiredWorldW = valueMeters;
-            desiredWorldH = valueMeters / Mathf.Max(1e-6f, aspect);
+            float currentWorldWidth = lossy.x;
+            scaleFactor = valueMeters / Mathf.Max(1e-6f, currentWorldWidth);
         }
-        else
+        else // Height
         {
-            desiredWorldH = valueMeters;
-            desiredWorldW = valueMeters * Mathf.Max(1e-6f, aspect);
+            float currentWorldHeight = lossy.y;
+            scaleFactor = valueMeters / Mathf.Max(1e-6f, currentWorldHeight);
         }
 
-        float newLocalX = desiredWorldW / parentScaleX;
-        float newLocalY = desiredWorldH / parentScaleY;
+        // Apply uniform scaling to all axes in world space, then convert to local
+        float parentScaleX = Mathf.Approximately(local.x, 0f) ? 1f : (lossy.x / local.x);
+        float parentScaleY = Mathf.Approximately(local.y, 0f) ? 1f : (lossy.y / local.y);
+        float parentScaleZ = Mathf.Approximately(local.z, 0f) ? 1f : (lossy.z / local.z);
+
+        float newLocalX = (lossy.x * scaleFactor) / parentScaleX;
+        float newLocalY = (lossy.y * scaleFactor) / parentScaleY;
+        float newLocalZ = (lossy.z * scaleFactor) / parentScaleZ;
 
         Undo.RecordObject(target, mode == Mode.Width ? "Set World Width" : "Set World Height");
-        target.localScale = new Vector3(newLocalX, newLocalY, local.z);
+        target.localScale = new Vector3(newLocalX, newLocalY, newLocalZ);
         EditorUtility.SetDirty(target);
     }
 }
