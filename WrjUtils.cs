@@ -170,9 +170,41 @@ namespace Wrj
         ///
         /// Usage:
         /// DeferredExecution(3f, () => Debug.Log("This is a test"));
-        public static void DeferredExecution(float delay, System.Action methodWithParameters)
+        /// 
+        public static void DeferredExecution(float delayInSeconds, System.Action callback)
         {
-            MapToCurve.Linear.Delay(delay, methodWithParameters);
+            MapToCurve.Linear.Delay(delayInSeconds, callback);
+        }
+        public static void DeferToFrame(int frameCount, System.Action callback)
+        {
+            MapToCurve.Linear.DelayByFrames(frameCount, callback);
+        }
+        public static void DeferToFrame(System.Action callback)
+        {
+            MapToCurve.Linear.DelayByFrames(1, callback);
+        }
+
+        public static DelayedAction After(float seconds) => new DelayedAction(seconds);
+        public static DelayedAction After(int frameCount) => new DelayedAction(frameCount);
+
+        public class DelayedAction
+        {
+            private float delay;
+            private int frameDelay = 0;
+            public DelayedAction(float delay) { this.delay = delay; }
+            public DelayedAction(int frameCount) { this.frameDelay = frameCount; }
+
+            public void Do(System.Action callback)
+            {
+                if (frameDelay > 0)
+                {
+                    DeferToFrame(frameDelay, callback);
+                }
+                else
+                {
+                    DeferredExecution(delay, callback);
+                }
+            }
         }
 
         public static void SafeTry(System.Action action)
@@ -1504,7 +1536,6 @@ namespace Wrj
                 finalColor.a = mat.GetColor(matColorReference).a;
                 mat.SetColor(matColorReference, finalColor);
 
-
                 if (iterations != 0)
                 {
                     if (repeatStyle == RepeatStyle.PingPong)
@@ -1750,9 +1781,22 @@ namespace Wrj
             {
                 UtilObject().StartCoroutine(DelayCoro(delay, methodWithParameters));
             }
+            public void DelayByFrames(int frameCount, System.Action methodWithParameters)
+            {
+                UtilObject().StartCoroutine(DelayByFramesCoro(frameCount, methodWithParameters));
+            }
             private IEnumerator DelayCoro(float delay, System.Action methodWithParameters)
             {
                 yield return new WaitForSecondsRealtime(delay);
+                methodWithParameters();
+            }
+            private IEnumerator DelayByFramesCoro(int frameCount, System.Action methodWithParameters)
+            {
+                yield return new WaitForEndOfFrame();
+                for (int i = 0; i < frameCount; i++)
+                {
+                    yield return new WaitForEndOfFrame();
+                }
                 methodWithParameters();
             }
 
