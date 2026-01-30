@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63d2c11ad64bb5e489db16e768235602, type: 3}
+  m_Name: SelectionPresetRegistry
+  m_EditorClassIdentifier: 
+  multiRenamePreset: {fileID: 11400000, guid: af20b5f61b32b7845b9c23ef4afaa47c, type: 2}
+  renumberPreset: {fileID: 11400000, guid: 9eb12cef2c70eaa488a68fbb9906fbdf, type: 2}
+  reorderHierarchyToSelectionPreset: {fileID: 11400000, guid: c04426e5bd4539b4fa907b9150a356fe, type: 2}

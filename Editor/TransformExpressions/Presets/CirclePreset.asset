@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 000fa9f6702f9d840becb619eb7e8024, type: 3}
+  m_Name: CirclePreset
+  m_EditorClassIdentifier: 
+  displayName: Circle
+  enabledInWindow: 1
+  isExpanded: 0
+  plane: 1
+  radius: 5
+  center: {x: 0, y: 0, z: 0}
+  angleOffsetDeg: 0
+  useSelectionCentroidAsCenter: 1
+  counterClockwise: 0

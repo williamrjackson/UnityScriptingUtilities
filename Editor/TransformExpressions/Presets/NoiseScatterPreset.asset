@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b4f917649db284aa9b0aa182091d2f, type: 3}
+  m_Name: NoiseScatterPreset
+  m_EditorClassIdentifier: 
+  displayName: Noise Scatter
+  enabledInWindow: 1
+  isExpanded: 0
+  seed: 12345
+  noiseFrequency: 12.03
+  strength: {x: 1, y: 1, z: 1}
+  additive: 1
+  originIsSelectionCentroid: 1
+  originLocal: {x: 0, y: 0, z: 0}
+  sampleFromPosition: 1
+  indexStep: 0.33
+  applyX: 0
+  applyY: 1
+  applyZ: 0

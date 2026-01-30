@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd3dae50fd827954b9d69c01eb852d08, type: 3}
+  m_Name: MatchTransformPreset
+  m_EditorClassIdentifier: 
+  displayName: Match Transform
+  enabledInWindow: 1
+  isExpanded: 0
+  useFirstSelectedAsSource: 1
+  explicitSource: {fileID: 0}
+  copyPosition: 1
+  copyRotation: 1
+  copyScale: 0
+  useWorldSpace: 1
+  posX: 1
+  posY: 1
+  posZ: 1
+  rotX: 1
+  rotY: 1
+  rotZ: 1
+  scaleX: 1
+  scaleY: 1
+  scaleZ: 1

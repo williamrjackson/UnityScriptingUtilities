@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 414ad46b172a2604daafb8db492cc93b, type: 3}
+  m_Name: MirrorPreset
+  m_EditorClassIdentifier: 
+  displayName: Mirror
+  enabledInWindow: 1
+  isExpanded: 0
+  axis: 0
+  mirrorAroundSelectionCentroid: 0
+  mirrorPlaneLocal: 0

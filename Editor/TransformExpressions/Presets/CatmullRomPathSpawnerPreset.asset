@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a35232ec42163b45b42f250718c8cf6, type: 3}
+  m_Name: CatmullRomPathSpawnerPreset
+  m_EditorClassIdentifier: 
+  displayName: Path Spawner
+  enabledInWindow: 1
+  isExpanded: 1
+  spacingMode: 0
+  samplesPerSegment: 10
+  distanceStep: 1
+  arcLengthSubdivisionsPerSegment: 32
+  closedLoop: 0
+  skipControlPoints: 1
+  alignToTangent: 0
+  spaceMode: 0
+  createContainer: 1
+  containerName: Path
+  createLineRendererInstead: 1
+  optionsFoldout: 1

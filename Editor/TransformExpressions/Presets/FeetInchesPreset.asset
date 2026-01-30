@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d78243862b42c64c863c2d0c180d751, type: 3}
+  m_Name: FeetInchesPreset
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::Wrj.TransformExpressions.FeetInchesPreset
+  displayName: Feet Inches
+  enabledInWindow: 1
+  isExpanded: 0
+  editPosition: 0
+  editScale: 1
+  linkScale: 0
+  pos:
+    x:
+      feet: 0
+      inches: 0
+    y:
+      feet: 5
+      inches: 1.4173222
+    z:
+      feet: 15
+      inches: 7.9921303
+  scale:
+    x:
+      feet: 3
+      inches: 3.370079
+    y:
+      feet: 5
+      inches: 6.999996
+    z:
+      feet: 3
+      inches: 3.370079
