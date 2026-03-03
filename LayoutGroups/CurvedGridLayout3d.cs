@@ -20,11 +20,21 @@ namespace Wrj
 		public float rowSpacing = 1f;
 		private float _cachedRowSpacing;
 		private Transform[] _children;
+		private int _cachedChildrenHash;
 
 		void Update () 
 		{
-			if (columns < 1 || GetComponentsInChildren<Transform>().Length <= 1)
+			if (columns < 1 || transform.childCount <= 0)
 				return;
+
+			int currentHash = transform.childCount;
+			unchecked
+			{
+				foreach (Transform child in transform)
+				{
+					currentHash = (currentHash * 397) ^ (child ? child.GetInstanceID() : 0);
+				}
+			}
 			
 			if (   columnSpacing != _cachedColumnSpacing
 				|| rowSpacing != _cachedRowSpacing
@@ -32,8 +42,7 @@ namespace Wrj
 				|| radius != _cachedRadius
 				|| curveAxis != _cachedCurveAxis
 				|| faceDirection != _cachedFaceDirection
-				|| columns != _cachedColumns 
-				|| _children != GetComponentsInChildren<Transform>())
+				|| _cachedChildrenHash != currentHash)
 			{
 				_cachedColumnSpacing = columnSpacing;
 				_cachedRowSpacing = rowSpacing;
@@ -41,6 +50,7 @@ namespace Wrj
 				_cachedRadius = radius;
 				_cachedCurveAxis = curveAxis;
 				_cachedFaceDirection = faceDirection;
+				_cachedChildrenHash = currentHash;
 				_children = GetComponentsInChildren<Transform>();
 
 				// If there are fewer transforms than columns, pretend there are just that many columns.
@@ -68,7 +78,7 @@ namespace Wrj
 					{
 						rotation = Quaternion.AngleAxis(leftmostAngle + appliedHorizontalSpacing, transform.up);  
 					}
-					if (curveAxis == CurveAxis.Rows)
+					else if (curveAxis == CurveAxis.Rows)
 					{
 						rotation = Quaternion.AngleAxis(topmostAngle + appliedVerticalSpacing, transform.right);
 					}

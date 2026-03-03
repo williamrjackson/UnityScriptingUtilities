@@ -22,6 +22,8 @@ namespace Wrj
         }
         void Update()
         {
+            if (ownerPath == null)
+                return;
             if (transform.position != lastPos)
             {
                 ownerPath.RefreshPath();
@@ -48,6 +50,7 @@ namespace Wrj
 
         public BezierPath GetOwnerPath()
         {
+            if (transform.parent == null) return null;
             return transform.parent.GetComponent<BezierPath>();
         }
     }

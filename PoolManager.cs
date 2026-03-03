@@ -21,6 +21,11 @@ namespace Wrj
 
         private void Start()
         {
+            if (sourceObject == null)
+            {
+                Debug.LogWarning($"No source object provided to PoolManager ({name}).", this);
+                return;
+            }
             sourceObject.gameObject.SetActive(false);
         }
 
@@ -37,8 +42,13 @@ namespace Wrj
             GameObject go = FirstAvailable();
 
             // Start the auto-disable timer, if needed.
-            if (defaultLifeSpan > 0f)
+            if (lifeSpan > 0f)
             {
+                if (_RunningTimeouts.ContainsKey(go))
+                {
+                    StopCoroutine(_RunningTimeouts[go]);
+                    _RunningTimeouts.Remove(go);
+                }
                 Coroutine thisTimeout = StartCoroutine(LifeSpanRoutine(go, lifeSpan));
                 _RunningTimeouts.Add(go, thisTimeout);
             }
@@ -59,6 +69,7 @@ namespace Wrj
         public T Next<T>(float lifeSpan)
         {
             GameObject go = Next(lifeSpan);
+            if (go == null) return default;
             T target = go.GetComponent<T>();
             if (target == null) Debug.LogWarning($"Pool element has no {typeof(T).Name}");
             return target;
@@ -69,11 +80,15 @@ namespace Wrj
         }
         public dynamic NextComponent(float lifeSpan)
         {
-            return Next(lifeSpan).GetComponent(sourceObject.GetType().Name);
+            GameObject go = Next(lifeSpan);
+            if (go == null || sourceObject == null) return null;
+            return go.GetComponent(sourceObject.GetType());
         }
         public dynamic NextComponent()
         {
-            return Next(defaultLifeSpan).GetComponent(sourceObject.GetType().Name);
+            GameObject go = Next(defaultLifeSpan);
+            if (go == null || sourceObject == null) return null;
+            return go.GetComponent(sourceObject.GetType());
         }
 
 
@@ -84,7 +99,7 @@ namespace Wrj
             {
                 if (go == element.gameObject)
                 {
-                    OnObjectStashing(go);
+                    OnObjectStashing?.Invoke(go);
                     // Disable it in the hierarchy
                     go.SetActive(false);
                     // Kill the auto-disable timer

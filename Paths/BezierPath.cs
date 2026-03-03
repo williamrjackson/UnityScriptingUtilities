@@ -33,7 +33,7 @@ namespace Wrj
             {
                 RefreshPath();
             }
-            if (slider != null)
+            if (slider != null && m_Curve != null && m_Curve.Length > 1)
             {
                 Vector3 look = Vector3.zero;
                 slider.position = GetPointOnCurve(m_Curve, percent, ref look);
@@ -45,16 +45,17 @@ namespace Wrj
         public void RefreshPath()
         {
             m_cachedRes = res;
-            m_Curve = CurvePath(res);
+            m_Curve = CurvePath(res) ?? new Vector3[0];
         }
         public Vector3 GetPointOnCurve(float t, ref Vector3 lookAt)
         {
+              if (m_Curve == null) return Vector3.zero;
               return GetPointOnCurve(m_Curve, t, ref lookAt);
         }
 
         public static Vector3 GetPointOnCurve(Vector3[] path, float t, ref Vector3 lookAt)
         {
-            if (path.Length < 2)
+            if (path == null || path.Length < 2)
             {
                 return Vector3.zero;
             }
@@ -109,7 +110,7 @@ namespace Wrj
             m_Points = GetComponentsInChildren<PathGuide>();
             // Require at least 3, for start, influence, and end.
             if (m_Points.Length < 3)
-                return null;
+                return new Vector3[0];
 
             // Create vector array to hold the results (-2 is to accommodate the first and last)
             Vector3[] finalPoints = new Vector3[(m_Points.Length - 2) * resolution];

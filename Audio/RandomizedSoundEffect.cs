@@ -18,13 +18,13 @@ namespace Wrj
 
         public void PlayRandom(float pitchMin = 1f, float pitchMax = 1f, float volumeMin = 1f, float volumeMax = 1f)
         {
-            if (audioClips.Count == 0 || audioClips == null)
+            if (audioClips == null || audioClips.Count == 0)
                 return;
             m_AudioPool.PlayPitchOneShot(audioClips.GetRandom(), Random.Range(pitchMin, pitchMax), Random.Range(volumeMin, volumeMax));
         }
         public void PlayRandom()
         {
-            if (audioClips.Count == 0 || audioClips == null)
+            if (audioClips == null || audioClips.Count == 0)
                 return;
             m_AudioPool.PlayOneShot(audioClips.GetRandom());
         }

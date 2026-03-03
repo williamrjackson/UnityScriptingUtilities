@@ -309,7 +309,11 @@ namespace Wrj
             {
                 if (args[i] == name)
                 {
-                    return args[i + 1];
+                    if (i + 1 < args.Length)
+                    {
+                        return args[i + 1];
+                    }
+                    return null;
                 }
             }
             return null;
@@ -1207,6 +1211,10 @@ namespace Wrj
                 {
                     return FadeAlpha(rawImage, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone);
                     // mcp.coroutine = UtilObject().StartCoroutine(LerpRawImageAlpha(mcp, rawImage, to, duration, mirrorCurve, repeatStyle, iterations, useTimeScale, onDone));
+                }
+                else if (!tform.TryGetComponent<Renderer>(out var _))
+                {
+                    return null;
                 }
 
                 Manipulation mcp = new Manipulation(Manipulation.ManipulationType.Alpha, tform);    

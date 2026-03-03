@@ -19,6 +19,7 @@ namespace Wrj
 		public float depthSpacing;
 		private float _cachedDepthSpacing;
 		private List<Transform> _children;
+		private int _cachedChildrenHash;
 
 		void Update () 
 		{
@@ -36,9 +37,18 @@ namespace Wrj
 					children.Add(child);
 				}
 			}
-			if (_children != children)
+			int currentHash = children.Count;
+			unchecked
+			{
+				for (int i = 0; i < children.Count; i++)
+				{
+					currentHash = (currentHash * 397) ^ (children[i] ? children[i].GetInstanceID() : 0);
+				}
+			}
+			if (_children == null || _cachedChildrenHash != currentHash)
 			{
 				_children = children;
+				_cachedChildrenHash = currentHash;
 				_cachedHorizontalSpacing += 1f;
 				_cachedVerticalSpacing += 1f;
 				_cachedDepthSpacing += 1f;

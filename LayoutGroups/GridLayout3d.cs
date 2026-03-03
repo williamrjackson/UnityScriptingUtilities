@@ -16,21 +16,32 @@ namespace Wrj
 		public float rowSpacing = 1f;
 		private float _cachedRowSpacing;
 		private Transform[] _children;
+		private int _cachedChildrenHash;
 
 		void Update () 
 		{
 			if (columns < 1)
 				return;
+
+			int currentHash = transform.childCount;
+			unchecked
+			{
+				foreach (Transform child in transform)
+				{
+					currentHash = (currentHash * 397) ^ (child ? child.GetInstanceID() : 0);
+				}
+			}
 			
 			if (columnSpacing != _cachedColumnSpacing || columnCentering != _cachedColumnCentering
 				|| rowSpacing != _cachedRowSpacing || rowCentering != _cachedRowCentering
-				|| columns != _cachedColumns || _children != GetComponentsInChildren<Transform>())
+				|| columns != _cachedColumns || _cachedChildrenHash != currentHash)
 			{
 				_cachedColumnSpacing = columnSpacing;
 				_cachedColumnCentering = columnCentering;
 				_cachedRowSpacing = rowSpacing;
 				_cachedRowCentering = rowCentering;
 				_cachedColumns = columns;
+				_cachedChildrenHash = currentHash;
 				_children = GetComponentsInChildren<Transform>();
 				int rowCount = transform.childCount / columns;
 				if (transform.childCount % columns != 0)

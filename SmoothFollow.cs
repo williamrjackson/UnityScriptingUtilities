@@ -19,11 +19,13 @@ namespace Wrj
 		
 		void Start()
 		{
+			if (followTarget == null) return;
 			offset = transform.position - followTarget.position;
 		}
 
 		void LateUpdate()
 		{
+			if (followTarget == null) return;
 			Vector3 targetPosition = followTarget.position + offset;
 			if (Vector3.Distance(transform.position, targetPosition) > distanceThreshold)
 			{

@@ -2,6 +2,7 @@
 using System.IO.Ports;
 #endif
 using UnityEngine;
+using UnityEngine.Events;   
 using System.Collections.Generic;
 using System.Diagnostics;
 using System;
@@ -19,6 +20,10 @@ namespace Wrj
         [SerializeField]
         [Range(-1, 256)]
         private int portNumber = -1;
+        [SerializeField]
+        private bool logReceivedMessages = true;
+        [SerializeField]
+        private OnStringEvent[] onStringEvents;
 
         private string _rawData = string.Empty;
         private uint _dataIndex = 0;
@@ -29,6 +34,7 @@ namespace Wrj
 
         private Dictionary<string, string> portAssignments = new Dictionary<string, string>();
         private string comPort;
+        private volatile bool _keepListening = false;
 
         SerialPort port;
         Thread serialPortListenerThread;
@@ -69,7 +75,7 @@ namespace Wrj
             PopulatePortList();
             if (portNumber >= 0 && PortExists(portNumber))
             {
-                comPort = portNumber.ToString();
+                comPort = "COM" + portNumber;
                 Connect();
             }
             else if ((comPort = GetFirstPortMatchingName(deviceName)) != null)
@@ -80,43 +86,44 @@ namespace Wrj
             {
                 UnityEngine.Debug.LogWarning("Arduino Not Found");
             }
+            OnSerialEvent += HandleSerialString;
         }
 
         private void OnDestroy()
         {
-            if (serialPortListenerThread != null)
-            {
-                serialPortListenerThread.Abort();
-                ClosePort();
-            }
+            StopListening();
         }
         private void OnDisable()
         {
-            if (serialPortListenerThread != null)
-            {
-                serialPortListenerThread.Abort();
-                ClosePort();
-            }
+            StopListening();
         }
 
         void Connect()
         {
-            if (serialPortListenerThread != null)
-            {
-                serialPortListenerThread.Abort();
-                ClosePort();
-            }
+            StopListening();
 
             Utils.SafeTry(() => InitializeArduino(comPort, (int)BaudRate));
 
+            _keepListening = true;
             serialPortListenerThread = new Thread(RecieveDataInHelperThread);
             serialPortListenerThread.Start();
+        }
+
+        private void StopListening()
+        {
+            _keepListening = false;
+            if (serialPortListenerThread != null && serialPortListenerThread.IsAlive)
+            {
+                serialPortListenerThread.Join(200);
+            }
+            ClosePort();
+            serialPortListenerThread = null;
         }
 
         public void ClosePort()
         {
             UnityEngine.Debug.Log("Close port");
-            Utils.SafeTry(() => port.Close());
+            Utils.SafeTry(() => port?.Close());
         }
 
         void InitializeArduino(string listeningPort, int baudRate)
@@ -135,19 +142,26 @@ namespace Wrj
 
         void RecieveDataInHelperThread()
         {
-            while (port.IsOpen)
+            try
             {
-                String str = port.ReadLine();
-                if (!string.IsNullOrWhiteSpace(str))
+                while (_keepListening && port != null && port.IsOpen)
                 {
-                    _rawData = str;
-                    _dataIndex++;
-                    if (OnSerialEvent != null)
+                    string str = port.ReadLine();
+                    if (!string.IsNullOrWhiteSpace(str))
                     {
-                        // Notify on main thread...
-                        Enqueue(ActionWrapper(() => OnSerialEvent(str)));
+                        _rawData = str;
+                        _dataIndex++;
+                        if (OnSerialEvent != null)
+                        {
+                            // Notify on main thread...
+                            Enqueue(ActionWrapper(() => OnSerialEvent(str)));
+                        }
                     }
                 }
+            }
+            catch (Exception)
+            {
+                // Swallow read exceptions during shutdown/disconnect.
             }
         }
 
@@ -223,7 +237,7 @@ namespace Wrj
         }
         private bool PortExists(int portNum)
         {
-            return (portAssignments.ContainsValue(portNum.ToString()));
+            return (portAssignments.ContainsValue("COM" + portNum));
         }
         void Enqueue(IEnumerator action)
         {
@@ -239,6 +253,54 @@ namespace Wrj
         {
             action();
             yield return null;
+        }
+
+        private void HandleSerialString(string message)
+        {
+            foreach (var onStringEvent in onStringEvents)
+            {
+                if (onStringEvent.Message == message)
+                {
+                    bool invoked = onStringEvent.Invoke();
+                    if (logReceivedMessages)
+                    {
+                        if (invoked)
+                        {
+                            UnityEngine.Debug.Log($"Invoked command for message: {message}");
+                        }
+                        else
+                        {
+                            UnityEngine.Debug.Log($"Debounced command for message: {message}");
+                        }
+                    }
+                }
+            }
+        }
+        [System.Serializable]
+        class OnStringEvent
+        {
+            [SerializeField]
+            private string message;
+            [SerializeField]
+            private float debounceTime = 0.1f;
+            [SerializeField]
+            private UnityEvent command;
+
+            private float lastInvokeTime = float.NegativeInfinity;
+            public string Message { get { return message; } }
+
+            public bool Invoke()
+            {
+                float timeSinceLastInvoke = Time.time - lastInvokeTime;
+                if (timeSinceLastInvoke < debounceTime)
+                {
+                    return false;
+                }
+
+                lastInvokeTime = Time.time;
+                command.Invoke();
+                return true;
+            }
         }
 #endif
     }

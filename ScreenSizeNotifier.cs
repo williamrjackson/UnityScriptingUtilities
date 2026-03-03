@@ -23,11 +23,13 @@ namespace Wrj
             {
 	            if (!Application.isPlaying)
                 {
-                    return Camera.main.ScreenToWorldPoint(ScreenDimensions);
+	                if (Camera.main == null) return Vector3.zero;
+	                return Camera.main.ScreenToWorldPoint(ScreenDimensions);
                 }
                 else
                 {
-                    return Instance.mainCamera.ScreenToWorldPoint(ScreenDimensions);
+	                if (Instance == null || Instance.mainCamera == null) return Vector3.zero;
+	                return Instance.mainCamera.ScreenToWorldPoint(ScreenDimensions);
                 }
             }
         }
@@ -63,6 +65,10 @@ namespace Wrj
 
         void Update()
         {
+            if (mainCamera == null)
+            {
+                mainCamera = Camera.main;
+            }
             updatedHeight = Screen.height;
             updatedWidth = Screen.width;
 

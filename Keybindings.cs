@@ -27,6 +27,8 @@ namespace Wrj
 
         public void Add(KeyCommand keyCommand)
         {
+			if (_keyCommands == null) _keyCommands = new List<KeyCommand>();
+			if (_keyUps == null) _keyUps = new List<ActionKeyCommand>();
 			if (keyCommand is ActionKeyCommand && ((ActionKeyCommand)keyCommand).onKeyUp)
 			{
 				_keyUps.Add((ActionKeyCommand)keyCommand);
@@ -42,29 +44,41 @@ namespace Wrj
         {
             _keyCommands = new List<KeyCommand>();
 			_keyUps = new List<ActionKeyCommand>();
-            foreach (var item in buttonKeys)
-            {
-                _keyCommands.Add(item);
-            }
-            foreach (var item in toggleKeys)
-            {
-                _keyCommands.Add(item);
-            }
-            foreach (var item in actionKeys)
-            {
-				if (item.onKeyUp)
+			if (buttonKeys != null)
+			{
+				foreach (var item in buttonKeys)
 				{
-					_keyUps.Add(item);
+					_keyCommands.Add(item);
 				}
-				else
+			}
+			if (toggleKeys != null)
+			{
+				foreach (var item in toggleKeys)
 				{
-	                _keyCommands.Add(item);
+					_keyCommands.Add(item);
 				}
-            }
-            foreach (var item in objectEnableKeys)
-            {
-                _keyCommands.Add(item);
-            }
+			}
+			if (actionKeys != null)
+			{
+				foreach (var item in actionKeys)
+				{
+					if (item.onKeyUp)
+					{
+						_keyUps.Add(item);
+					}
+					else
+					{
+						_keyCommands.Add(item);
+					}
+				}
+			}
+			if (objectEnableKeys != null)
+			{
+				foreach (var item in objectEnableKeys)
+				{
+					_keyCommands.Add(item);
+				}
+			}
 			Prioritize();
         }
 

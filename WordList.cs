@@ -18,12 +18,16 @@ namespace Wrj
         {
             get
             {
-                if (_instance == null)
+                if (_instance != null) return _instance;
+                _instance = FindFirstObjectByType<WordList>();
+                if (_instance != null) return _instance;
+                if (!Application.isPlaying)
                 {
-                    GameObject go = new GameObject();
-                    go.name = "WordList";
-                    _instance = go.AddComponent<WordList>();
+                    return null;
                 }
+                GameObject go = new GameObject();
+                go.name = "WordList";
+                _instance = go.AddComponent<WordList>();
                 return _instance;
             }
         }
@@ -49,14 +53,19 @@ namespace Wrj
 
         public void Init(TextAsset wordListTextAsset)
         {
-            wordSet = new HashSet<string>(wordListTextAsset.text.Split("\n"[0]));
+            if (wordListTextAsset == null) return;
+            wordSet = ParseWordSet(wordListTextAsset);
             TextAsset fullDictionaryTextAsset = Resources.Load("WordList", typeof(TextAsset)) as TextAsset;
-            fullWordSet = new HashSet<string>(fullDictionaryTextAsset.text.Split("\n"[0]));
+            if (fullDictionaryTextAsset != null)
+            {
+                fullWordSet = ParseWordSet(fullDictionaryTextAsset);
+            }
         }
         public void Init(TextAsset wordListTextAsset, TextAsset fullDictionaryTextAsset)
         {
-            wordSet = new HashSet<string>(wordListTextAsset.text.Split("\n"[0]));
-            fullWordSet = new HashSet<string>(fullDictionaryTextAsset.text.Split("\n"[0]));
+            if (wordListTextAsset == null || fullDictionaryTextAsset == null) return;
+            wordSet = ParseWordSet(wordListTextAsset);
+            fullWordSet = ParseWordSet(fullDictionaryTextAsset);
         }
         public void Init(WordSource wordSource)
         {
@@ -77,21 +86,43 @@ namespace Wrj
                     break;
             }
             TextAsset fullDictionaryTextAsset = Resources.Load("WordList", typeof(TextAsset)) as TextAsset;
-            fullWordSet = new HashSet<string>(fullDictionaryTextAsset.text.Split("\n"[0]));
+            if (fullDictionaryTextAsset != null)
+            {
+                fullWordSet = ParseWordSet(fullDictionaryTextAsset);
+            }
             if (wordSource != WordSource.Full)
             {
                 TextAsset wordListTextAsset = Resources.Load(strWordResourceName, typeof(TextAsset)) as TextAsset;
-                wordSet = new HashSet<string>(wordListTextAsset.text.Split("\n"[0]));
+                if (wordListTextAsset != null)
+                {
+                    wordSet = ParseWordSet(wordListTextAsset);
+                }
             }
+        }
+
+        private static HashSet<string> ParseWordSet(TextAsset asset)
+        {
+            string[] parts = asset.text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            HashSet<string> set = new HashSet<string>();
+            foreach (string p in parts)
+            {
+                string trimmed = p.Trim().ToLowerInvariant();
+                if (!string.IsNullOrWhiteSpace(trimmed))
+                {
+                    set.Add(trimmed);
+                }
+            }
+            return set;
         }
 
         public static bool CheckWord(string word, bool fullDict = true)
         {
+            if (Instance == null || string.IsNullOrWhiteSpace(word)) return false;
             if (fullDict)
             {
-                return Instance.fullWordSet.Contains(word.ToLower());
+                return Instance.fullWordSet != null && Instance.fullWordSet.Contains(word.ToLower());
             }
-            return Instance.WordSet.Contains(word.ToLower());
+            return Instance.WordSet != null && Instance.WordSet.Contains(word.ToLower());
         }
         public static List<string> GetPossibleWords(string chars, int minLength = 3, int maxLength = 7, bool fullDict = false)
         {
@@ -109,28 +140,33 @@ namespace Wrj
         }
         public static string RandomWord(bool fullDict = false)
         {
-            List<string> commonList = (fullDict) ? Instance.fullWordSet.ToList() : Instance.WordSet.ToList();
+            if (Instance == null) return null;
+            List<string> commonList = (fullDict) ? Instance.fullWordSet?.ToList() : Instance.WordSet?.ToList();
+            if (commonList == null || commonList.Count == 0) return null;
             return commonList.GetRandom();
         }
         public static List<string> GetRandomWords(int count, int minLength = 3, int maxLength = 7, bool fullDict = false)
         {
-            List<string> wordSetList = (fullDict) ? Instance.fullWordSet.ToList() : Instance.WordSet.ToList();
+            if (Instance == null) return new List<string>();
+            List<string> wordSetList = (fullDict) ? Instance.fullWordSet?.ToList() : Instance.WordSet?.ToList();
+            if (wordSetList == null || wordSetList.Count == 0) return new List<string>();
+            List<string> candidates = wordSetList.FindAll(w => w.Length >= minLength && w.Length <= maxLength);
+            if (candidates.Count == 0) return new List<string>();
+            if (count > candidates.Count) count = candidates.Count;
             List<string> results = new List<string>();
-
             for (int i = 0; i < count; i++)
             {
-                string word = "";
-                while (word.Length > maxLength || word.Length < minLength || results.Contains(word))
-                {
-                    word = wordSetList.GetRandom();
-                }
-                results.Add(word);
+                int index = UnityEngine.Random.Range(0, candidates.Count);
+                results.Add(candidates[index]);
+                candidates.RemoveAt(index);
             }
             return results;
         }
         public static string WordOfTheDay(bool fullDict = false)
         {
-            List<string> words = (fullDict) ? Instance.fullWordSet.ToList() : Instance.WordSet.ToList();
+            if (Instance == null) return null;
+            List<string> words = (fullDict) ? Instance.fullWordSet?.ToList() : Instance.WordSet?.ToList();
+            if (words == null || words.Count == 0) return null;
             DateTime today = DateTime.UtcNow.Date;
             Int64 todayInt = today.ToBinary();
             Int64 wordIndex = todayInt % (Int64)words.Count;

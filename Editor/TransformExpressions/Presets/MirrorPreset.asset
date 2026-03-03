@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayName: Mirror
   enabledInWindow: 1
-  isExpanded: 0
+  isExpanded: 1
   axis: 0
   mirrorAroundSelectionCentroid: 0
   mirrorPlaneLocal: 0
