@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-#if UNITY_EDITOR && RECORDER_AVAILABLE
 using UnityEditor;
+#if UNITY_EDITOR && RECORDER_AVAILABLE
 using UnityEditor.Recorder;
 using UnityEditor.Recorder.Input;
 #endif
