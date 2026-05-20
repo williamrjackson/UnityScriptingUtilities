@@ -22,10 +22,9 @@ Use:
 
     https://github.com/williamrjackson/UnityScriptingUtilities.git
 
-Optionally lock to a specific tag:
+Optionally lock to a specific version:
 
-    https://github.com/williamrjackson/UnityScriptingUtilities.git#v1.6
-
+    https://github.com/williamrjackson/UnityScriptingUtilities.git#v1.6.25
 ------------------------------------------------------------------------
 
 ## Screenshots & GIFs
