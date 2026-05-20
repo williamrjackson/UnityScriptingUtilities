@@ -12,7 +12,6 @@ namespace Wrj
 {
     public class ArduinoSerialCommunication : MonoBehaviour
     {
-#if UNITY_STANDALONE_WIN && NET_4_6
         [SerializeField]
         private BaudRates BaudRate = BaudRates._9600;
         [SerializeField]
@@ -36,7 +35,9 @@ namespace Wrj
         private string comPort;
         private volatile bool _keepListening = false;
 
+#if UNITY_STANDALONE_WIN && NET_4_6
         SerialPort port;
+#endif
         Thread serialPortListenerThread;
         private readonly Queue<Action> _delegateQueue = new Queue<Action>();
 
@@ -45,6 +46,7 @@ namespace Wrj
             _300 = 300, _600 = 600, _1200 = 1200, _2400 = 2400, _4800 = 4800, _9600 = 9600,
             _14400 = 14400, _19200 = 19200, _28800 = 28800, _38400 = 38400, _57600 = 57600, _115200 = 115200
         }
+        public BaudRates CurrentBaudRate => BaudRate;
 
         /// Static Singleton behavior
         protected static ArduinoSerialCommunication _instance;
@@ -123,12 +125,15 @@ namespace Wrj
         public void ClosePort()
         {
             UnityEngine.Debug.Log("Close port");
+#if UNITY_STANDALONE_WIN && NET_4_6
             Utils.SafeTry(() => port?.Close());
+#endif
         }
 
         void InitializeArduino(string listeningPort, int baudRate)
         {
             UnityEngine.Debug.LogFormat("Connecting to Arduino on port {0} with a baudrate of: {1}.", listeningPort, baudRate);
+#if UNITY_STANDALONE_WIN && NET_4_6
             Utils.SafeTry(() =>
             {
                 port = new SerialPort(listeningPort, baudRate);
@@ -138,10 +143,12 @@ namespace Wrj
                 port.Handshake = Handshake.None;
                 port.Open();
             });
+#endif
         }
 
         void RecieveDataInHelperThread()
         {
+#if UNITY_STANDALONE_WIN && NET_4_6
             try
             {
                 while (_keepListening && port != null && port.IsOpen)
@@ -163,22 +170,32 @@ namespace Wrj
             {
                 // Swallow read exceptions during shutdown/disconnect.
             }
+#endif
         }
 
         // Send text to the serial port.
         public void SendData(string str)
         {
+#if UNITY_STANDALONE_WIN && NET_4_6
             Utils.SafeTry(() =>
             {
                 port.Write(str);
             });
+#else
+            Utils.SupressUnusedVarWarning(_keepListening);
+            LogSupportWarning();
+#endif
         }
         public void SendDataAsLine(string str)
         {
+#if UNITY_STANDALONE_WIN && NET_4_6
             Utils.SafeTry(() =>
             {
                 port.WriteLine(str);
             });
+#else
+            LogSupportWarning();
+#endif
         }
 
         void Update()
@@ -276,6 +293,10 @@ namespace Wrj
                 }
             }
         }
+        private void LogSupportWarning()
+        {
+            UnityEngine.Debug.LogWarning("Serial communication not supported on this platform.\n Ensure you are running on Windows with .NET 4.6 or higher Scripting Runtime Version.");
+        }
         [System.Serializable]
         class OnStringEvent
         {
@@ -302,6 +323,5 @@ namespace Wrj
                 return true;
             }
         }
-#endif
     }
 }
