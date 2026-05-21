@@ -1,5 +1,8 @@
 using System.Collections;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Wrj
 {
@@ -8,16 +11,59 @@ namespace Wrj
     public class ArduinoTestConfig : MonoBehaviour
     {
         public bool enableLogging = true;
+        public bool sendConfigOnStart = true;
         public bool isTemporary = true;
-        public SerialButton button1 = new SerialButton("1", ButtonMode.Serial, "1", SerialButton.ArduinoKeyCode.A);
-        public SerialButton button1Mod = new SerialButton("1", ButtonMode.Serial, "1", SerialButton.ArduinoKeyCode.ZERO);
-        public SerialButton button2 = new SerialButton("2", ButtonMode.Serial, "2", SerialButton.ArduinoKeyCode.B);
-        public SerialButton button2Mod = new SerialButton("2", ButtonMode.Serial, "2", SerialButton.ArduinoKeyCode.ONE);
-        public SerialButton rotaryPress = new SerialButton("3", ButtonMode.Serial, "3", SerialButton.ArduinoKeyCode.C);
+        [SerializeField]
+        private SerialButton button1 = new SerialButton("1", SerialButton.ButtonMode.Serial, "1", SerialButton.ArduinoKeyCode.A);
+        [SerializeField]
+        private SerialButton button1Mod = new SerialButton("1b", SerialButton.ButtonMode.Serial, "1", SerialButton.ArduinoKeyCode.ZERO);
+        [SerializeField]
+        private SerialButton button2 = new SerialButton("2", SerialButton.ButtonMode.Serial, "2", SerialButton.ArduinoKeyCode.B);
+        [SerializeField]
+        private SerialButton button2Mod = new SerialButton("2b", SerialButton.ButtonMode.Serial, "2", SerialButton.ArduinoKeyCode.ONE);
+        [SerializeField]
+        private SerialButton rotaryPress = new SerialButton("3", SerialButton.ButtonMode.Serial, "3", SerialButton.ArduinoKeyCode.C);
         public string rotaryMin = "0";
         public string rotaryMax = "359";
 
-        IEnumerator Start()
+        private Coroutine _sendCoroutine;
+
+        private static ArduinoTestConfig _instance;
+        public static ArduinoTestConfig Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = FindFirstObjectByType<ArduinoTestConfig>();
+                    if (_instance == null)
+                    {
+                        GameObject go = new GameObject("ArduinoTestConfig");
+                        _instance = go.AddComponent<ArduinoTestConfig>();
+                        // default to not sending config on start, since this component
+                        // was added automatically and likely won't be set up yet. 
+                        // Config can be sent manually from the inspector or by calling 
+                        // Instance.Start() from another script once setup is complete.
+                        _instance.sendConfigOnStart = false; 
+                    }
+                }
+                return _instance;
+            }
+        }
+        private void Start()
+        {
+            if (sendConfigOnStart)
+                SendConfig();
+        }
+        public void SendConfig()
+        {
+            if (_sendCoroutine != null)
+            {
+                StopCoroutine(_sendCoroutine);
+            }
+            _sendCoroutine = StartCoroutine(SendToDeviceRoutine());
+        }
+        private IEnumerator SendToDeviceRoutine()
         {
             if (!Application.isEditor)
             {
@@ -25,6 +71,7 @@ namespace Wrj
                 // In a real build, config would likely be sent from a hardened button box.
                 yield break;
             }
+            yield return new WaitForSeconds(0.1f);
             string baudConfig = $"baud:{(isTemporary ? "temp:" : "")}{ArduinoSerialCommunication.Instance.CurrentBaudRate}";
             ArduinoSerialCommunication.Instance.SendDataAsLine(baudConfig);
             yield return new WaitForSeconds(0.1f);
@@ -54,39 +101,48 @@ namespace Wrj
                 Debug.Log("Serial Rotary Max Config: " + rotaryMaxConfig);
             }
         }
-        public void Echo(string data)
+        public static void Echo(string data)
         {
             ArduinoSerialCommunication.Instance.SendDataAsLine($"echo:{data}");
-            if (enableLogging)
+            if (Instance.enableLogging)
                 Debug.Log("Serial Echo: " + data);
         }
-        public enum ButtonMode
-        {
-            Serial,
-            Keypress,
-        }
         [System.Serializable]
-        public class SerialButton
+        private class SerialButton
         {
-            [HideInInspector]
-            public string id;
-            public ButtonMode mode;
-            public string command;
-            public ArduinoKeyCode[] keyCombo;
-            public SerialButton(string id, ButtonMode mode, string command, ArduinoKeyCode[] keys = null)
+            [SerializeField, HideInInspector]
+            private string id;
+            [SerializeField]
+            private ButtonMode mode;
+            [SerializeField]
+            private string command;
+            [SerializeField]
+            private ArduinoKeyCode[] keyCombo;
+
+            public SerialButton(string id, ButtonMode mode, string command, ArduinoKeyCode[] keyCombo = null)
             {
                 this.id = id;
-                this.mode = mode;
-                this.command = command;
-                this.keyCombo = keys;
+                UpdateConfig(mode, command, keyCombo);
             }
             public SerialButton(string id, ButtonMode mode, string command, ArduinoKeyCode key = ArduinoKeyCode.A)
             {
                 this.id = id;
-                this.mode = mode;
-                this.command = command;
-                keyCombo = new ArduinoKeyCode[] { key };
+                UpdateConfig(mode, command, key);
             }
+
+            public void UpdateConfig(ButtonMode newMode, string newCommand, ArduinoKeyCode newKey)
+            {
+                mode = newMode;
+                command = newCommand;
+                keyCombo = new ArduinoKeyCode[] { newKey };
+            }
+            public void UpdateConfig(ButtonMode newMode, string newCommand, ArduinoKeyCode[] newKeyCombo)
+            {
+                mode = newMode;
+                command = newCommand;
+                keyCombo = newKeyCombo;
+            }
+
             public string SendConfig(bool isTemporary)
             {
                 string data = $"{id}:{(isTemporary ? "temp:" : "")}{((mode==ButtonMode.Keypress) ? "ascii:" : "")}{(mode == ButtonMode.Serial ? command : keyString)}";
@@ -106,6 +162,11 @@ namespace Wrj
                     }
                     return result.TrimEnd('+');
                 }
+            }
+            public enum ButtonMode
+            {
+                Serial,
+                Keypress,
             }
             public enum ArduinoKeyCode
             {
@@ -135,5 +196,71 @@ namespace Wrj
                 F13 = 240, F14 = 241, F15 = 242, F16 = 243, F17 = 244, F18 = 245, F19 = 246, F20 = 247, F21 = 248, F22 = 249, F23 = 250, F24 = 251
             }
         }
+
+#if UNITY_EDITOR
+        [CustomPropertyDrawer(typeof(SerialButton))]
+        private class SerialButtonDrawer : PropertyDrawer
+        {
+            public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+            {
+                EditorGUI.BeginProperty(position, label, property);
+
+                var mode = property.FindPropertyRelative("mode");
+                var command = property.FindPropertyRelative("command");
+                var keyCombo = property.FindPropertyRelative("keyCombo");
+
+                position.height = EditorGUIUtility.singleLineHeight;
+                property.isExpanded = EditorGUI.Foldout(position, property.isExpanded, label, true);
+
+                if (property.isExpanded)
+                {
+                    EditorGUI.indentLevel++;
+
+                    position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                    EditorGUI.PropertyField(position, mode);
+
+                    position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+
+                    if ((SerialButton.ButtonMode)mode.enumValueIndex == SerialButton.ButtonMode.Serial)
+                    {
+                        if (command != null)
+                            EditorGUI.PropertyField(position, command);
+                    }
+                    else
+                    {
+                        if (keyCombo != null)
+                            EditorGUI.PropertyField(position, keyCombo, true);
+                    }
+
+                    EditorGUI.indentLevel--;
+                }
+
+                EditorGUI.EndProperty();
+            }
+
+            public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+            {
+                if (!property.isExpanded)
+                    return EditorGUIUtility.singleLineHeight;
+
+                var mode = property.FindPropertyRelative("mode");
+
+                float height = EditorGUIUtility.singleLineHeight;
+                height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+
+                if ((SerialButton.ButtonMode)mode.enumValueIndex == SerialButton.ButtonMode.Keypress)
+                {
+                    var keyCombo = property.FindPropertyRelative("keyCombo");
+                    height += (keyCombo != null ? EditorGUI.GetPropertyHeight(keyCombo, true) : EditorGUIUtility.singleLineHeight) + EditorGUIUtility.standardVerticalSpacing;
+                }
+                else
+                {
+                    height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                }
+
+                return height;
+            }
+        }
+#endif
     }
 }
