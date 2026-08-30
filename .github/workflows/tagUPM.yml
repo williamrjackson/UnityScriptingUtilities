@@ -25,26 +25,38 @@ jobs:
         with: 
           path: package.json
           increment: none
-      - name: tag-exists-action
-        id: check-tag
-        uses: mukunku/tag-exists-action@v1.2.0
-        with: 
-          tag: 'v${{steps.version.outputs.version}}'
-      - name: Get result
-        run: echo "Tag ${{steps.check-tag.outputs.exists}}"
+      - name: Compare against existing tags
+        id: compare-tags
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+
+          pkg_version="${{ steps.version.outputs.version }}"
+          latest_tag="$(git tag --list 'v*' | sed 's/^v//' | sort -V | tail -n 1 || true)"
+
+          if [ -z "$latest_tag" ]; then
+            echo "use_package_version=true" >> "$GITHUB_OUTPUT"
+            echo "tag_version=$pkg_version" >> "$GITHUB_OUTPUT"
+          elif [ "$pkg_version" != "$latest_tag" ] && [ "$(printf '%s\n%s\n' "$latest_tag" "$pkg_version" | sort -V | tail -n 1)" = "$pkg_version" ]; then
+            echo "use_package_version=true" >> "$GITHUB_OUTPUT"
+            echo "tag_version=$pkg_version" >> "$GITHUB_OUTPUT"
+          else
+            echo "use_package_version=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: gitconfig
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
       - name: Set version
-        if: ${{ steps.check-tag.outputs.exists }}
+        if: ${{ steps.compare-tags.outputs.use_package_version == 'false' }}
         id: increment
         uses: williamrjackson/upm_version_increment_action@v1.0.1
         with: 
           path: package.json
           increment: patch
       - name: UpdateReadmeA 
-        if: ${{ steps.check-tag.outputs.exists }}
+        if: ${{ steps.compare-tags.outputs.use_package_version == 'false' }}
         uses: williamrjackson/upm_readme_tag_link_action@v1.0.1
         with:
           path: README.md
@@ -52,7 +64,7 @@ jobs:
           minor: ${{ steps.increment.outputs.minor }}
           patch: ${{ steps.increment.outputs.patch }}
       - name: UpdateReadmeB
-        if: ${{ !steps.check-tag.outputs.exists }}
+        if: ${{ steps.compare-tags.outputs.use_package_version == 'true' }}
         uses: williamrjackson/upm_readme_tag_link_action@v1.0.1
         with:
           path: README.md
@@ -62,16 +74,20 @@ jobs:
       - name: commit changes
         run: |
           git add .
-          git commit -m "automated version tagging Readme Update [skip ci]"
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "automated version tagging Readme Update [skip ci]"
+          fi
       - name: push
         run: git push
       - name: tagA
-        if: ${{ steps.check-tag.outputs.exists }}
+        if: ${{ steps.compare-tags.outputs.use_package_version == 'false' }}
         run: |
           git tag -f v${{ steps.increment.outputs.major }}.${{ steps.increment.outputs.minor }}
           git tag -f v${{ steps.increment.outputs.major }}.${{ steps.increment.outputs.minor }}.${{ steps.increment.outputs.patch }}
       - name: tagB
-        if: ${{ !steps.check-tag.outputs.exists }}
+        if: ${{ steps.compare-tags.outputs.use_package_version == 'true' }}
         run: |
           git tag -f v${{ steps.version.outputs.major }}.${{ steps.version.outputs.minor }}
           git tag -f v${{ steps.version.outputs.major }}.${{ steps.version.outputs.minor }}.${{ steps.version.outputs.patch }}
