@@ -24,7 +24,7 @@ Use:
 
 Optionally lock to a specific version:
 
-    https://github.com/williamrjackson/UnityScriptingUtilities.git#v1.8.1
+    https://github.com/williamrjackson/UnityScriptingUtilities.git#v1.8.2
 ------------------------------------------------------------------------
 
 ## Screenshots & GIFs
