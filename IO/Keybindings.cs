@@ -1,22 +1,36 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
+#endif
 
 namespace Wrj
 {
 	public class Keybindings : MonoBehaviour
 	{
+        public enum KeyboardMapping
+        {
+            CurrentLayout,
+            PhysicalPosition
+        }
+
+        [SerializeField]
+        [Tooltip("Current Layout follows the OS keyboard layout for printable keys. Physical Position uses US keyboard positions. Applies to the new Input System.")]
+        private KeyboardMapping keyboardMapping = KeyboardMapping.CurrentLayout;
+
         [SerializeField]
         private bool quitOnEsc = true;
         [SerializeField]
         private bool fullScreenOnF11 = true;
         [SerializeField]
+        private ActionKeyCommand[] actionKeys;
+        [SerializeField]
         private ButtonKeyCommand[] buttonKeys;
         [SerializeField]
         private ToggleKeyCommand[] toggleKeys;
-        [SerializeField]
-        private ActionKeyCommand[] actionKeys;
         [SerializeField]
         private HierarchyToggles[] objectEnableKeys;
 
@@ -94,7 +108,7 @@ namespace Wrj
 
 			foreach (ActionKeyCommand keyUp in _keyUps)
 			{
-				if (Input.GetKeyUp(keyUp.key))
+				if (GetKeyUp(keyUp.key))
 				{
 					if (!keyUp.ModifierQualified()) continue;
 					if (logKeys)
@@ -105,9 +119,8 @@ namespace Wrj
 				}
 			}
 
-			if (!Input.anyKeyDown) return;
 
-			if (quitOnEsc && Input.GetKeyDown(KeyCode.Escape))
+			if (quitOnEsc && GetKeyDown(KeyCode.Escape))
 			{
 #if UNITY_EDITOR
 			    UnityEditor.EditorApplication.isPlaying = false;
@@ -115,14 +128,14 @@ namespace Wrj
                 Application.Quit();
             }
 
-			if (fullScreenOnF11 && Input.GetKeyDown(KeyCode.F11))
+			if (fullScreenOnF11 && GetKeyDown(KeyCode.F11))
             {
 				Screen.fullScreen = !Screen.fullScreen;
 			}
 
 			foreach (KeyCommand keyCommand in _keyCommands)
 			{
-				if (Input.GetKeyDown(keyCommand.key))
+				if (GetKeyDown(keyCommand.key))
 				{
 					if (!keyCommand.ModifierQualified()) continue;
                     if (logKeys)
@@ -133,6 +146,148 @@ namespace Wrj
 				}
 			}
 		}
+
+        // Prefer the new backend when Active Input Handling is set to Both.
+        private static bool GetKey(KeyCode key)
+        {
+#if ENABLE_INPUT_SYSTEM
+            return GetButton(key)?.isPressed ?? false;
+#elif ENABLE_LEGACY_INPUT_MANAGER
+            return Input.GetKey(key);
+#else
+            return false;
+#endif
+        }
+
+        private bool GetKeyDown(KeyCode key)
+        {
+#if ENABLE_INPUT_SYSTEM
+            return GetButton(key, keyboardMapping)?.wasPressedThisFrame ?? false;
+#elif ENABLE_LEGACY_INPUT_MANAGER
+            return Input.GetKeyDown(key);
+#else
+            return false;
+#endif
+        }
+
+        private bool GetKeyUp(KeyCode key)
+        {
+#if ENABLE_INPUT_SYSTEM
+            return GetButton(key, keyboardMapping)?.wasReleasedThisFrame ?? false;
+#elif ENABLE_LEGACY_INPUT_MANAGER
+            return Input.GetKeyUp(key);
+#else
+            return false;
+#endif
+        }
+
+#if ENABLE_INPUT_SYSTEM
+        private static readonly string[] LayoutKeyLabels = CreateLayoutKeyLabels();
+
+        private static string[] CreateLayoutKeyLabels()
+        {
+            var labels = new string[127];
+            for (int i = 33; i < labels.Length; i++)
+                labels[i] = ((char)i).ToString();
+            return labels;
+        }
+
+        private static ButtonControl GetButton(KeyCode key, KeyboardMapping mapping = KeyboardMapping.PhysicalPosition)
+        {
+            var mouse = Mouse.current;
+            switch (key)
+            {
+                case KeyCode.Mouse0: return mouse?.leftButton;
+                case KeyCode.Mouse1: return mouse?.rightButton;
+                case KeyCode.Mouse2: return mouse?.middleButton;
+                case KeyCode.Mouse3: return mouse?.backButton;
+                case KeyCode.Mouse4: return mouse?.forwardButton;
+            }
+
+            var keyboard = Keyboard.current;
+            if (keyboard == null) return null;
+            // Resolve each query so OS layout switches take effect without a stale cache.
+            // KeyCode's printable values are ASCII; special keys and keypad keys remain physical.
+            int character = (int)key;
+            if (mapping == KeyboardMapping.CurrentLayout && character > 32 && character < 127)
+                return keyboard.FindKeyOnCurrentKeyboardLayout(LayoutKeyLabels[character]);
+
+            var mapped = ToInputSystemKey(key);
+            return mapped == Key.None ? null : keyboard[mapped];
+        }
+
+        // KeyCode values remain serialized so existing scenes and public API stay compatible.
+        // Input System keys refer to physical positions on a US keyboard layout.
+        private static Key ToInputSystemKey(KeyCode key)
+        {
+            if (key >= KeyCode.A && key <= KeyCode.Z)
+                return (Key)((int)Key.A + (int)key - (int)KeyCode.A);
+            if (key >= KeyCode.Alpha1 && key <= KeyCode.Alpha9)
+                return (Key)((int)Key.Digit1 + (int)key - (int)KeyCode.Alpha1);
+            if (key >= KeyCode.Keypad0 && key <= KeyCode.Keypad9)
+                return (Key)((int)Key.Numpad0 + (int)key - (int)KeyCode.Keypad0);
+            if (key >= KeyCode.F1 && key <= KeyCode.F12)
+                return (Key)((int)Key.F1 + (int)key - (int)KeyCode.F1);
+            switch (key)
+            {
+                case KeyCode.Space: return Key.Space;
+                case KeyCode.Tab: return Key.Tab;
+                case KeyCode.BackQuote: return Key.Backquote;
+                case KeyCode.Quote: return Key.Quote;
+                case KeyCode.Semicolon: return Key.Semicolon;
+                case KeyCode.Comma: return Key.Comma;
+                case KeyCode.Period: return Key.Period;
+                case KeyCode.Slash: return Key.Slash;
+                case KeyCode.Backslash: return Key.Backslash;
+                case KeyCode.LeftBracket: return Key.LeftBracket;
+                case KeyCode.RightBracket: return Key.RightBracket;
+                case KeyCode.Minus: return Key.Minus;
+                case KeyCode.Equals: return Key.Equals;
+                case KeyCode.LeftShift: return Key.LeftShift;
+                case KeyCode.RightShift: return Key.RightShift;
+                case KeyCode.LeftAlt: return Key.LeftAlt;
+                case KeyCode.RightAlt: return Key.RightAlt;
+                case KeyCode.Escape: return Key.Escape;
+                case KeyCode.LeftArrow: return Key.LeftArrow;
+                case KeyCode.RightArrow: return Key.RightArrow;
+                case KeyCode.UpArrow: return Key.UpArrow;
+                case KeyCode.DownArrow: return Key.DownArrow;
+                case KeyCode.Backspace: return Key.Backspace;
+                case KeyCode.PageDown: return Key.PageDown;
+                case KeyCode.PageUp: return Key.PageUp;
+                case KeyCode.Home: return Key.Home;
+                case KeyCode.End: return Key.End;
+                case KeyCode.Insert: return Key.Insert;
+                case KeyCode.Delete: return Key.Delete;
+                case KeyCode.CapsLock: return Key.CapsLock;
+                case KeyCode.Pause: return Key.Pause;
+                case KeyCode.F13: return Key.F13;
+                case KeyCode.F14: return Key.F14;
+                case KeyCode.F15: return Key.F15;
+                case KeyCode.Alpha0: return Key.Digit0;
+                case KeyCode.Return: return Key.Enter;
+                case KeyCode.LeftControl: return Key.LeftCtrl;
+                case KeyCode.RightControl: return Key.RightCtrl;
+                case KeyCode.LeftWindows: return Key.LeftMeta;
+                case KeyCode.RightWindows: return Key.RightMeta;
+                case KeyCode.LeftApple: return Key.LeftMeta;
+                case KeyCode.RightApple: return Key.RightMeta;
+                case KeyCode.Menu: return Key.ContextMenu;
+                case KeyCode.Numlock: return Key.NumLock;
+                case KeyCode.Print: return Key.PrintScreen;
+                case KeyCode.ScrollLock: return Key.ScrollLock;
+                case KeyCode.KeypadEnter: return Key.NumpadEnter;
+                case KeyCode.KeypadDivide: return Key.NumpadDivide;
+                case KeyCode.KeypadMultiply: return Key.NumpadMultiply;
+                case KeyCode.KeypadPlus: return Key.NumpadPlus;
+                case KeyCode.KeypadMinus: return Key.NumpadMinus;
+                case KeyCode.KeypadPeriod: return Key.NumpadPeriod;
+                case KeyCode.KeypadEquals: return Key.NumpadEquals;
+                // Joystick buttons and keys with no physical equivalent are unsupported.
+                default: return Key.None;
+            }
+        }
+#endif
 
         [Serializable]
 		public class KeyCommand : IComparable<KeyCommand>
@@ -151,11 +306,11 @@ namespace Wrj
                 // If no modifiers are required, ignore all modifier states
                 if (!ctrl && !shift && !alt && !win) return true;
 
-				bool shiftState =	Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-				bool ctrlState =	Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-				bool altState =		Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
-				bool winState =		Input.GetKey(KeyCode.LeftWindows) || Input.GetKey(KeyCode.RightWindows)
-								 || Input.GetKey(KeyCode.LeftApple) || Input.GetKey(KeyCode.RightApple);
+				bool shiftState =	GetKey(KeyCode.LeftShift) || GetKey(KeyCode.RightShift);
+				bool ctrlState =	GetKey(KeyCode.LeftControl) || GetKey(KeyCode.RightControl);
+				bool altState =		GetKey(KeyCode.LeftAlt) || GetKey(KeyCode.RightAlt);
+				bool winState =		GetKey(KeyCode.LeftWindows) || GetKey(KeyCode.RightWindows)
+								 || GetKey(KeyCode.LeftApple) || GetKey(KeyCode.RightApple);
 				
                 // Return true if all states match requirements
 				return shiftState == shift &&

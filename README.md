@@ -157,7 +157,7 @@ Includes helpers such as:
 ## Compatibility
 
 -   Unity 2022.3+
--   No external dependencies
+-   Unity Input System 1.7.0 (installed automatically through Package Manager)
 
 ------------------------------------------------------------------------
 
@@ -170,3 +170,43 @@ Issues and pull requests are welcome.
 ## License
 
 MIT License
+
+## Keybindings input backends
+
+`Wrj.Keybindings` supports Input Manager (Old), Input System Package (New),
+and Both under **Player > Other Settings > Active Input Handling**. Both uses
+only the new backend, so commands fire once. The package depends on Input System
+1.7.0 or later; Unity Package Manager installs it automatically.
+
+Existing Inspector bindings and the `KeyCode` API remain unchanged. Key down,
+key up, modifiers, Escape to quit, and F11 fullscreen use the selected backend.
+The new backend supports keyboard keys and Mouse0-Mouse4 and safely ignores
+missing devices.
+
+### Keyboard layouts
+
+Set **Keyboard Mapping** on the Keybindings component:
+
+- **Current Layout** (default): letters, digits, and punctuation follow the
+  active OS keyboard layout. A binding to `KeyCode.W` responds to the key labeled
+  W in Windows' active layout, including Dvorak, rather than the US W position.
+- **Physical Position**: bindings use physical US keyboard positions regardless
+  of the active layout. Use this for controls that should stay in the same place.
+
+Existing serialized `KeyCode` bindings do not need conversion. The default also
+applies to existing components that do not yet have a saved Keyboard Mapping
+value. Select Physical Position to retain the previous new-backend behavior.
+Layout changes while running are picked up on the next input query; no restart
+is required. Escape, function keys, arrows, modifiers, Space, and keypad keys
+keep their physical mappings in either mode. Ctrl/Shift/Alt/Win requirements
+continue to work with layout-aware bindings.
+
+Layout lookup uses the key's label, not composed text. A label unavailable on
+the current layout does not trigger a command; there is no physical fallback.
+Use text-input events for typing, shifted characters, dead keys, or IME input.
+Keyboard Mapping applies to the new backend (New or Both); Old uses the legacy
+Input Manager's own mapping settings.
+
+Legacy joystick KeyCodes and Mouse5/Mouse6 are unsupported by the new backend;
+use Input Actions for controller bindings. Physical Position also ignores
+character codes without a mapped physical key equivalent.

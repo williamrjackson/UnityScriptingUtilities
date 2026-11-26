@@ -1,7 +1,9 @@
 {
     "name": "wrj.utils",
     "rootNamespace": "Wrj",
-    "references": [],
+    "references": [
+        "Unity.InputSystem"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

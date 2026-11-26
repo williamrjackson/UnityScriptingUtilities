@@ -207,17 +207,31 @@ namespace Wrj
             }
         }
 
-        public static void SafeTry(System.Action action)
+        // public static void SafeTry(System.Action action)
+        // {
+        //     try
+        //     {
+        //         action();
+        //     }
+        //     catch (System.Exception ex)
+        //     {
+        //         Debug.LogWarning("Exeption: " + ex.Message);
+        //     }
+        // }
+        public static bool SafeTry(System.Action action)
         {
             try
             {
                 action();
+                return true;
             }
             catch (System.Exception ex)
             {
-                Debug.Log("Exeption: " + ex.Message);
+                Debug.LogWarning("Exeption: " + ex.Message);
+                return false;
             }
         }
+
 
         /// Get feet in Unity units/meters
         public static float FromFeet(float feet)
